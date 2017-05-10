@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.search-form .r1 {
+  margin: 0 auto !important;
+  max-width: 380px !important;
+}
+.search-form .r2 {
+  margin: 0 auto !important;
+  max-width: 380px !important;
+}
+.search-form .r3 {
+  margin: 0 auto !important;
+  max-width: 380px !important;
+}
+.search-form .r4 {
+  margin: 0 auto !important;
+  max-width: 380px !important;
+}
+.search-form .area div:first-child {
+  bottom: 15px !important;
+}
+.search-form .area input {
+  margin-top: -4px;
+}
+.arrow-right {
+  margin-top: 23px;
+}
