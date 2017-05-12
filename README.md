@@ -35,3 +35,8 @@ nodemon app.js
 ```
 echo "/etc/init.d/bnbstartup" >> /etc/rc.local
 ```
+
+## Build UI
+```
+NODE_ENV=production npm run build
+```
