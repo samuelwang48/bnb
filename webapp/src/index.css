@@ -28,3 +28,19 @@ body {
 .arrow-right {
   margin-top: 23px;
 }
+.react-grid-Toolbar {
+  padding: 12px 5px;
+}
+.react-grid-Toolbar .tools {
+  float: left;
+}
+.react-grid-Row:hover .react-grid-Cell {
+  background: #d6e9ff;
+}
+input.editor-main:focus,
+select.editor-main:focus {
+  border: 2px solid #000;
+  background: #57cfff;
+  color: #fff;
+  border-radius: 4px;
+}
