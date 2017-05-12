@@ -4,8 +4,6 @@ import R from 'ramda';
 const axios = require('axios');
 const ReactDataGrid = require('react-data-grid');
 const Toolbar = require('./GridToolbar');
-const { Editors, Formatters } = require('react-data-grid-addons');
-const { AutoComplete: AutoCompleteEditor, DropDownEditor } = Editors;
 
 const exampleWrapper = require('./components/exampleWrapper');
 

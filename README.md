@@ -1,13 +1,24 @@
 # bnb
 
 ## To start DB
+### DEV
 ```
 mongod --dbpath data/db
 ```
+### PROD
+```
+cd ~/www/bnb && ~/mongodb/bin/mongod  --fork --logpath /var/log/mongod.log --storageEngine=mmapv1 --dbpath data/db
+```
 
 ## To start DB Admin GUI
+### DEV
 ```
 cd node_modules/mongo-express/ && node app.js
+```
+### PROD
+```
+npm install -g forever
+cd ~/www/bnb/node_modules/mongo-express/ && forever start app.js
 ```
 
 ## To use Chinese airbnb API
@@ -18,4 +29,9 @@ https://zh.airbnb.com
 ```
 cd api
 nodemon app.js
+```
+
+## Add OS Startup Script
+```
+echo "/etc/init.d/bnbstartup" >> /etc/rc.local
 ```
