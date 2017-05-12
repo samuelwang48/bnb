@@ -67,7 +67,7 @@ const Example = React.createClass({
   handleSave() {
     console.log('save', this.state.rows);
     axios
-      .post('http://localhost:8000/host', {data: this.state.rows})
+      .post('http://' + window.location.hostname + ':8000/host', {data: this.state.rows})
       .then(function(response) {
         console.log('saved', response.data)
       });
@@ -91,7 +91,7 @@ const Example = React.createClass({
   componentDidMount() {
     let com = this;
     axios
-      .get('http://localhost:8000/host')
+      .get('http://' + window.location.hostname + ':8000/host')
       .then(function(response) {
         console.log(response.data)
         com.setState({rows: response.data});
