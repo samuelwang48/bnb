@@ -40,3 +40,10 @@ echo "/etc/init.d/bnbstartup" >> /etc/rc.local
 ```
 NODE_ENV=production npm run build
 ```
+
+## Crontab
+```
+@reboot su - root -c '/usr/local/bin/forever start --spinSleepTime=5000 --minUptime=5000 /var/tmp/www/bnb/node_modules/mongo-express/app.js'
+@reboot su - root -c '/usr/local/bin/forever start --spinSleepTime=5000 --minUptime=5000 /var/tmp/www/bnb/api/app.js'
+@reboot /sbin/service httpd restart
+```
