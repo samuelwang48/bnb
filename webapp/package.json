@@ -10,6 +10,7 @@
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "electron-to-chromium": "^1.3.10",
+    "immutable": "^3.8.1",
     "material-ui": "^0.18.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
@@ -22,7 +23,8 @@
     "react-fontawesome": "^1.6.1",
     "react-moment": "^0.2.2",
     "react-router-dom": "^4.1.1",
-    "react-tap-event-plugin": "^2.0.1"
+    "react-tap-event-plugin": "^2.0.1",
+    "reselect": "^3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

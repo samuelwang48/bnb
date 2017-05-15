@@ -9,7 +9,7 @@ import R from 'ramda';
 const axios = require('axios');
 const ReactDataGrid = require('react-data-grid');
 const Toolbar = require('./GridToolbar');
-const { Data: { Selectors } } = require('react-data-grid-addons');
+import Selectors from './Selectors';
 
 const { Row } = ReactDataGrid;
 const exampleWrapper = require('./components/exampleWrapper');
@@ -261,7 +261,6 @@ const Example = React.createClass({
             onClearFilters={this.onClearFilters}
             onGridSort={this.handleGridSort}
             />
-          />
       </div>
     </div>
     );
