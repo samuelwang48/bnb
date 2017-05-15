@@ -37,17 +37,17 @@ const Example = React.createClass({
 
   getInitialState() {
     this._columns = [
-      { key: 'airbnb_pk', name: 'airbnb_pk', editable: true, width: 100},
-      { key: 'wechat',    name: 'wechat',    editable: true, width: 100},
-      { key: 'language',   name: 'r_语言',   editable: true, width: 40},
-      { key: 'airbnb_uid',   name: 'r_uid',   editable: true, width: 80},
-      { key: 'name', name: 'r_name',    editable: true, },
-      { key: 'address', name: 'r_address',    editable: true, },
-      { key: 'region',    name: 'region',    editable: true, width: 100},
-      { key: 'city',      name: 'city',      editable: true, width: 100},
-      { key: 'area',      name: 'area',      editable: true, width: 100},
-      { key: 'bedrooms',   name: 'r_卧室',   editable: true, width: 50},
-      { key: 'beds',       name: 'r_床',       editable: true, width: 50},
+      { key: 'airbnb_pk',       name: 'airbnb_pk', editable: true, width: 100},
+      { key: 'wechat',          name: 'wechat',    editable: true, width: 100},
+      { key: 'list_language',   name: 'r_语言',    editable: true, width: 40},
+      { key: 'list_user_id',    name: 'r_uid',     editable: true, width: 80},
+      { key: 'list_name',       name: 'r_name',    editable: true, },
+      { key: 'list_address',    name: 'r_address', editable: true, },
+      { key: 'region',          name: 'region',    editable: true, width: 100},
+      { key: 'list_localized_city',   name: 'city',      editable: true, width: 100},
+      { key: 'area',            name: 'area',      editable: true, width: 100},
+      { key: 'list_bedrooms',   name: 'r_卧室',    editable: true, width: 50},
+      { key: 'list_beds',       name: 'r_床',      editable: true, width: 50},
     ];
     this._columns.forEach((col)=>{
       col.filterable = true;
@@ -72,15 +72,6 @@ const Example = React.createClass({
 
   rowGetter(i) {
     const row = this.getRows()[i];
-    let t = R.clone(row);
-    row.listing = row.listing || {};
-    row.language = row.listing.language || '';
-    row.airbnb_uid = row.listing.user_id || '';
-    row.name = row.listing.name || '';
-    row.address = row.listing.address || '';
-    row.bedrooms = row.listing.bedrooms || '';
-    row.beds = row.listing.beds || '';
-    row.city = row.listing.localized_city || '';
     return row;
   },
 
@@ -266,14 +257,17 @@ const Example = React.createClass({
     );
   },
 
-  componentDidMount() {
+  componentWillMount() {
     let com = this;
     axios
       .get('http://' + window.location.hostname + ':8000/host')
+      //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
-        console.log(response.data)
         com.setState({rows: response.data});
       });
+  },
+
+  componentDidMount() {
     this.grid.onToggleFilter();
   }
 });

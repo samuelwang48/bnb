@@ -34,16 +34,20 @@ app.post('/fetch', function (req, res) {
     var airbnb_pk = d.airbnb_pk;
     var _id = d._id;
     return new Promise(function(resolve, reject) {
-      airbnb.getInfo(airbnb_pk).then(function(result) {
+      airbnb.getInfo(airbnb_pk).then(function(doc) {
         MongoClient.connect(url, function(err, db) {
            if (_id) {
                delete d._id;
-               d.listing = result.listing;
+               d.listing = doc.listing;
                db.collection('hosts')
                  .replaceOne({_id: ObjectId(_id)}, d)
                  .then(function() {
                    db.close();
                    d._id = _id;
+                   for (var prop in doc.listing) {
+                     d['list_' + prop] = doc.listing[prop];
+                   }
+                   delete d.listing;
                    resolve(d);
                  });
            }
@@ -62,6 +66,12 @@ app.get('/host', function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('hosts').find().toArray(function(err, docs) {
+         docs.forEach(function(doc) {
+            for (var prop in doc.listing) {
+              doc['list_' + prop] = doc.listing[prop];
+            }
+            delete doc.listing;
+         });
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(docs));
          db.close();

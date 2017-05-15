@@ -27,6 +27,7 @@ const getGroupedColumns = (state) => state.groupBy;
 const getExpandedRows = (state) => state.expandedRows;
 const getFlattenedGroupedRows = createSelector([getSortedRows, getGroupedColumns, getExpandedRows], (rows, groupedColumns, expandedRows = {}) => {
   if (!groupedColumns || isEmptyObject(groupedColumns) || isEmptyArray(groupedColumns)) {
+console.log(11111, rows)
     return rows;
   }
   return groupRows(rows, groupedColumns, expandedRows);
