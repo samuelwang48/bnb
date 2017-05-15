@@ -95,6 +95,7 @@ const Toolbar = React.createClass({
           {this.renderSaveButton()}
           &nbsp;
           {this.renderAddRowButton()}
+          &nbsp;
           {this.renderToggleFilterButton()}
           {this.props.children}
           &nbsp;

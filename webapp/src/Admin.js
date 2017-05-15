@@ -9,6 +9,7 @@ import R from 'ramda';
 const axios = require('axios');
 const ReactDataGrid = require('react-data-grid');
 const Toolbar = require('./GridToolbar');
+const { Data: { Selectors } } = require('react-data-grid-addons');
 
 const { Row } = ReactDataGrid;
 const exampleWrapper = require('./components/exampleWrapper');
@@ -40,6 +41,7 @@ const Example = React.createClass({
       { key: 'wechat',    name: 'wechat',    editable: true, width: 100},
       { key: 'language',   name: 'r_语言',   editable: true, width: 40},
       { key: 'airbnb_uid',   name: 'r_uid',   editable: true, width: 80},
+      { key: 'name', name: 'r_name',    editable: true, },
       { key: 'address', name: 'r_address',    editable: true, },
       { key: 'region',    name: 'region',    editable: true, width: 100},
       { key: 'city',      name: 'city',      editable: true, width: 100},
@@ -47,22 +49,34 @@ const Example = React.createClass({
       { key: 'bedrooms',   name: 'r_卧室',   editable: true, width: 50},
       { key: 'beds',       name: 'r_床',       editable: true, width: 50},
     ];
+    this._columns.forEach((col)=>{
+      col.filterable = true;
+      col.sortable = true;
+    });
 
     let rows = [];
 
     return {
       rows: rows,
       selectedIndexes: [],
-      loading: false
+      loading: false,
+      filters: {},
+      sortColumn: null,
+      sortDirection: null
     };
   },
 
+  getRows() {
+    return Selectors.getRows(this.state);
+  },
+
   rowGetter(i) {
-    const row = this.state.rows[i];
+    const row = this.getRows()[i];
     let t = R.clone(row);
     row.listing = row.listing || {};
     row.language = row.listing.language || '';
     row.airbnb_uid = row.listing.user_id || '';
+    row.name = row.listing.name || '';
     row.address = row.listing.address || '';
     row.bedrooms = row.listing.bedrooms || '';
     row.beds = row.listing.beds || '';
@@ -71,11 +85,11 @@ const Example = React.createClass({
   },
 
   getSize() {
-    return this.state.rows.length;
+    return this.getRows().length;
   },
 
   handleGridRowsUpdated({ fromRow, toRow, updated }) {
-    let rows = this.state.rows.slice();
+    let rows = R.clone(this.getRows());
 
     for (let i = fromRow; i <= toRow; i++) {
       let rowToUpdate = rows[i];
@@ -98,15 +112,16 @@ const Example = React.createClass({
       'bed': 0,
     };
 
-    let rows = this.state.rows.slice();
+    let rows = R.clone(this.getRows());
     rows = R.append(newRow, rows);
     this.setState({ rows });
   },
 
   handleSave() {
-    console.log('save', this.state.rows);
+    console.log('save');
+    let rows = R.clone(this.getRows());
     axios
-      .post('http://' + window.location.hostname + ':8000/host', {data: this.state.rows})
+      .post('http://' + window.location.hostname + ':8000/host', {data: rows})
       .then(function(response) {
         confirm(response.data.length + ' rows saved');
         console.log('saved', response.data)
@@ -121,7 +136,7 @@ const Example = React.createClass({
     }
     if (!confirm('Are you sure to delete rows?')) return;
     const com = this;
-    let rows = R.clone(this.state.rows);
+    let rows = R.clone(this.getRows());
     console.log('x', this.state.rows.length)
     const data = R.map((index) => {
       var nth = R.nth(index, com.state.rows);
@@ -151,7 +166,7 @@ const Example = React.createClass({
       return;
     }
     const com = this;
-    let rows = R.clone(this.state.rows);
+    let rows = R.clone(this.getRows());
     const data = R.map((index) => {
       var nth = R.nth(index, com.state.rows);
       return R.pick(['_id', 'airbnb_pk'], nth);
@@ -185,6 +200,25 @@ const Example = React.createClass({
     this.setState({selectedIndexes: this.state.selectedIndexes.filter(i => rowIndexes.indexOf(i) === -1 )});
   },
 
+  handleFilterChange(filter) {
+    let newFilters = Object.assign({}, this.state.filters);
+    if (filter.filterTerm) {
+      newFilters[filter.column.key] = filter;
+    } else {
+      delete newFilters[filter.column.key];
+    }
+    this.setState({ filters: newFilters });
+  },
+
+  onClearFilters() {
+    // all filters removed
+    this.setState({filters: {} });
+  },
+
+  handleGridSort(sortColumn, sortDirection) {
+    this.setState({ sortColumn: sortColumn, sortDirection: sortDirection });
+  },
+
   render() {
 
     return  (
@@ -210,6 +244,7 @@ const Example = React.createClass({
                 onFetch={this.handleFetch}
                 selectedIndexes={this.state.selectedIndexes}
                 rows={this.state.rows}
+                enableFilter={true}
             />}
             onGridRowsUpdated={this.handleGridRowsUpdated}
             rowSelection={{
@@ -222,6 +257,10 @@ const Example = React.createClass({
               }
             }}
             rowRenderer={RowRenderer}
+            onAddFilter={this.handleFilterChange}
+            onClearFilters={this.onClearFilters}
+            onGridSort={this.handleGridSort}
+            />
           />
       </div>
     </div>
@@ -236,6 +275,7 @@ const Example = React.createClass({
         console.log(response.data)
         com.setState({rows: response.data});
       });
+    this.grid.onToggleFilter();
   }
 });
 
