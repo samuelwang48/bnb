@@ -27,6 +27,37 @@ app.get('/', function (req, res) {
   });
 })
 
+app.post('/fetch', function (req, res) {
+  var data = req.body.data;
+
+  var promises = data.map(function(d) {
+    var airbnb_pk = d.airbnb_pk;
+    var _id = d._id;
+    return new Promise(function(resolve, reject) {
+      airbnb.getInfo(airbnb_pk).then(function(result) {
+        MongoClient.connect(url, function(err, db) {
+           if (_id) {
+               delete d._id;
+               d.listing = result.listing;
+               db.collection('hosts')
+                 .replaceOne({_id: ObjectId(_id)}, d)
+                 .then(function() {
+                   db.close();
+                   d._id = _id;
+                   resolve(d);
+                 });
+           }
+        });
+      });
+    });
+  });
+
+  Promise.all(promises).then(function(results) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(results));
+  });
+})
+
 app.get('/host', function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
@@ -58,6 +89,24 @@ app.post('/host', function (req, res) {
                    db.close();
                  });
            }
+       })
+       res.setHeader('Content-Type', 'application/json');
+       res.send(JSON.stringify(data));
+    });
+})
+
+app.delete('/host', function (req, res) {
+    var data = req.body;
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       data.forEach(function(_id) {
+         db.collection('hosts')
+           .deleteOne({_id: ObjectId(_id)})
+           .then(function() {
+             db.close();
+             res.setHeader('Content-Type', 'application/json');
+             res.send(JSON.stringify(data));
+           });
        })
     });
 })

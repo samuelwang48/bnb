@@ -19,7 +19,7 @@ class App extends Component {
         <div className="App">
           <div className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
-            <h2>日本旅游民宿搜索</h2>
+            <h4>日本旅游民宿搜索</h4>
           </div>
           <p className="App-intro">
           </p>

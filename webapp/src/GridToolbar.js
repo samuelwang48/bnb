@@ -24,19 +24,41 @@ const Toolbar = React.createClass({
     }
   },
 
+  onDelete() {
+    if (this.props.onDelete !== null && this.props.onDelete instanceof Function) {
+      this.props.onDelete();
+    }
+  },
+
+  onFetch() {
+    if (this.props.onFetch !== null && this.props.onFetch instanceof Function) {
+      this.props.onFetch();
+    }
+  },
+
   getDefaultProps() {
     return {
       enableAddRow: true,
       addRowButtonText: 'Add Row',
       saveButtonText: 'Save All',
+      deleteButtonText: 'Delete selected rows',
+      fetchButtonText: 'Fetch selected',
       filterRowsButtonText: 'Filter Rows'
     };
   },
 
   renderSaveButton() {
-    if (this.props.onAddRow ) {
+    if (this.props.onSave ) {
       return (<button type="button" className="btn" onClick={this.onSave}>
         {this.props.saveButtonText}
+      </button>);
+    }
+  },
+
+  renderDeleteButton() {
+    if (this.props.onDelete ) {
+      return (<button type="button" className="btn" onClick={this.onDelete}>
+        {this.props.deleteButtonText}
       </button>);
     }
   },
@@ -45,6 +67,14 @@ const Toolbar = React.createClass({
     if (this.props.onAddRow ) {
       return (<button type="button" className="btn" onClick={this.onAddRow}>
         {this.props.addRowButtonText}
+      </button>);
+    }
+  },
+
+  renderFetchButton() {
+    if (this.props.onFetch ) {
+      return (<button type="button" className="btn" onClick={this.onFetch}>
+        {this.props.fetchButtonText}
       </button>);
     }
   },
@@ -58,6 +88,7 @@ const Toolbar = React.createClass({
   },
 
   render() {
+    const rowText = this.props.selectedIndexes.length === 1 ? 'row' : 'rows';
     return (
       <div className="react-grid-Toolbar">
         <div className="tools">
@@ -66,6 +97,12 @@ const Toolbar = React.createClass({
           {this.renderAddRowButton()}
           {this.renderToggleFilterButton()}
           {this.props.children}
+          &nbsp;
+          <span>{this.props.selectedIndexes.length}/{this.props.rows.length} {rowText} selected</span>
+          &nbsp;
+          {this.renderDeleteButton()}
+          &nbsp;
+          {this.renderFetchButton()}
         </div>
       </div>);
   }

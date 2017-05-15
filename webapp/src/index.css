@@ -44,3 +44,12 @@ select.editor-main:focus {
   color: #fff !important;
   border-radius: 4px !important;
 }
+.line-through * {
+  text-decoration: line-through;
+  color: red;
+}
+.spinner {
+  position: fixed;
+  top: 11px;
+  left: 100px;
+}
