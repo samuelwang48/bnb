@@ -13,6 +13,7 @@ import {
 import './index.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './fa/font-awesome-4.7.0/css/font-awesome.min.css';
+import "../node_modules/react-image-gallery/styles/css/image-gallery.css";
 
 class Search extends Component {
   render() {

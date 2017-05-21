@@ -50,6 +50,6 @@ select.editor-main:focus {
 }
 .spinner {
   position: fixed;
-  top: 11px;
-  left: 100px;
+  top: 3px;
+  right: 3px;
 }

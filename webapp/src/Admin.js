@@ -13,12 +13,14 @@ const ReactDataGrid = require('../react-data-grid/packages/react-data-grid/dist/
 const Toolbar = require('./react-data-grid-override/GridToolbar');
 import Selectors from './react-data-grid-override/Selectors';
 
-const { Row } = ReactDataGrid;
 const exampleWrapper = require('./components/exampleWrapper');
+
+import {Grid, Row, Col} from 'react-bootstrap';
+import ImageGallery from 'react-image-gallery';
 
 const DetailsFormatter = React.createClass({
   onClick() {
-    this.props.onClick();
+    this.props.onClick(this);
   },
 
   render() {
@@ -44,6 +46,7 @@ const RowRenderer = React.createClass({
   },
 
   render: function() {
+    const Row = ReactDataGrid.Row;
     // here we are just changing the style
     // but we could replace this with anything we liked, cards, images, etc
     // usually though it will just be a matter of wrapping a div, and then calling back through to the grid
@@ -55,7 +58,7 @@ const Example = React.createClass({
 
   getInitialState() {
     this._columns = [
-      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick}></DetailsFormatter>},
+      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}></DetailsFormatter>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
@@ -104,7 +107,10 @@ const Example = React.createClass({
       filters: {},
       sortColumn: null,
       sortDirection: null,
-      drawerOpen: false
+      drawerOpen: false,
+      current: {
+        images: []
+      },
     };
   },
 
@@ -128,9 +134,23 @@ const Example = React.createClass({
     return this.getRows().length;
   },
 
-  handleDetailsClick() {
+  handleDetailsClick(r) {
+    const i = r.props.rowIdx;
+    const row = this.getRows()[i];
     let drawerOpen = true;
-    this.setState({ drawerOpen });
+    let current = row;
+    if (!row.list_thumbnail_urls) {
+      alert('Please fetch details first!');
+      return;
+    }
+    current.images = row.list_thumbnail_urls.map(function(t) {
+      return {
+        original: t.replace(/small$/, 'large'),
+        thumbnail: t,
+      }
+    });
+
+    this.setState({ drawerOpen, current });
   },
 
   handleGridRowsUpdated({ fromRow, toRow, updated }) {
@@ -237,7 +257,6 @@ const Example = React.createClass({
   },
 
   onRowsSelected(rows) {
-console.log(rows)
     this.setState({selectedIndexes: this.state.selectedIndexes.concat(rows.map(r => r.rowIdx))});
   },
 
@@ -265,8 +284,8 @@ console.log(rows)
     this.setState({ sortColumn: sortColumn, sortDirection: sortDirection });
   },
 
-  onHeaderScroll() {
-    console.log(3333333333)
+  prepareGallery() {
+    
   },
 
   render() {
@@ -320,6 +339,23 @@ console.log(rows)
           onRequestChange={(drawerOpen) => this.setState({drawerOpen})}
           openSecondary={true}
         >
+          <Grid>
+            <Row>
+              <Col md={12}>
+                r1
+              </Col>
+            </Row>
+            <Row>
+              <Col md={12}>
+                r2
+              </Col>
+            </Row>
+          </Grid>
+          <div>
+            <ImageGallery
+              items={this.state.current.images}
+              slideInterval={2000}/>
+          </div>
         </Drawer>
       </div>
     </div>
