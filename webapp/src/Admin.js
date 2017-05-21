@@ -4,15 +4,33 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 //import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import CircularProgress from 'material-ui/CircularProgress';
+import Drawer from 'material-ui/Drawer';
+
 import R from 'ramda';
 
 const axios = require('axios');
-const ReactDataGrid = require('react-data-grid');
-const Toolbar = require('./GridToolbar');
-import Selectors from './Selectors';
+const ReactDataGrid = require('../react-data-grid/packages/react-data-grid/dist/react-data-grid');
+const Toolbar = require('./react-data-grid-override/GridToolbar');
+import Selectors from './react-data-grid-override/Selectors';
 
 const { Row } = ReactDataGrid;
 const exampleWrapper = require('./components/exampleWrapper');
+
+const DetailsFormatter = React.createClass({
+  onClick() {
+    this.props.onClick();
+  },
+
+  render() {
+    return (
+      <div style={{textAlign: 'center', cursor: 'pointer'}}
+           onClick={this.onClick}>
+        <i className="fa fa-window-maximize"></i>
+      </div>
+    )
+  }
+});
+
 
 const RowRenderer = React.createClass({
 
@@ -37,17 +55,40 @@ const Example = React.createClass({
 
   getInitialState() {
     this._columns = [
-      { key: 'airbnb_pk',       name: 'airbnb_pk', editable: true, width: 100},
-      { key: 'wechat',          name: 'wechat',    editable: true, width: 100},
-      { key: 'list_language',   name: 'r_语言',    editable: true, width: 40},
-      { key: 'list_user_id',    name: 'r_uid',     editable: true, width: 80},
-      { key: 'list_name',       name: 'r_name',    editable: true, },
-      { key: 'list_address',    name: 'r_address', editable: true, },
-      { key: 'region',          name: 'region',    editable: true, width: 100},
-      { key: 'list_localized_city',   name: 'city',      editable: true, width: 100},
-      { key: 'area',            name: 'area',      editable: true, width: 100},
-      { key: 'list_bedrooms',   name: 'r_卧室',    editable: true, width: 50},
-      { key: 'list_beds',       name: 'r_床',      editable: true, width: 50},
+      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick}></DetailsFormatter>},
+      { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
+      { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
+      //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
+      { key: 'list_user_first_name', name: '名',       editable: true, width: 80},
+///*
+      { key: 'wechat',          name: '$wechat',    editable: true, width: 100},
+      { key: 'region',          name: '$region',    editable: true, width: 100},
+      { key: 'city',            name: '$city',      editable: true, width: 100},
+      { key: 'area',            name: '$area',      editable: true, width: 100},
+//*/
+      { key: 'list_language',         name: '语言',   editable: true, width: 40},
+      { key: 'list_native_currency',  name: '货币',   editable: true, width: 50},
+      { key: 'list_bedrooms',         name: '卧室',   editable: true, width: 50},
+      { key: 'list_beds',             name: '床',     editable: true, width: 50},
+      { key: 'list_bathrooms',        name: '浴室',   editable: true, width: 50},
+      { key: 'list_min_nights',       name: '最少晚数',   editable: true, width: 80},
+      { key: 'list_person_capacity',  name: '可住人数',   editable: true, width: 80},
+      { key: 'list_price_formatted',  name: '价格',       editable: true, width: 60},
+      { key: 'list_price_for_extra_person_native',  name: '超员费',   editable: true, width: 60},
+      { key: 'list_property_type',    name: '房屋类',     editable: true, width: 50},
+      { key: 'list_reviews_count',    name: '评价',       editable: true, width: 50},
+      { key: 'list_room_type_category',      name: '房间类',     editable: true, width: 50},
+      { key: 'list_check_in_time',           name: '入住时间',   editable: true, width: 80},
+      { key: 'list_check_in_time_ends_at',   name: '最晚',       editable: true, width: 50},
+      { key: 'list_check_out_time',          name: '退房时间',   editable: true, width: 80},
+      { key: 'list_guests_included',         name: '标准人数',   editable: true, width: 80},
+      { key: 'list_map_image_url',           name: '地图图片',   editable: true, width: 80},
+      { key: 'list_cleaning_fee_native',     name: '清洁费',     editable: true, width: 50},
+      { key: 'list_security_deposit_native', name: '押金',       editable: true, width: 50},
+      { key: 'list_name',             name: '标题',   editable: true, width: 200},
+      { key: 'list_address',          name: '地址',   editable: true, width: 200},
+      { key: 'list_localized_city',   name: '城市',   editable: true, width: 100},
+      { key: 'list_zipcode',          name: '邮编',   editable: true, width: 50},
     ];
     this._columns.forEach((col)=>{
       col.filterable = true;
@@ -62,7 +103,8 @@ const Example = React.createClass({
       loading: false,
       filters: {},
       sortColumn: null,
-      sortDirection: null
+      sortDirection: null,
+      drawerOpen: false
     };
   },
 
@@ -72,11 +114,23 @@ const Example = React.createClass({
 
   rowGetter(i) {
     const row = this.getRows()[i];
+    this._columns.forEach(function(col) {
+      row[col.key] = row[col.key] || '';
+    });
+    if (row.list_user) {
+      row.list_user_first_name = row.list_user.user.first_name;
+      row.list_user_last_name = row.list_user.user.last_name;
+    }
     return row;
   },
 
   getSize() {
     return this.getRows().length;
+  },
+
+  handleDetailsClick() {
+    let drawerOpen = true;
+    this.setState({ drawerOpen });
   },
 
   handleGridRowsUpdated({ fromRow, toRow, updated }) {
@@ -183,6 +237,7 @@ const Example = React.createClass({
   },
 
   onRowsSelected(rows) {
+console.log(rows)
     this.setState({selectedIndexes: this.state.selectedIndexes.concat(rows.map(r => r.rowIdx))});
   },
 
@@ -210,6 +265,10 @@ const Example = React.createClass({
     this.setState({ sortColumn: sortColumn, sortDirection: sortDirection });
   },
 
+  onHeaderScroll() {
+    console.log(3333333333)
+  },
+
   render() {
 
     return  (
@@ -227,7 +286,7 @@ const Example = React.createClass({
             columns={this._columns}
             rowGetter={this.rowGetter}
             rowsCount={this.getSize()}
-            minHeight={500}
+            minHeight={800}
             toolbar={<Toolbar
                 onAddRow={this.handleAddRow}
                 onSave={this.handleSave}
@@ -252,6 +311,16 @@ const Example = React.createClass({
             onClearFilters={this.onClearFilters}
             onGridSort={this.handleGridSort}
             />
+      </div>
+      <div>
+        <Drawer
+          docked={false}
+          width={500}
+          open={this.state.drawerOpen}
+          onRequestChange={(drawerOpen) => this.setState({drawerOpen})}
+          openSecondary={true}
+        >
+        </Drawer>
       </div>
     </div>
     );
@@ -278,7 +347,6 @@ class Admin extends Component {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
-        <h2>Admin</h2>
         <div>
           <Example>
           </Example>

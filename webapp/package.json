@@ -16,7 +16,6 @@
     "moment-timezone": "^0.5.13",
     "ramda": "^0.23.0",
     "react": "^15.5.4",
-    "react-data-grid": "^2.0.39",
     "react-data-grid-addons": "^2.0.41",
     "react-date-range": "^0.9.3",
     "react-dom": "^15.5.4",
