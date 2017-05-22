@@ -122,6 +122,49 @@ app.delete('/host', function (req, res) {
     });
 })
 
+app.get('/currency',  function (req, res) {
+    MongoClient.connect(url, function(err, db) {
+      db.collection('currency').find().toArray(function(err, rates) {
+        if (rates.length === 1) {
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify(rates));
+        } else {
+          res.setHeader('Content-Type', 'application/json');
+          res.send(JSON.stringify([{
+            usd2jpy: -1,
+            usd2cny: -1,
+          }]));
+        }
+        db.close();
+      });
+    });
+})
+
+app.post('/currency', function (req, res) {
+    var data = req.body.data;
+    var _db;
+    var insertOne = function() {
+      _db.collection('currency')
+        .insertOne(data.currency)
+        .then(function(err, r) {
+           res.setHeader('Content-Type', 'application/json');
+           res.send(JSON.stringify(data));
+           db.close();
+        });
+    };
+
+    MongoClient.connect(url, function(err, db) {
+       _db = db;
+       db.collection('currency').find().toArray(function(err, rates) {
+         if (rates.length === 0 && data.currency) {
+            insertOne();
+         } else {
+            db.collection('currency').drop(insertOne);
+         }
+       });
+    });
+})
+
 app.listen(8000, function () {
   console.log('Example app listening on port 8000!')
 })

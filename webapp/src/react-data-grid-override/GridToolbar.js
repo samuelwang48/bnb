@@ -1,5 +1,15 @@
 const React = require('react');
 require('../../react-data-grid/themes/react-data-grid-toolbar.css');
+import Popover from 'material-ui/Popover';
+import {
+  Form,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Button,
+  Row,
+  Col
+} from 'react-bootstrap';
 
 const Toolbar = React.createClass({
   propTypes: {
@@ -43,8 +53,8 @@ const Toolbar = React.createClass({
       saveButtonText: 'Save All',
       deleteButtonText: 'Delete selected rows',
       fetchButtonText: 'Fetch selected',
-      currencyButtonText: 'Maintain Currency',
-      filterRowsButtonText: 'Filter Rows'
+      currencyButtonText: 'Currency Exchange Rate',
+      filterRowsButtonText: 'Filter Rows',
     };
   },
 
@@ -80,10 +90,144 @@ const Toolbar = React.createClass({
     }
   },
 
+  onCurrencyUse(type) {
+    let currency = {
+      usd2jpy: parseFloat(this.usd2jpy.value),
+      usd2cny: parseFloat(this.usd2cny.value),
+    };
+    this.props.onCurrencyUse(type, currency);
+  },
+
+  onCurrencySave() {
+    let currency = {
+      usd2jpy: parseFloat(this.usd2jpy.value),
+      usd2cny: parseFloat(this.usd2cny.value),
+    };
+    this.props.onCurrencySave(currency);
+  },
+
+  componentDidMount() {
+  },
+
   renderCurrencyButton() {
-    return (<button type="button" className="btn">
-      {this.props.currencyButtonText}
-    </button>);
+
+    return (
+      <span>
+        <button
+          ref={(btn) => { this.currencyButton = btn; }}
+          type="button"
+          className="btn"
+          onTouchTap={this.props.onCurrencyPopoverTap}>
+          {this.props.currencyButtonText}
+        </button>
+        <Popover
+          open={this.props.currencyOpen}
+          anchorEl={this.currencyButton}
+          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+          targetOrigin={{horizontal: 'left', vertical: 'top'}}
+          onRequestClose={this.props.onCurrencyPopoverClose}
+        >
+          <div style={{padding: 10}}>
+            <Row>
+              <Col md={12}>
+                <Form inline>
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>USD</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 value={1}
+                                 disabled={true}
+                                 style={{width: 40}} />
+                  </FormGroup>
+                  {' : '}
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>USD</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 disabled={true}
+                                 defaultValue={1}
+                                 style={{width: 70}} />
+                  </FormGroup>
+                    {' '}
+                  <FormGroup>
+                    <Button type="button"
+                            onClick={this.onCurrencyUse.bind(this, 'usd')}>
+                      Use
+                    </Button>
+                  </FormGroup>
+                </Form>
+              </Col>
+            </Row>
+            <Row style={{marginTop: 5}}>
+              <Col md={12}>
+                <Form inline>
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>USD</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 value={1}
+                                 style={{width: 40}} />
+                  </FormGroup>
+                  {' : '}
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>JPY</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 inputRef={(ref) => { this.usd2jpy = ref; }}
+                                 defaultValue={this.props.currency.usd2jpy}
+                                 style={{width: 70}} />
+                  </FormGroup>
+                    {' '}
+                  <FormGroup>
+                    <Button type="button"
+                            onClick={this.onCurrencyUse.bind(this, 'jpy')}>
+                      Use
+                    </Button>
+                  </FormGroup>
+                </Form>
+              </Col>
+            </Row>
+            <Row style={{marginTop: 5}}>
+              <Col md={12}>
+                <Form inline>
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>USD</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 value={1}
+                                 style={{width: 40}} />
+                  </FormGroup>
+                  {' : '}
+                  <FormGroup>
+                    <ControlLabel style={{width: 40}}>CNY</ControlLabel>
+                    {' '}
+                    <FormControl type="text"
+                                 inputRef={(ref) => { this.usd2cny = ref; }}
+                                 defaultValue={this.props.currency.usd2cny}
+                                 style={{width: 70}} />
+                  </FormGroup>
+                    {' '}
+                  <FormGroup>
+                    <Button type="button"
+                            onClick={this.onCurrencyUse.bind(this, 'cny')}>
+                      Use
+                    </Button>
+                  </FormGroup>
+                </Form>
+              </Col>
+            </Row>
+            <Row style={{marginTop: 10}}>
+              <Col md={12} style={{textAlign: 'center'}}>
+                <Button type="submit"
+                        onClick={this.onCurrencySave}>
+                  Save
+                </Button>
+              </Col>
+            </Row>
+          </div>
+        </Popover>
+      </span>
+    );
   },
 
   renderToggleFilterButton() {

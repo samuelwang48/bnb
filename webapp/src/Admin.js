@@ -70,14 +70,16 @@ const Example = React.createClass({
       { key: 'area',            name: '$area',      editable: true, width: 100},
 //*/
       { key: 'list_language',         name: '语言',   editable: true, width: 40},
-      { key: 'list_native_currency',  name: '货币',   editable: true, width: 50},
+      { key: 'list_native_currency',  name: '接受货币',   editable: true, width: 80},
       { key: 'list_bedrooms',         name: '卧室',   editable: true, width: 50},
       { key: 'list_beds',             name: '床',     editable: true, width: 50},
       { key: 'list_bathrooms',        name: '浴室',   editable: true, width: 50},
       { key: 'list_min_nights',       name: '最少晚数',   editable: true, width: 80},
       { key: 'list_person_capacity',  name: '可住人数',   editable: true, width: 80},
-      { key: 'list_price_formatted',  name: '价格',       editable: true, width: 60},
-      { key: 'list_price_for_extra_person_native',  name: '超员费',   editable: true, width: 60},
+      { key: 'list_price_conv',        name: '价格',       editable: true, width: 70},
+      { key: 'list_price_conv_for_extra_person_native',  name: '超员费',   editable: true, width: 70},
+      { key: 'list_conv_cleaning_fee_native',            name: '清洁费',   editable: true, width: 70},
+      { key: 'list_conv_security_deposit_native',        name: '押金',     editable: true, width: 70},
       { key: 'list_property_type',    name: '房屋类',     editable: true, width: 50},
       { key: 'list_reviews_count',    name: '评价',       editable: true, width: 50},
       { key: 'list_room_type_category',      name: '房间类',     editable: true, width: 50},
@@ -86,8 +88,6 @@ const Example = React.createClass({
       { key: 'list_check_out_time',          name: '退房时间',   editable: true, width: 80},
       { key: 'list_guests_included',         name: '标准人数',   editable: true, width: 80},
       { key: 'list_map_image_url',           name: '地图图片',   editable: true, width: 80},
-      { key: 'list_cleaning_fee_native',     name: '清洁费',     editable: true, width: 50},
-      { key: 'list_security_deposit_native', name: '押金',       editable: true, width: 50},
       { key: 'list_name',             name: '标题',   editable: true, width: 200},
       { key: 'list_address',          name: '地址',   editable: true, width: 200},
       { key: 'list_localized_city',   name: '城市',   editable: true, width: 100},
@@ -96,11 +96,13 @@ const Example = React.createClass({
     this._columns.forEach((col)=>{
       col.filterable = true;
       col.sortable = true;
+      col.resizable = true;
     });
 
     let rows = [];
 
     return {
+      api: 'http://' + window.location.hostname + ':8000',
       rows: rows,
       selectedIndexes: [],
       loading: false,
@@ -111,6 +113,12 @@ const Example = React.createClass({
       current: {
         images: []
       },
+      currencyPopoverOpen: false,
+      currency: {
+        usd2jpy: -1,
+        usd2cny: -1,
+      },
+      currentCurrency: 'usd'
     };
   },
 
@@ -126,6 +134,35 @@ const Example = React.createClass({
     if (row.list_user) {
       row.list_user_first_name = row.list_user.user.first_name;
       row.list_user_last_name = row.list_user.user.last_name;
+    }
+    // first convert to usd
+    if (row.list_native_currency === 'USD') {
+      row.list_price_usd                         = row.list_price;
+      row.list_price_usd_for_extra_person_native = row.list_price_for_extra_person_native;
+      row.list_usd_cleaning_fee_native           = row.list_cleaning_fee_native;
+      row.list_usd_security_deposit_native       = row.list_security_deposit_native ? row.list_security_deposit_native : 0;
+      // then calculate other currencies based on currentCurrency
+      if (this.state.currentCurrency === 'usd') {
+        // do nothing
+        row.list_price_conv                         = '$' + row.list_price_usd;
+        row.list_price_conv_for_extra_person_native = '$' + row.list_price_usd_for_extra_person_native;
+        row.list_conv_cleaning_fee_native           = '$' + row.list_usd_cleaning_fee_native;
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? '$' + row.list_usd_security_deposit_native : '-';
+      }
+      else if (this.state.currentCurrency === 'jpy') {
+        const usd2jpy = this.state.currency.usd2jpy;
+        row.list_price_conv                         = row.list_price_usd * usd2jpy + '円';
+        row.list_price_conv_for_extra_person_native = row.list_price_usd_for_extra_person_native * usd2jpy + '円';
+        row.list_conv_cleaning_fee_native           = row.list_usd_cleaning_fee_native * usd2jpy + '円';
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? row.list_usd_security_deposit_native * usd2jpy + '円' : '-';
+      }
+      else if (this.state.currentCurrency === 'cny') {
+        const usd2cny = this.state.currency.usd2cny;
+        row.list_price_conv                         = row.list_price_usd * usd2cny + '元';
+        row.list_price_conv_for_extra_person_native = row.list_price_usd_for_extra_person_native * usd2cny + '元';
+        row.list_conv_cleaning_fee_native           = row.list_usd_cleaning_fee_native * usd2cny + '元';
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? row.list_usd_security_deposit_native * usd2cny + '元' : '-';
+      }
     }
     return row;
   },
@@ -153,14 +190,16 @@ const Example = React.createClass({
     this.setState({ drawerOpen, current });
   },
 
-  handleGridRowsUpdated({ fromRow, toRow, updated }) {
+  handleGridRowsUpdated({ fromRow = null, toRow = null, updated = null }) {
     let rows = R.clone(this.getRows());
+    fromRow = fromRow || 0;
+    toRow = toRow || rows.length -1;
+    updated = updated || {};
 
     for (let i = fromRow; i <= toRow; i++) {
       let rowToUpdate = rows[i];
       let updatedRow = R.merge(rowToUpdate, updated);
       rows[i] = updatedRow;
-      console.log(rows[i], i)
     }
 
     this.setState({ rows });
@@ -185,8 +224,9 @@ const Example = React.createClass({
   handleSave() {
     console.log('save');
     let rows = R.clone(this.getRows());
+    const api = this.state.api;
     axios
-      .post('http://' + window.location.hostname + ':8000/host', {data: rows})
+      .post(api + '/host', {data: rows})
       .then(function(response) {
         confirm(response.data.length + ' rows saved');
         console.log('saved', response.data)
@@ -211,8 +251,9 @@ const Example = React.createClass({
     })(this.state.selectedIndexes);
 
     console.log('y', rows.length)
+    const api = this.state.api;
     axios
-      .delete('http://' + window.location.hostname + ':8000/host', {data: data})
+      .delete(api + '/host', {data: data})
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -237,8 +278,9 @@ const Example = React.createClass({
       return R.pick(['_id', 'airbnb_pk'], nth);
     })(this.state.selectedIndexes);
 
+    const api = this.state.api;
     axios
-      .post('http://' + window.location.hostname + ':8000/fetch', {
+      .post(api + '/fetch', {
          data: data
       })
       .then(function(response) {
@@ -284,8 +326,30 @@ const Example = React.createClass({
     this.setState({ sortColumn: sortColumn, sortDirection: sortDirection });
   },
 
-  prepareGallery() {
+  handleCurrencyTap() {
+    this.setState({ currencyPopoverOpen: true });
+  },
+
+  handleCurrencyClose() {
+    this.setState({ currencyPopoverOpen: false });
+  },
+
+  handleCurrencyUse(type, currency) {
+    this.setState({ currencyPopoverOpen: false, currency: currency,
+                    currentCurrency: type});
+    this.handleGridRowsUpdated({});
+  },
+
+  handleCurrencySave(currency) {
+    this.setState({ currencyPopoverOpen: false, currency: currency });
     
+    const api = this.state.api;
+    axios
+      .post(api + '/currency', {data: {currency}})
+      .then(function(response) {
+        confirm('currency exchange rates saved');
+        console.log('currency exchange rates saved', response.data)
+      });
   },
 
   render() {
@@ -314,6 +378,12 @@ const Example = React.createClass({
                 selectedIndexes={this.state.selectedIndexes}
                 rows={this.state.rows}
                 enableFilter={true}
+                currencyOpen={this.state.currencyPopoverOpen}
+                onCurrencyPopoverClose={this.handleCurrencyClose}
+                onCurrencyPopoverTap={this.handleCurrencyTap}
+                currency={this.state.currency}
+                onCurrencyUse={this.handleCurrencyUse}
+                onCurrencySave={this.handleCurrencySave}
             />}
             onGridRowsUpdated={this.handleGridRowsUpdated}
             rowSelection={{
@@ -364,11 +434,18 @@ const Example = React.createClass({
 
   componentWillMount() {
     let com = this;
+    const api = this.state.api;
     axios
-      .get('http://' + window.location.hostname + ':8000/host')
+      .get(api + '/host')
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
         com.setState({rows: response.data});
+      });
+
+    axios
+      .get(api + '/currency')
+      .then(function(response) {
+        com.setState({currency: response.data[0]});
       });
   },
 
