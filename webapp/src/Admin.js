@@ -1,19 +1,23 @@
 import React, { Component } from 'react';
+
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 //import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import CircularProgress from 'material-ui/CircularProgress';
 import Drawer from 'material-ui/Drawer';
+import MenuItem from 'material-ui/MenuItem';
 
 import R from 'ramda';
 
 const axios = require('axios');
+
 const ReactDataGrid = require('../react-data-grid/packages/react-data-grid/dist/react-data-grid');
 const Toolbar = require('./react-data-grid-override/GridToolbar');
 import Selectors from './react-data-grid-override/Selectors';
 
-const exampleWrapper = require('./components/exampleWrapper');
+import { geo, getGeo } from './Geo';
+import { RegionEditor } from './Editors';
 
 import {Grid, Row, Col} from 'react-bootstrap';
 import ImageGallery from 'react-image-gallery';
@@ -32,7 +36,6 @@ const DetailsFormatter = React.createClass({
     )
   }
 });
-
 
 const RowRenderer = React.createClass({
 
@@ -58,15 +61,15 @@ const Example = React.createClass({
 
   getInitialState() {
     this._columns = [
-      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}></DetailsFormatter>},
+      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
       { key: 'list_user_first_name', name: '名',       editable: true, width: 80},
 ///*
       { key: 'wechat',          name: '$wechat',    editable: true, width: 100},
-      { key: 'region',          name: '$region',    editable: true, width: 100},
-      { key: 'city',            name: '$city',      editable: true, width: 100},
+      { key: 'region',          name: '$region',    editable: true, width: 100, editor: <RegionEditor items={this.getRegions} col="region" onUpdate={this.handleGeoUpdated} />},
+      { key: 'city',            name: '$city',      editable: true, width: 100, editor: <RegionEditor items={this.getCities} col="city" onUpdate={this.handleGeoUpdated} />},
       { key: 'area',            name: '$area',      editable: true, width: 100},
 //*/
       { key: 'list_language',         name: '语言',   editable: true, width: 40},
@@ -99,11 +102,9 @@ const Example = React.createClass({
       col.resizable = true;
     });
 
-    let rows = [];
-
     return {
       api: 'http://' + window.location.hostname + ':8000',
-      rows: rows,
+      rows: [],
       selectedIndexes: [],
       loading: false,
       filters: {},
@@ -111,15 +112,84 @@ const Example = React.createClass({
       sortDirection: null,
       drawerOpen: false,
       current: {
-        images: []
+        images: [],
+        regionId: -1,
+        cityId: -1,
       },
       currencyPopoverOpen: false,
       currency: {
         usd2jpy: -1,
         usd2cny: -1,
       },
-      currentCurrency: 'usd'
+      currentCurrency: 'usd',
     };
+  },
+
+  handleGeoUpdated(col, item) {
+    const type = col + 'Id';
+    let current = this.state.current;
+        current[type] = item.id;
+
+    if (col === 'city') {
+      let region;
+      let stop = false;
+      const city = item.id;
+      if (city !== -1) {
+        geo.forEach((g, i) => {
+          if (/==/.test(g) && stop === false) {
+            region = i;
+          }
+          if ( i >= city ) {
+            stop = true;
+          }
+        });
+        region = geo[region].replace(/[=\[\]]/g, '');
+      } else {
+        region = '全部省份';
+      }
+      this.getRows()[this.state.current.rowIdx].region = region;
+      current.region = region;
+      this.setState({current});
+    }
+  },
+
+  getRegions() {
+    return getGeo().regions.map(function(g){
+      return {
+        id: g.props.value,
+        title: g.props.primaryText
+      }
+    })
+  },
+
+  getCities() {
+    const region = typeof this.state.current.regionId === 'undefined'
+                 ? -1 : this.state.current.regionId;
+    let cities = [];
+    let stop = false;
+
+    if (region === -1) {
+      cities = getGeo().cities;
+    } else {
+      geo.forEach((g, i) => {
+        if (i > region && stop === false) {
+          if (/==/.test(g)) {
+            stop = true;
+          } else {
+            g = g.replace(/\*\[\[/, '')
+                 .replace(/\]\].*$/, '');
+            cities.push(<MenuItem value={i} key={i} primaryText={`${g}`} />);
+          }
+        }
+      })
+      cities.splice(0, 0, <MenuItem value={-1} key={-1} primaryText={`全部城市`} />);
+    }
+    return cities.map(function(g){
+      return {
+        id: g.props.value,
+        title: g.props.primaryText
+      }
+    })
   },
 
   getRows() {
@@ -172,28 +242,35 @@ const Example = React.createClass({
   },
 
   handleDetailsClick(r) {
-    const i = r.props.rowIdx;
-    const row = this.getRows()[i];
+    // const i = r.props.rowIdx;
+    // const row = this.getRows()[i];
     let drawerOpen = true;
-    let current = row;
+
+    this.setState({ drawerOpen });
+  },
+
+  handleRowClick(i) {
+    const row = this.getRows()[i];
+    const current = this.getRows()[i];
     if (!row.list_thumbnail_urls) {
       alert('Please fetch details first!');
       return;
+    } else {
+      current.images = row.list_thumbnail_urls.map(function(t) {
+        return {
+          original: t.replace(/small$/, 'large'),
+          thumbnail: t,
+        }
+      });
     }
-    current.images = row.list_thumbnail_urls.map(function(t) {
-      return {
-        original: t.replace(/small$/, 'large'),
-        thumbnail: t,
-      }
-    });
-
-    this.setState({ drawerOpen, current });
+    current.rowIdx = i;
+    this.setState({ current });
   },
 
   handleGridRowsUpdated({ fromRow = null, toRow = null, updated = null }) {
     let rows = R.clone(this.getRows());
-    fromRow = fromRow || 0;
-    toRow = toRow || rows.length -1;
+    fromRow = typeof fromRow === 'undefined' ? 0 : fromRow;
+    toRow = typeof toRow === 'undefined' ? rows.length -1 : toRow;
     updated = updated || {};
 
     for (let i = fromRow; i <= toRow; i++) {
@@ -272,7 +349,6 @@ const Example = React.createClass({
       return;
     }
     const com = this;
-    let rows = R.clone(this.getRows());
     const data = R.map((index) => {
       var nth = R.nth(index, com.state.rows);
       return R.pick(['_id', 'airbnb_pk'], nth);
@@ -399,6 +475,7 @@ const Example = React.createClass({
             onAddFilter={this.handleFilterChange}
             onClearFilters={this.onClearFilters}
             onGridSort={this.handleGridSort}
+            onRowClick={this.handleRowClick}
             />
       </div>
       <div>

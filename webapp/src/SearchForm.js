@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-
 import moment from 'moment'
 
 import {GridList, GridTile} from 'material-ui/GridList';
@@ -14,9 +9,6 @@ import TextField from 'material-ui/TextField';
 
 import RaisedButton from 'material-ui/RaisedButton';
 import Popover from 'material-ui/Popover';
-import Menu from 'material-ui/Menu';
-
-import FontIcon from 'material-ui/FontIcon';
 
 import { DateRange } from 'react-date-range';
 
@@ -24,32 +16,8 @@ import FontAwesome from 'react-fontawesome';
 
 import { Link } from 'react-router-dom';
 
-import geo from '../../geodata';
+import { geo, getGeo } from './Geo';
 
-//console.log(geo);
-
-const getGeo = () => {
-  let regions = [];
-  let cities = [];
-  geo.forEach((g, i) => {
-    if (/==/.test(g)) {
-      g = g.replace(/[=\[\]]/g, '');
-      regions.push(<MenuItem value={i} key={i} primaryText={`${g}`} />);
-    }
-    else {
-      g = g.replace(/\*\[\[/, '')
-           .replace(/\]\].*$/, '');
-      cities.push(<MenuItem value={i} key={i} primaryText={`${g}`} />);
-    }
-  })
-  regions.splice(0, 0, <MenuItem value={-1} key={-1} primaryText={`全部省份`} />);
-  cities.splice(0, 0, <MenuItem value={-1} key={-1} primaryText={`全部城市`} />);
-
-  return {
-    regions: regions,
-    cities: cities,
-  }
-}
 
 const person = [];
 person.push(<MenuItem value={-1} key={-1} primaryText={`人数`} />);

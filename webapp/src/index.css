@@ -37,6 +37,11 @@ body {
 .react-grid-Row:hover .react-grid-Cell {
   background: #d6e9ff !important;
 }
+input[role=combobox] {
+  width: 100%;
+  height: 33px;
+}
+input[role=combobox]:focus,
 input.editor-main:focus,
 select.editor-main:focus {
   border: 2px solid #000 !important;
