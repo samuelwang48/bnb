@@ -116,7 +116,7 @@ app.delete('/host', function (req, res) {
            .then(function() {
              db.close();
              res.setHeader('Content-Type', 'application/json');
-             res.send(JSON.stringify(data));
+             res.send(JSON.stringify(arguments));
            });
        })
     });

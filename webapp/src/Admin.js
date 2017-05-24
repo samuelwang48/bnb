@@ -22,6 +22,8 @@ import { RegionEditor } from './Editors';
 import {Grid, Row, Col} from 'react-bootstrap';
 import ImageGallery from 'react-image-gallery';
 
+import StarRatingComponent from 'react-star-rating-component';
+
 const DetailsFormatter = React.createClass({
   onClick() {
     this.props.onClick(this);
@@ -31,7 +33,34 @@ const DetailsFormatter = React.createClass({
     return (
       <div style={{textAlign: 'center', cursor: 'pointer'}}
            onClick={this.onClick}>
-        <i className="fa fa-window-maximize"></i>
+        <i className="fa fa-pencil"></i>
+      </div>
+    )
+  }
+});
+
+const StarFormatter = React.createClass({
+  render() {
+    return (
+      <div style={{paddingTop: 9}}>
+        <StarRatingComponent
+          name="star"
+          editing={false}
+          starColor="#ffb400"
+          emptyStarColor="#ffb400"
+          value={parseFloat(this.props.value || 0)}
+          renderStarIcon={(index, value) => {
+            return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
+          }}
+          renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
+        />
+        <div style={{
+          width: 90,
+          height: 20,
+          background: 'transparent',
+          position: 'absolute',
+          'marginTop': -27
+        }}></div>
       </div>
     )
   }
@@ -62,6 +91,7 @@ const Example = React.createClass({
   getInitialState() {
     this._columns = [
       { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}/>},
+      { key: 'list_star_rating',name: '星级',       editable: true, width: 90,  formatter: <StarFormatter {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
@@ -198,6 +228,7 @@ const Example = React.createClass({
 
   rowGetter(i) {
     const row = this.getRows()[i];
+    if (!row) return;
     this._columns.forEach(function(col) {
       row[col.key] = row[col.key] || '';
     });
@@ -242,29 +273,27 @@ const Example = React.createClass({
   },
 
   handleDetailsClick(r) {
-    // const i = r.props.rowIdx;
-    // const row = this.getRows()[i];
-    let drawerOpen = true;
-
-    this.setState({ drawerOpen });
-  },
-
-  handleRowClick(i) {
-    const row = this.getRows()[i];
+    const i = r.props.rowIdx;
     const current = this.getRows()[i];
-    if (!row.list_thumbnail_urls) {
+    if (!current) return;
+    if (!current.list_thumbnail_urls) {
       alert('Please fetch details first!');
-      return;
+      this.setState({current: null});
     } else {
-      current.images = row.list_thumbnail_urls.map(function(t) {
+      current.images = current.list_thumbnail_urls.map(function(t) {
         return {
           original: t.replace(/small$/, 'large'),
           thumbnail: t,
         }
       });
+      current.rowIdx = i;
+      const drawerOpen = true;
+      this.setState({ current, drawerOpen });
     }
-    current.rowIdx = i;
-    this.setState({ current });
+  },
+
+  handleRowClick(i) {
+    //const row = this.getRows()[i];
   },
 
   handleGridRowsUpdated({ fromRow = null, toRow = null, updated = null }) {
@@ -500,7 +529,7 @@ const Example = React.createClass({
           </Grid>
           <div>
             <ImageGallery
-              items={this.state.current.images}
+              items={this.state.current ? this.state.current.images : []}
               slideInterval={2000}/>
           </div>
         </Drawer>
