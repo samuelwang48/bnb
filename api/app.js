@@ -15,6 +15,42 @@ var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017/db';
 
 
+app.post('/schedule', function (req, res) {
+  var data = req.body.data;
+
+  var promises = data.map(function(d) {
+    var airbnb_pk = d.airbnb_pk;
+    var _id = d._id;
+    var dt = new Date();
+    return new Promise(function(resolve, reject) {
+      airbnb.getCalendar(airbnb_pk, {
+        currency: 'USD',
+        month: dt.getMonth() + 1,
+        year: dt.getFullYear(),
+        count: 3
+      }).then(function(schedule) {
+        MongoClient.connect(url, function(err, db) {
+           db.collection('hosts').findOneAndUpdate(
+             { _id: ObjectId(_id) },
+             { $set: { 'schedule': schedule } }
+           ).then(function() {
+             console.log(JSON.stringify(arguments))
+             db.close();
+             resolve(schedule);
+           })
+        });
+      });
+    });
+  });
+
+  Promise.all(promises).then(function(results) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(results));
+  });
+
+})
+
+
 app.get('/', function (req, res) {
   airbnb.search({
    location: '大阪',

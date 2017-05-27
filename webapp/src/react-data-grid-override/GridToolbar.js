@@ -46,13 +46,20 @@ const Toolbar = React.createClass({
     }
   },
 
+  onFetchSchedule() {
+    if (this.props.onFetchSchedule !== null && this.props.onFetchSchedule instanceof Function) {
+      this.props.onFetchSchedule();
+    }
+  },
+
   getDefaultProps() {
     return {
       enableAddRow: true,
       addRowButtonText: 'Add Row',
       saveButtonText: 'Save All',
       deleteButtonText: 'Delete selected rows',
-      fetchButtonText: 'Fetch selected',
+      fetchButtonText: 'Fetch details',
+      fetchScheduleButtonText: 'Fetch schedule',
       currencyButtonText: 'Currency Exchange Rate',
       filterRowsButtonText: 'Filter Rows',
     };
@@ -86,6 +93,14 @@ const Toolbar = React.createClass({
     if (this.props.onFetch ) {
       return (<button type="button" className="btn" onClick={this.onFetch}>
         {this.props.fetchButtonText}
+      </button>);
+    }
+  },
+
+  renderFetchScheduleButton() {
+    if (this.props.onFetchSchedule ) {
+      return (<button type="button" className="btn" onClick={this.onFetchSchedule}>
+        {this.props.fetchScheduleButtonText}
       </button>);
     }
   },
@@ -255,6 +270,8 @@ const Toolbar = React.createClass({
           {this.renderDeleteButton()}
           &nbsp;
           {this.renderFetchButton()}
+          &nbsp;
+          {this.renderFetchScheduleButton()}
           &nbsp;
           {this.renderCurrencyButton()}
         </div>

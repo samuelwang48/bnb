@@ -24,6 +24,107 @@ import ImageGallery from 'react-image-gallery';
 
 import StarRatingComponent from 'react-star-rating-component';
 
+const CalFormatter = React.createClass({
+  render() {
+    return (
+      <div>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+        <span className="cal-date"></span>
+      </div>
+    )
+  }
+});
+
 const DetailsFormatter = React.createClass({
   onClick() {
     this.props.onClick(this);
@@ -92,6 +193,7 @@ const Example = React.createClass({
     this._columns = [
       { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}/>},
       { key: 'list_star_rating',name: '星级',       editable: true, width: 90,  formatter: <StarFormatter {...this.props}/>},
+      { key: 'cal',             name: '可住日期',   editable: true, width: 380,  formatter: <CalFormatter {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
@@ -348,9 +450,9 @@ const Example = React.createClass({
     if (!confirm('Are you sure to delete rows?')) return;
     const com = this;
     let rows = R.clone(this.getRows());
-    console.log('x', this.state.rows.length)
+    console.log('x', com.getRows().length)
     const data = R.map((index) => {
-      var nth = R.nth(index, com.state.rows);
+      var nth = R.nth(index, com.getRows());
       rows[index].deleted = true;
       console.log('delete', nth.airbnb_pk)
       return nth._id
@@ -379,7 +481,7 @@ const Example = React.createClass({
     }
     const com = this;
     const data = R.map((index) => {
-      var nth = R.nth(index, com.state.rows);
+      var nth = R.nth(index, com.getRows());
       return R.pick(['_id', 'airbnb_pk'], nth);
     })(this.state.selectedIndexes);
 
@@ -390,7 +492,7 @@ const Example = React.createClass({
       })
       .then(function(response) {
         console.log('fetched', response.data);
-        let rows = com.state.rows;
+        let rows = com.getRows();
         response.data.forEach((d) => {
           const index = R.findIndex(R.propEq('_id', d._id))(rows);
           rows = R.update(index, d, rows);
@@ -398,6 +500,44 @@ const Example = React.createClass({
         com.setState({
           selectedIndexes: [],
           rows: rows,
+          loading: false,
+        })
+      });
+  },
+
+  handleFetchSchedule() {
+    console.log('fetch schedule');
+    this.setState({loading: true});
+    if (this.state.selectedIndexes.length === 0) {
+      alert('Nothing to be fetched');
+      return;
+    }
+    const com = this;
+    const data = R.map((index) => {
+      var nth = R.nth(index, com.getRows());
+      return R.pick(['_id', 'airbnb_pk'], nth);
+    })(this.state.selectedIndexes);
+
+    const api = this.state.api;
+    axios
+      .post(api + '/schedule', {
+         data: data
+      })
+      .then(function(response) {
+        console.log('fetched', response.data);
+/*
+        let rows = com.getRows();
+        response.data.forEach((d) => {
+          const index = R.findIndex(R.propEq('_id', d._id))(rows);
+          rows = R.update(index, d, rows);
+        });
+        com.setState({
+          selectedIndexes: [],
+          rows: rows,
+          loading: false,
+        })
+*/
+        com.setState({
           loading: false,
         })
       });
@@ -480,6 +620,7 @@ const Example = React.createClass({
                 onSave={this.handleSave}
                 onDelete={this.handleDelete}
                 onFetch={this.handleFetch}
+                onFetchSchedule={this.handleFetchSchedule}
                 selectedIndexes={this.state.selectedIndexes}
                 rows={this.state.rows}
                 enableFilter={true}
