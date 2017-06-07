@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
@@ -24,102 +25,40 @@ import ImageGallery from 'react-image-gallery';
 
 import StarRatingComponent from 'react-star-rating-component';
 
+let globalState = null;
+
 const CalFormatter = React.createClass({
   render() {
+    if(!!globalState === false ||
+       !!this.props.value === false ||
+       !!globalState.scheduleEndDate === false ||
+       !!globalState.scheduleStartDate === false ) return(<span></span>);
+
+    let days = R.pipe(
+      R.map(R.prop('days')),
+      R.flatten
+    )(this.props.value.calendar_months);
+    let d0 = moment(globalState.scheduleStartDate);
+    let d1 = moment(globalState.scheduleEndDate);
+    let delta = d1.diff(d0, 'days');
+
+    let dates = [];
+    for (var i=0; i<=delta; i++) {
+       let d = d0.format('YYYY-MM-DD');
+       let avail = R.pipe(
+         R.find(R.propEq('date', d))
+       )(days);
+       //console.log(i, d, avail);
+       dates.push(<span className="cal-date"
+                        style={{ background: avail.available ? '#bbd9ff' : 'red'}}
+                        key={i}
+                  >{d0.format('DD')}</span>)
+       d0.add(1, 'days');
+    }
+
     return (
       <div>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
-        <span className="cal-date"></span>
+        {dates}
       </div>
     )
   }
@@ -191,9 +130,9 @@ const Example = React.createClass({
 
   getInitialState() {
     this._columns = [
-      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props}/>},
-      { key: 'list_star_rating',name: '星级',       editable: true, width: 90,  formatter: <StarFormatter {...this.props}/>},
-      { key: 'cal',             name: '可住日期',   editable: true, width: 380,  formatter: <CalFormatter {...this.props}/>},
+      { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
+      { key: 'list_star_rating',name: '星级',       editable: true, width: 90,  formatter: <StarFormatter { ...this.props }/>},
+      { key: 'schedule',             name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
@@ -254,6 +193,8 @@ const Example = React.createClass({
         usd2cny: -1,
       },
       currentCurrency: 'usd',
+      scheduleStartDate: null,
+      scheduleEndDate: null,
     };
   },
 
@@ -597,6 +538,16 @@ const Example = React.createClass({
       });
   },
 
+  handleScheduleUpdated(range) {
+    let state = {
+      scheduleStartDate: moment(range.startDate),
+      scheduleEndDate: moment(range.endDate),
+    };
+    this.setState(state);
+    globalState = state;
+    this.handleGridRowsUpdated({});
+  },
+
   render() {
 
     return  (
@@ -614,7 +565,7 @@ const Example = React.createClass({
             columns={this._columns}
             rowGetter={this.rowGetter}
             rowsCount={this.getSize()}
-            minHeight={800}
+            minHeight={600}
             toolbar={<Toolbar
                 onAddRow={this.handleAddRow}
                 onSave={this.handleSave}
@@ -630,6 +581,7 @@ const Example = React.createClass({
                 currency={this.state.currency}
                 onCurrencyUse={this.handleCurrencyUse}
                 onCurrencySave={this.handleCurrencySave}
+                onScheduleUpdated={this.handleScheduleUpdated}
             />}
             onGridRowsUpdated={this.handleGridRowsUpdated}
             rowSelection={{
