@@ -21,6 +21,7 @@
     "react-data-grid-addons": "^2.0.41",
     "react-date-range": "^0.9.3",
     "react-dom": "^15.5.4",
+    "react-dotdotdot": "^1.1.0",
     "react-fontawesome": "^1.6.1",
     "react-image-gallery": "^0.8.0",
     "react-moment": "^0.2.2",

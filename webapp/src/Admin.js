@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment'
 
+import Dotdotdot from 'react-dotdotdot'
+
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 //import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
@@ -308,6 +310,7 @@ const Example = React.createClass({
         row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? row.list_usd_security_deposit_native * usd2cny + '元' : '-';
       }
     }
+
     return row;
   },
 
@@ -329,8 +332,13 @@ const Example = React.createClass({
           thumbnail: t,
         }
       });
+      current.images.splice(0, 0, {
+          original: current.list_map_image_url,
+          thumbnail: current.list_map_image_url,
+      });
       current.rowIdx = i;
       const drawerOpen = true;
+console.log(123, current)
       this.setState({ current, drawerOpen });
     }
   },
@@ -608,23 +616,232 @@ const Example = React.createClass({
           onRequestChange={(drawerOpen) => this.setState({drawerOpen})}
           openSecondary={true}
         >
-          <Grid>
-            <Row>
-              <Col md={12}>
-                r1
-              </Col>
-            </Row>
-            <Row>
-              <Col md={12}>
-                r2
-              </Col>
-            </Row>
-          </Grid>
           <div>
             <ImageGallery
               items={this.state.current ? this.state.current.images : []}
               slideInterval={2000}/>
           </div>
+          <Grid style={{width: 500}} className="details">
+            <Row>
+              <Col xs={3}>
+                Airbnb编号
+              </Col>
+              <Col xs={9}>
+                {this.state.current.airbnb_pk}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                名称
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_name}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                省
+              </Col>
+              <Col xs={9}>
+                {this.state.current.region}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                市
+              </Col>
+              <Col xs={9}>
+                {this.state.current.city}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                地址
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_address}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                卧室
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_bedrooms}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                床数
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_beds}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                浴室
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_bathrooms}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                入住时间开始
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_check_in_time_start}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                入住时间结束
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_check_in_time_end}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                最晚退房时间
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_check_out_time}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                起住天数
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_min_nights}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                价格
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_price_conv}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                清洁费
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_conv_cleaning_fee_native}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                押金
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_conv_security_deposit_native}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                价格包含人数
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_guests_included}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                可住人数
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_person_capacity}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                增员费
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_price_conv_for_extra_person_native}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                便利设施
+              </Col>
+              <Col xs={9}>
+                {this.state.current.list_amenities}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                社区介绍
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_neighborhood_overview}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                房屋简介
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_description}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                使用权限
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_access}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                使用守则
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_house_rules}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                屋主互动
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_interaction}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                屋主备注
+              </Col>
+              <Col xs={9}>
+                <Dotdotdot clamp={3}>
+                  {this.state.current.list_notes}
+                </Dotdotdot>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                
+              </Col>
+              <Col xs={9}>
+              </Col>
+            </Row>
+          </Grid>
         </Drawer>
       </div>
     </div>
