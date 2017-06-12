@@ -69,3 +69,10 @@ select.editor-main:focus {
   color: #fff;
   text-align: center;
 }
+.details .row {
+  border-bottom: 1px solid #ccc;
+}
+.image-gallery-swipe {
+  max-height: 330px;
+  overflow: hidden;
+}
