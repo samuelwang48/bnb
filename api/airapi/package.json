@@ -1,0 +1,89 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "airapi@^0.1.0",
+        "scope": null,
+        "escapedName": "airapi",
+        "name": "airapi",
+        "rawSpec": "^0.1.0",
+        "spec": ">=0.1.0 <0.2.0",
+        "type": "range"
+      },
+      "/Users/swang/projects/bnb"
+    ]
+  ],
+  "_from": "airapi@>=0.1.0 <0.2.0",
+  "_id": "airapi@0.1.0",
+  "_inCache": true,
+  "_location": "/airapi",
+  "_nodeVersion": "0.10.30",
+  "_npmUser": {
+    "name": "phamtrisi",
+    "email": "phamtrisi@gmail.com"
+  },
+  "_npmVersion": "2.7.5",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "airapi@^0.1.0",
+    "scope": null,
+    "escapedName": "airapi",
+    "name": "airapi",
+    "rawSpec": "^0.1.0",
+    "spec": ">=0.1.0 <0.2.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/airapi/-/airapi-0.1.0.tgz",
+  "_shasum": "69e67ff411148d6a235bd0ca493ca2ac661869d3",
+  "_shrinkwrap": null,
+  "_spec": "airapi@^0.1.0",
+  "_where": "/Users/swang/projects/bnb",
+  "author": {
+    "name": "Si Pham",
+    "url": "phamtrisi@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/phamtrisi/airapi/issues"
+  },
+  "dependencies": {
+    "bluebird": "^2.10.0",
+    "cheerio": "*",
+    "lodash": "*",
+    "request": "*"
+  },
+  "description": "A JS wrapper for airbnb API",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "69e67ff411148d6a235bd0ca493ca2ac661869d3",
+    "tarball": "https://registry.npmjs.org/airapi/-/airapi-0.1.0.tgz"
+  },
+  "gitHead": "7748b4b102db85f5a99d124e356cbd53639283f3",
+  "homepage": "https://github.com/phamtrisi/airapi",
+  "keywords": [
+    "airbnb",
+    "api",
+    "node",
+    "javascript"
+  ],
+  "license": "MIT",
+  "main": "airbnb.js",
+  "maintainers": [
+    {
+      "name": "phamtrisi",
+      "email": "phamtrisi@gmail.com"
+    }
+  ],
+  "name": "airapi",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phamtrisi/airapi.git"
+  },
+  "scripts": {},
+  "version": "0.1.0"
+}

@@ -1,11 +1,10 @@
 var express = require('express');
 var cors = require('cors')
-var airbnb = require('airapi');
+var airbnb = require('./airapi');
 var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support encoded bodies
-
 
 app.use(cors());
 
@@ -39,6 +38,8 @@ app.post('/schedule', function (req, res) {
              resolve(schedule);
            })
         });
+      }, function() {
+        resolve({error: 'airbnb not found'});
       });
     });
   });
@@ -89,6 +90,8 @@ app.post('/fetch', function (req, res) {
                  });
            }
         });
+      }, function() {
+        resolve({error: 'airbnb not found'});
       });
     });
   });
