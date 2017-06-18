@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  font-size: 12px !important;
 }
 .search-form .r1 {
   margin: 0 auto !important;
@@ -37,6 +38,20 @@ body {
 .react-grid-Row:hover .react-grid-Cell {
   background: #d6e9ff !important;
 }
+.react-grid-HeaderCell {
+  padding: 4px;
+}
+.react-grid-checkbox-container {
+  position: relative;
+  top: 3px;
+}
+.react-grid-Header {
+  height: 63px !important;
+  overflow: hidden !important;
+}
+.react-grid-Viewport {
+  top: 63px !important;
+}
 input[role=combobox] {
   width: 100%;
   height: 33px;
@@ -60,6 +75,7 @@ select.editor-main:focus {
 }
 .cal-date {
   border-radius: 3px;
+  font-size: 12px;
   width: 16px;
   height: 16px;
   margin-right: 1px;
@@ -76,3 +92,4 @@ select.editor-main:focus {
   max-height: 330px;
   overflow: hidden;
 }
+

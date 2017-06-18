@@ -25,8 +25,6 @@ import { RegionEditor } from './Editors';
 import {Grid, Row, Col} from 'react-bootstrap';
 import ImageGallery from 'react-image-gallery';
 
-import StarRatingComponent from 'react-star-rating-component';
-
 let globalState = null;
 
 const CalFormatter = React.createClass({
@@ -45,14 +43,14 @@ const CalFormatter = React.createClass({
     let delta = d1.diff(d0, 'days');
 
     let dates = [];
-    for (var i=0; i<=delta; i++) {
+    for (var i=0; i<delta; i++) {
        let d = d0.format('YYYY-MM-DD');
        let avail = R.pipe(
          R.find(R.propEq('date', d))
        )(days);
        //console.log(i, d, avail);
        dates.push(<span className="cal-date"
-                        style={{ background: avail.available ? '#bbd9ff' : 'red'}}
+                        style={{ background: avail.available ? '#3cdc00' : '#ccc'}}
                         key={i}
                   >{d0.format('DD')}</span>)
        d0.add(1, 'days');
@@ -84,26 +82,7 @@ const DetailsFormatter = React.createClass({
 const StarFormatter = React.createClass({
   render() {
     return (
-      <div style={{paddingTop: 9}}>
-        <StarRatingComponent
-          name="star"
-          editing={false}
-          starColor="#ffb400"
-          emptyStarColor="#ffb400"
-          value={parseFloat(this.props.value || 0)}
-          renderStarIcon={(index, value) => {
-            return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
-          }}
-          renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
-        />
-        <div style={{
-          width: 90,
-          height: 20,
-          background: 'transparent',
-          position: 'absolute',
-          'marginTop': -27
-        }}></div>
-      </div>
+      <div>{this.props.value}</div>
     )
   }
 });
@@ -133,10 +112,10 @@ const Example = React.createClass({
   getInitialState() {
     this._columns = [
       { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
-      { key: 'list_star_rating',name: '星级',       editable: true, width: 90,  formatter: <StarFormatter { ...this.props }/>},
+      { key: 'list_star_rating',name: '星级',       editable: true, width: 40,  formatter: <StarFormatter { ...this.props }/>},
       { key: 'schedule',             name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
-      { key: 'list_user_id',    name: '屋主',       editable: true, width: 80},
+      { key: 'local_id',        name: '编号',       editable: true, width: 100},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
       { key: 'list_user_first_name', name: '名',       editable: true, width: 80},
 ///*
@@ -145,8 +124,6 @@ const Example = React.createClass({
       { key: 'city',            name: '$city',      editable: true, width: 100, editor: <RegionEditor items={this.getCities} col="city" onUpdate={this.handleGeoUpdated} />},
       { key: 'area',            name: '$area',      editable: true, width: 100},
 //*/
-      { key: 'list_language',         name: '语言',   editable: true, width: 40},
-      { key: 'list_native_currency',  name: '接受货币',   editable: true, width: 80},
       { key: 'list_bedrooms',         name: '卧室',   editable: true, width: 50},
       { key: 'list_beds',             name: '床',     editable: true, width: 50},
       { key: 'list_bathrooms',        name: '浴室',   editable: true, width: 50},
@@ -163,11 +140,6 @@ const Example = React.createClass({
       { key: 'list_check_in_time_ends_at',   name: '最晚',       editable: true, width: 50},
       { key: 'list_check_out_time',          name: '退房时间',   editable: true, width: 80},
       { key: 'list_guests_included',         name: '标准人数',   editable: true, width: 80},
-      { key: 'list_map_image_url',           name: '地图图片',   editable: true, width: 80},
-      { key: 'list_name',             name: '标题',   editable: true, width: 200},
-      { key: 'list_address',          name: '地址',   editable: true, width: 200},
-      { key: 'list_localized_city',   name: '城市',   editable: true, width: 100},
-      { key: 'list_zipcode',          name: '邮编',   editable: true, width: 50},
     ];
     this._columns.forEach((col)=>{
       col.filterable = true;
@@ -281,33 +253,38 @@ const Example = React.createClass({
       row.list_user_first_name = row.list_user.user.first_name;
       row.list_user_last_name = row.list_user.user.last_name;
     }
+    if (row.list_check_out_time) {
+      if (/:/.test(row.list_check_out_time) === false) {
+         row.list_check_out_time = row.list_check_out_time + ':00';
+      }
+    }
     // first convert to usd
     if (row.list_native_currency === 'USD') {
-      row.list_price_usd                         = row.list_price;
-      row.list_price_usd_for_extra_person_native = row.list_price_for_extra_person_native;
-      row.list_usd_cleaning_fee_native           = row.list_cleaning_fee_native;
-      row.list_usd_security_deposit_native       = row.list_security_deposit_native ? row.list_security_deposit_native : 0;
+      row.list_price_usd                         = Math.round(row.list_price);
+      row.list_price_usd_for_extra_person_native = Math.round(row.list_price_for_extra_person_native);
+      row.list_usd_cleaning_fee_native           = Math.round(row.list_cleaning_fee_native);
+      row.list_usd_security_deposit_native       = row.list_security_deposit_native ? Math.round(row.list_security_deposit_native) : 0;
       // then calculate other currencies based on currentCurrency
       if (this.state.currentCurrency === 'usd') {
         // do nothing
-        row.list_price_conv                         = '$' + row.list_price_usd;
-        row.list_price_conv_for_extra_person_native = '$' + row.list_price_usd_for_extra_person_native;
-        row.list_conv_cleaning_fee_native           = '$' + row.list_usd_cleaning_fee_native;
-        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? '$' + row.list_usd_security_deposit_native : '-';
+        row.list_price_conv                         = '$' + Math.round(row.list_price_usd);
+        row.list_price_conv_for_extra_person_native = '$' + Math.round(row.list_price_usd_for_extra_person_native);
+        row.list_conv_cleaning_fee_native           = '$' + Math.round(row.list_usd_cleaning_fee_native);
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? '$' + Math.round(row.list_usd_security_deposit_native) : '-';
       }
       else if (this.state.currentCurrency === 'jpy') {
         const usd2jpy = this.state.currency.usd2jpy;
-        row.list_price_conv                         = row.list_price_usd * usd2jpy + '円';
-        row.list_price_conv_for_extra_person_native = row.list_price_usd_for_extra_person_native * usd2jpy + '円';
-        row.list_conv_cleaning_fee_native           = row.list_usd_cleaning_fee_native * usd2jpy + '円';
-        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? row.list_usd_security_deposit_native * usd2jpy + '円' : '-';
+        row.list_price_conv                         = Math.round(row.list_price_usd * usd2jpy) + '円';
+        row.list_price_conv_for_extra_person_native = Math.round(row.list_price_usd_for_extra_person_native * usd2jpy) + '円';
+        row.list_conv_cleaning_fee_native           = Math.round(row.list_usd_cleaning_fee_native * usd2jpy) + '円';
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? Math.round(row.list_usd_security_deposit_native * usd2jpy) + '円' : '-';
       }
       else if (this.state.currentCurrency === 'cny') {
         const usd2cny = this.state.currency.usd2cny;
-        row.list_price_conv                         = row.list_price_usd * usd2cny + '元';
-        row.list_price_conv_for_extra_person_native = row.list_price_usd_for_extra_person_native * usd2cny + '元';
-        row.list_conv_cleaning_fee_native           = row.list_usd_cleaning_fee_native * usd2cny + '元';
-        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? row.list_usd_security_deposit_native * usd2cny + '元' : '-';
+        row.list_price_conv                         = Math.round(row.list_price_usd * usd2cny) + '元';
+        row.list_price_conv_for_extra_person_native = Math.round(row.list_price_usd_for_extra_person_native * usd2cny) + '元';
+        row.list_conv_cleaning_fee_native           = Math.round(row.list_usd_cleaning_fee_native * usd2cny) + '元';
+        row.list_conv_security_deposit_native       = row.list_usd_security_deposit_native ? Math.round(row.list_usd_security_deposit_native * usd2cny) + '元' : '-';
       }
     }
 
@@ -573,7 +550,8 @@ console.log(123, current)
             columns={this._columns}
             rowGetter={this.rowGetter}
             rowsCount={this.getSize()}
-            minHeight={600}
+            minHeight={window.innerHeight - 100}
+            rowHeight={25}
             toolbar={<Toolbar
                 onAddRow={this.handleAddRow}
                 onSave={this.handleSave}

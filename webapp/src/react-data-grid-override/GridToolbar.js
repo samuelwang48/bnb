@@ -28,8 +28,8 @@ class Toolbar extends Component {
       addRowButtonText: '新建',
       saveButtonText: '保存全部',
       deleteButtonText: '删除选中行',
-      fetchButtonText: '刷新房源',
-      fetchScheduleButtonText: '刷新日历',
+      fetchButtonText: '获取房源',
+      fetchScheduleButtonText: '获取日历',
       currencyButtonText: '汇率',
       filterRowsButtonText: '筛选',
     };
@@ -249,6 +249,7 @@ class Toolbar extends Component {
   }
 
   renderToggleFilterButton = () => {
+    return (<span></span>)
     if (this.props.enableFilter) {
       return (<button type="button" className="btn" onClick={this.props.onToggleFilter}>
       {this.state.filterRowsButtonText}
