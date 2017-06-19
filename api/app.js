@@ -75,18 +75,39 @@ app.post('/fetch', function (req, res) {
       airbnb.getInfo(airbnb_pk).then(function(doc) {
         MongoClient.connect(url, function(err, db) {
            if (_id) {
-               delete d._id;
-               d.listing = doc.listing;
                db.collection('hosts')
-                 .replaceOne({_id: ObjectId(_id)}, d)
+                 .findOneAndUpdate(
+                   {_id: ObjectId(_id)},
+                   {$set: {
+                     list_bedrooms: doc.listing.bedrooms,
+                     list_beds: doc.listing.beds,
+                     list_bathrooms: doc.listing.bathrooms,
+                     list_min_nights: doc.listing.min_nights,
+                     list_person_capacity: doc.listing.person_capacity,
+                     list_native_currency: doc.listing.native_currency,
+                     list_price: doc.listing.price,
+                     list_price_for_extra_person_native: doc.listing.price_for_extra_person_native,
+                     list_cleaning_fee_native: doc.listing.cleaning_fee_native,
+                     list_security_deposit_native: doc.listing.security_deposit_native,
+                     list_primary_host: doc.listing.primary_host,
+                     list_check_out_time: doc.listing.check_out_time,
+                     list_property_type: doc.listing.property_type,
+                     list_reviews_count: doc.listing.reviews_count,
+                     list_star_rating: doc.listing.star_rating,
+                     list_room_type_category: doc.listing.room_type_category,
+                     list_check_in_time: doc.listing.check_in_time,
+                     list_check_in_time_ends_at: doc.listing.check_in_time_ends_at,
+                     list_guest_included: doc.listing.guest_included,
+                     list_thumbnail_urls: doc.listing.thumbnail_urls,
+                     list_map_image_url: doc.listing.map_image_url,
+                   }}
+                 )
                  .then(function() {
-                   db.close();
-                   d._id = _id;
-                   for (var prop in doc.listing) {
-                     d['list_' + prop] = doc.listing[prop];
-                   }
-                   delete d.listing;
-                   resolve(d);
+                   db.collection('hosts')
+                     .findOne({_id: ObjectId(_id)}).then(function(result){
+                         console.log(result)
+                         resolve(result);
+                     });
                  });
            }
         });
@@ -106,12 +127,6 @@ app.get('/host', function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('hosts').find().toArray(function(err, docs) {
-         docs.forEach(function(doc) {
-            for (var prop in doc.listing) {
-              doc['list_' + prop] = doc.listing[prop];
-            }
-            delete doc.listing;
-         });
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(docs));
          db.close();

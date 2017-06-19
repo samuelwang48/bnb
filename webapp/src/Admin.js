@@ -249,9 +249,9 @@ const Example = React.createClass({
     this._columns.forEach(function(col) {
       row[col.key] = row[col.key] || '';
     });
-    if (row.list_user) {
-      row.list_user_first_name = row.list_user.user.first_name;
-      row.list_user_last_name = row.list_user.user.last_name;
+    if (row.list_primary_host) {
+      row.list_user_first_name = row.list_primary_host.first_name;
+      row.list_user_last_name = row.list_primary_host.last_name;
     }
     if (row.list_check_out_time) {
       if (/:/.test(row.list_check_out_time) === false) {
