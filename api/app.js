@@ -8,6 +8,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support enc
 
 app.use(cors());
 
+var R = require('ramda');
+var moment = require('moment');
+
 var ObjectId = require('mongodb').ObjectID;
 
 var MongoClient = require('mongodb').MongoClient;
@@ -26,20 +29,26 @@ app.post('/schedule', function (req, res) {
         currency: 'USD',
         month: dt.getMonth() + 1,
         year: dt.getFullYear(),
-        count: 3
+        count: 2
       }).then(function(schedule) {
         MongoClient.connect(url, function(err, db) {
+
+           var days = R.pipe(
+             R.map(R.prop('days')),
+             R.flatten,
+             R.map(function(d) { delete d.price; return d})
+           )(schedule.calendar_months);
            db.collection('hosts').findOneAndUpdate(
              { _id: ObjectId(_id) },
-             { $set: { 'schedule': schedule } }
+             { $set: { 'schedule': days } }
            ).then(function() {
-             console.log(JSON.stringify(arguments))
+             //console.log(JSON.stringify(arguments))
              db.close();
-             resolve(schedule);
+             resolve(days);
            })
         });
       }, function() {
-        resolve({error: 'airbnb not found'});
+        resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });
     });
   });
@@ -51,6 +60,44 @@ app.post('/schedule', function (req, res) {
 
 })
 
+app.get('/filter', function(req, res) {
+  var match = [];
+  MongoClient.connect(url, function(err, db) {
+     db.collection('hosts').find().toArray(function(err, docs) {
+       docs.forEach(function(doc) {
+         var days = doc.schedule;
+         if (days) {
+           var d0 = moment(req.query.scheduleStartDate);
+           var d1 = moment(req.query.scheduleEndDate);
+           var delta = d1.diff(d0, 'days');
+           var availability = [];
+    
+           for (var i=0; i<delta; i++) {
+              var d = d0.format('YYYY-MM-DD');
+              var avail = R.pipe(
+                R.find(R.propEq('date', d))
+              )(days);
+
+              availability.push(avail);
+    
+              d0.add(1, 'days');
+           }
+    
+           delete doc.schedule;
+           doc.availability = availability;
+           match.push(doc);
+         } else {
+           delete doc.schedule;
+           doc.availability = [];
+           match.push(doc);
+         }
+       });
+       res.setHeader('Content-Type', 'application/json');
+       res.send(JSON.stringify(match));
+       db.close();
+     });
+  });
+})
 
 app.get('/', function (req, res) {
   airbnb.search({
@@ -75,6 +122,7 @@ app.post('/fetch', function (req, res) {
       airbnb.getInfo(airbnb_pk).then(function(doc) {
         MongoClient.connect(url, function(err, db) {
            if (_id) {
+               console.log(_id, err);
                db.collection('hosts')
                  .findOneAndUpdate(
                    {_id: ObjectId(_id)},
@@ -89,7 +137,9 @@ app.post('/fetch', function (req, res) {
                      list_price_for_extra_person_native: doc.listing.price_for_extra_person_native,
                      list_cleaning_fee_native: doc.listing.cleaning_fee_native,
                      list_security_deposit_native: doc.listing.security_deposit_native,
-                     list_primary_host: doc.listing.primary_host,
+                     list_primary_host: {
+                       first_name: doc.listing.primary_host.first_name
+                     },
                      list_check_out_time: doc.listing.check_out_time,
                      list_property_type: doc.listing.property_type,
                      list_reviews_count: doc.listing.reviews_count,
@@ -105,14 +155,14 @@ app.post('/fetch', function (req, res) {
                  .then(function() {
                    db.collection('hosts')
                      .findOne({_id: ObjectId(_id)}).then(function(result){
-                         console.log(result)
+                         //console.log(result)
                          resolve(result);
                      });
                  });
            }
         });
       }, function() {
-        resolve({error: 'airbnb not found'});
+        resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });
     });
   });
@@ -127,6 +177,7 @@ app.get('/host', function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('hosts').find().toArray(function(err, docs) {
+         docs.forEach(function(d) { delete d.schedule; });
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(docs));
          db.close();

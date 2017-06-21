@@ -33,28 +33,15 @@ const CalFormatter = React.createClass({
        !!this.props.value === false ||
        !!globalState.scheduleEndDate === false ||
        !!globalState.scheduleStartDate === false ) return(<span></span>);
-
-    let days = R.pipe(
-      R.map(R.prop('days')),
-      R.flatten
-    )(this.props.value.calendar_months);
-    let d0 = moment(globalState.scheduleStartDate);
-    let d1 = moment(globalState.scheduleEndDate);
-    let delta = d1.diff(d0, 'days');
-
-    let dates = [];
-    for (var i=0; i<delta; i++) {
-       let d = d0.format('YYYY-MM-DD');
-       let avail = R.pipe(
-         R.find(R.propEq('date', d))
-       )(days);
-       //console.log(i, d, avail);
-       dates.push(<span className="cal-date"
-                        style={{ background: avail.available ? '#3cdc00' : '#ccc'}}
-                        key={i}
-                  >{d0.format('DD')}</span>)
-       d0.add(1, 'days');
-    }
+    let availability = this.props.value;
+    let dates = availability.map(function(avail, i) {
+      return  (
+         <span className="cal-date"
+               style={{ background: avail.available ? '#3cdc00' : '#ccc'}}
+               key={i}
+         >{avail.date.replace(/.*\-(\d+)/, "$1")}</span>
+      )
+    });
 
     return (
       <div>
@@ -113,7 +100,7 @@ const Example = React.createClass({
     this._columns = [
       { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
       { key: 'list_star_rating',name: '星级',       editable: true, width: 40,  formatter: <StarFormatter { ...this.props }/>},
-      { key: 'schedule',             name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
+      { key: 'availability',             name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'local_id',        name: '编号',       editable: true, width: 100},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},
@@ -527,10 +514,26 @@ console.log(123, current)
     let state = {
       scheduleStartDate: moment(range.startDate),
       scheduleEndDate: moment(range.endDate),
+      loading: true
     };
     this.setState(state);
     globalState = state;
-    this.handleGridRowsUpdated({});
+    //this.handleGridRowsUpdated({});
+
+    let com = this;
+    const api = this.state.api;
+    axios
+      .get(api + '/filter', {
+        params: {
+          scheduleStartDate: range.startDate,
+          scheduleEndDate: range.endDate,
+        }
+      })
+      //.get('http://106.14.204.221:8000/host')
+      .then(function(response) {
+         com.setState({rows: response.data,
+                       loading: false});
+      });
   },
 
   render() {
