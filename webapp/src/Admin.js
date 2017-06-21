@@ -608,7 +608,9 @@ console.log(123, current)
                 Airbnb编号
               </Col>
               <Col xs={9}>
-                {this.state.current.airbnb_pk}
+                <a href={'https://zh.airbnb.com/rooms/' + this.state.current.airbnb_pk} target="_blank">
+                  {this.state.current.airbnb_pk}
+                </a>
               </Col>
             </Row>
             <Row>
