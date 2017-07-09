@@ -31,9 +31,14 @@ body {
 }
 .react-grid-Toolbar {
   padding: 12px 5px;
+  margin: 0 -15px;
 }
 .react-grid-Toolbar .tools {
   float: left;
+}
+.react-grid-Toolbar .btn {
+  font-size: 12px;
+  padding: 2px 6px;
 }
 .react-grid-Row:hover .react-grid-Cell {
   background: #d6e9ff !important;

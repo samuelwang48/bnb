@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import Admin from './Admin';
+import AppNav from './AppNav';
+import UserRequest from './user/request';
+import AdminHosts from './admin/hosts';
 
 import {
   BrowserRouter as Router,
@@ -14,22 +15,22 @@ import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './fa/font-awesome-4.7.0/css/font-awesome.min.css';
 import "../node_modules/react-image-gallery/styles/css/image-gallery.css";
 
-class Results extends Component {
-  render() {
-    return (
-      <div>
-        <h3>Results</h3>
-      </div>
-    )
-  }
-}
+class Home extends Component {
+  constructor(props) {
+    super(props);
 
-class Search extends Component {
+    this.state = {
+    };
+  }
+
   render() {
     return (
       <div>
-        <h2>Foobar</h2>
-        <Route path="/search/results" component={Results}/>
+        <AppNav {...this.props}/>
+        <div>
+          <Route path="/user/request" component={UserRequest}/>
+          <Route path="/admin/hosts" component={AdminHosts}/>
+        </div>
       </div>
     )
   }
@@ -38,9 +39,7 @@ class Search extends Component {
 ReactDOM.render((
   <Router>
       <Switch>
-        <Route exact path="/" component={App}/>
-        <Route path="/admin" component={Admin}/>
-        <Route path="/search" component={Search}/>
+        <Route path="*" component={Home}/>
       </Switch>
   </Router>
   ),
