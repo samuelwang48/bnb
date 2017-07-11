@@ -22,11 +22,12 @@ class AppNav extends Component {
         <div className="App-header">
           <DropdownButton title="我是房客" id="guestMenu" bsSize="xsmall">
             <MenuItem eventKey="/user/request"
-                      onSelect={this.onMenuItemSelect}>我要找民宿</MenuItem>
+                      onSelect={this.onMenuItemSelect}>我有民宿需求</MenuItem>
             <MenuItem>我的订单</MenuItem>
           </DropdownButton>
           <DropdownButton title="管理入口" id="adminMenu" bsSize="xsmall">
-            <MenuItem>帮房客匹配民宿</MenuItem>
+            <MenuItem eventKey="/admin/requests"
+                      onSelect={this.onMenuItemSelect}>需求匹配管理</MenuItem>
             <MenuItem>订单管理</MenuItem>
             <MenuItem eventKey="/admin/hosts"
                       onSelect={this.onMenuItemSelect}>房源管理</MenuItem>

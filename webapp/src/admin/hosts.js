@@ -16,7 +16,7 @@ import R from 'ramda';
 const axios = require('axios');
 
 const ReactDataGrid = require('../../react-data-grid/packages/react-data-grid/dist/react-data-grid');
-const Toolbar = require('../react-data-grid-override/GridToolbar');
+const Toolbar = require('../react-data-grid-override/GridToolbarHosts');
 import Selectors from '../react-data-grid-override/Selectors';
 
 import { geo, getGeo } from '../Geo';
@@ -94,7 +94,7 @@ const RowRenderer = React.createClass({
   }
 });
 
-const Example = React.createClass({
+const GridAdminHosts = React.createClass({
 
   getInitialState() {
     this._columns = [
@@ -854,19 +854,16 @@ console.log(123, current)
 });
 
 
-class Admin extends Component {
+class AdminHosts extends Component {
   render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
-        <div>
-          <Example>
-          </Example>
-        </div>
+        <GridAdminHosts/>
       </div>
       </MuiThemeProvider>
     )
   }
 }
 
-export default Admin;
+export default AdminHosts;

@@ -40,6 +40,12 @@ const RegionEditor = React.createClass({
     this.props.onUpdate(col, item);
   },
 
+  handleTyped(col, value) {
+    if (this.props.onType) {
+      this.props.onType(col, value);
+    }
+  },
+
   render() {
     return (
       <Autocomplete
@@ -58,6 +64,7 @@ const RegionEditor = React.createClass({
         }}
         onChange={(event, value) => {
           this.setState({ value: value })
+          this.handleTyped(this.props.col, value);
         }}
         renderItem={(item, isHighlighted) => (
           <div style={isHighlighted ? this.styles.highlightedItem : this.styles.item}>{item.title}</div>
