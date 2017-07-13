@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import AppNav from './AppNav';
+import UserSearch from './user/search';
 import UserRequest from './user/request';
 import AdminRequests from './admin/requests';
 import AdminHosts from './admin/hosts';
@@ -29,6 +30,7 @@ class Home extends Component {
       <div>
         <AppNav {...this.props}/>
         <div>
+          <Route path="/user/search" component={UserSearch}/>
           <Route path="/user/request" component={UserRequest}/>
           <Route path="/admin/requests" component={AdminRequests}/>
           <Route path="/admin/hosts" component={AdminHosts}/>

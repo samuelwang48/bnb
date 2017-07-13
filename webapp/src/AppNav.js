@@ -20,7 +20,12 @@ class AppNav extends Component {
     return (
       <div className="App">
         <div className="App-header">
-          <DropdownButton title="我是房客" id="guestMenu" bsSize="xsmall">
+          <DropdownButton title="我是个人" id="guestMenu" bsSize="xsmall">
+            <MenuItem eventKey="/user/search"
+                      onSelect={this.onMenuItemSelect}>搜索浏览</MenuItem>
+            <MenuItem>我的订单</MenuItem>
+          </DropdownButton>
+          <DropdownButton title="我是机构" id="guestMenu" bsSize="xsmall">
             <MenuItem eventKey="/user/request"
                       onSelect={this.onMenuItemSelect}>我有民宿需求</MenuItem>
             <MenuItem>我的订单</MenuItem>
