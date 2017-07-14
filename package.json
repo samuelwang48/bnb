@@ -8,6 +8,7 @@
     "body-parser": "^1.17.1",
     "cors": "^2.8.3",
     "express": "^4.15.2",
+    "micromatch": "^3.0.4",
     "moment": "^2.18.1",
     "mongo-express": "^0.40.0",
     "mongodb": "^2.2.26",

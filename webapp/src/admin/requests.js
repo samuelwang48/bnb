@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import moment from 'moment'
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 //import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import CircularProgress from 'material-ui/CircularProgress';
-
-import MenuItem from 'material-ui/MenuItem';
 
 import R from 'ramda';
 
@@ -16,9 +13,6 @@ const axios = require('axios');
 const ReactDataGrid = require('../../react-data-grid/packages/react-data-grid/dist/react-data-grid');
 const Toolbar = require('../react-data-grid-override/GridToolbarRequests');
 import Selectors from '../react-data-grid-override/Selectors';
-
-import { geo, getGeo } from '../Geo';
-import { RegionEditor } from '../Editors';
 
 const RowRenderer = React.createClass({
 
@@ -121,13 +115,13 @@ const GridAdminRequests = React.createClass({
     const com = this;
     let rows = R.clone(this.getRows());
     console.log('x', com.getRows().length)
+/*
     const data = R.map((index) => {
       var nth = R.nth(index, com.getRows());
       rows[index].deleted = true;
       console.log('delete', nth.airbnb_pk)
       return nth._id
     })(this.state.selectedIndexes);
-/*
     console.log('y', rows.length)
     const api = this.state.api;
     axios

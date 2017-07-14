@@ -6,16 +6,12 @@ import { DateRange } from 'react-date-range';
 import Popover from 'material-ui/Popover';
 import {
   InputGroup,
-  DropdownButton,
   MenuItem,
-  Grid,
-  Row,
   Col,
   Form,
   FormGroup,
   FormControl,
   ControlLabel,
-  Checkbox,
   Button
 } from 'react-bootstrap';
 
@@ -64,8 +60,6 @@ class UserRequest extends Component {
   };
 
   handleGeoUpdated = (col, item) => {
-    const type = col + 'Id';
-
     if (col === 'city') {
       this.setState({city: item.title});
     }
@@ -190,6 +184,8 @@ class UserRequest extends Component {
                   lang="cn"
                   linkedCalendars={ true }
                   minDate={moment()}
+                  startDate={moment(this.state.startDate)}
+                  endDate={moment(this.state.endDate)}
                   //onInit={this.handleSelect}
                   onChange={this.handleScheduleSelect}
                 />

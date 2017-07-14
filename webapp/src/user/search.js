@@ -1,29 +1,24 @@
 import React, { Component } from 'react';
 
+const axios = require('axios');
 import moment from 'moment'
 import { DateRange } from 'react-date-range';
 import Popover from 'material-ui/Popover';
-import {Typeahead, AsyncTypeahead} from 'react-bootstrap-typeahead';
+import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 
 import {
   Pagination,
-  InputGroup,
-  DropdownButton,
-  MenuItem,
-  Grid,
   Row,
   Col,
-  Form,
   FormGroup,
   FormControl,
-  ControlLabel,
-  Checkbox,
   Button,
   Thumbnail
 } from 'react-bootstrap';
 
-import { geo, getGeo } from '../Geo';
-import { RegionEditor } from '../Editors';
+import ImageGallery from 'react-image-gallery';
+
+import { getGeo } from '../Geo';
 import FontAwesome from 'react-fontawesome';
 import Paper from 'material-ui/Paper';
 
@@ -40,6 +35,8 @@ class UserSearch extends Component {
       options: [],
       minLength: 1,
       activePage: 1,
+      api: 'http://' + window.location.hostname + ':8000',
+      results: []
     };
   };
 
@@ -75,8 +72,46 @@ class UserSearch extends Component {
     this.setState(state);
   };
 
-  _handleSearch = () => {
+  handleSearchCities = () => {
     this.setState({options: this.cities})
+  };
+
+  handleCityChange = (text) => {
+    this.setState({city: text});
+  }
+
+  handleNumberOfGuests = () => {
+    this.setState({numberOfGuests: this.numberOfGuests.value});
+  }
+
+  handleSearch = () => {
+    let _this = this;
+    let data = {
+      city: this.state.city,
+      startDate: this.state.startDate,
+      endDate: this.state.endDate,
+      numberOfGuests: this.state.numberOfGuests
+    }
+    console.log(data)
+    const api = this.state.api;
+    axios
+      .get(api + '/search', {
+        params: data
+      })
+      .then(function(response) {
+        console.log('search results', response.data)
+        var hosts = response.data;
+        hosts.map((host) => {
+          host.images = host.list_thumbnail_urls.map(function(t) {
+            return {
+              original: t.replace(/small$/, 'large'),
+              thumbnail: t,
+            }
+          });
+          return host;
+        })
+        _this.setState({results: response.data})
+      });
   }
 
   render() {
@@ -92,9 +127,10 @@ class UserSearch extends Component {
                 <Col sm={12}>
                   <AsyncTypeahead
                     {...this.state}
-                    onSearch={this._handleSearch}
+                    onSearch={this.handleSearchCities}
                     labelKey="primaryText"
                     multiple={false}
+                    onInputChange={this.handleCityChange}
                     placeholder="目的地"
                   />
                 </Col>
@@ -123,6 +159,8 @@ class UserSearch extends Component {
                       lang="cn"
                       linkedCalendars={ true }
                       minDate={moment()}
+                      startDate={moment(this.state.startDate)}
+                      endDate={moment(this.state.endDate)}
                       //onInit={this.handleSelect}
                       onChange={this.handleScheduleSelect}
                     />
@@ -139,6 +177,9 @@ class UserSearch extends Component {
               <FormGroup>
                 <Col sm={12}>
                   <FormControl type="number"
+                               min="1"
+                               inputRef={(input) => { this.numberOfGuests = input; }}
+                               onChange={this.handleNumberOfGuests}
                                placeholder="人数" />
                 </Col>
               </FormGroup>
@@ -146,7 +187,7 @@ class UserSearch extends Component {
             <Row>
               <FormGroup>
                 <Col sm={10}>
-                  <Button type="button">
+                  <Button type="button" onClick={this.handleSearch}>
                     <FontAwesome name='rocket' /> 搜索
                   </Button>
                 </Col>
@@ -154,54 +195,19 @@ class UserSearch extends Component {
             </Row>
           </Paper>
           <div>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
-            <Thumbnail src="/assets/thumbnaildiv.png" alt="242x200">
-              <h3>Thumbnail label</h3>
-              <p>Description</p>
-              <p>
-                <Button bsStyle="primary">Button</Button>&nbsp;
-                <Button bsStyle="default">Button</Button>
-              </p>
-            </Thumbnail>
+            {
+              this.state.results.map(function(host, index){
+                return (
+                  <div key={index}>
+                    <h5>{host.airbnb_pk}</h5>
+                    <ImageGallery
+                      showThumbnails={false}
+                      items={host.images}
+                      slideInterval={30000} />
+                  </div>
+                )
+              })
+            }
           </div>
           <div className="text-center">
             <Pagination

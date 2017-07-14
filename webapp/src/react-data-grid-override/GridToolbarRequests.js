@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
-import moment from 'moment'
 require('../../react-data-grid/themes/react-data-grid-toolbar.css');
-import { DateRange } from 'react-date-range';
-import Popover from 'material-ui/Popover';
-import TextField from 'material-ui/TextField';
 import {
-  Form,
-  FormGroup,
-  ControlLabel,
-  FormControl,
-  Button,
   Grid,
   Row,
   Col
@@ -49,11 +40,13 @@ class Toolbar extends Component {
 
   renderToggleFilterButton = () => {
     return (<span></span>)
+    /*
     if (this.props.enableFilter) {
       return (<button type="button" className="btn" onClick={this.props.onToggleFilter}>
       {this.state.filterRowsButtonText}
     </button>);
     }
+    */
   }
 
   renderMatchButton = () => {

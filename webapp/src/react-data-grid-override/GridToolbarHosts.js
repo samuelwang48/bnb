@@ -250,11 +250,13 @@ class Toolbar extends Component {
 
   renderToggleFilterButton = () => {
     return (<span></span>)
+    /*
     if (this.props.enableFilter) {
       return (<button type="button" className="btn" onClick={this.props.onToggleFilter}>
       {this.state.filterRowsButtonText}
     </button>);
     }
+    */
   }
 
   handleScheduleTouchTap = () => {

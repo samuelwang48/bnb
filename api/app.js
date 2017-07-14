@@ -10,6 +10,7 @@ app.use(cors());
 
 var R = require('ramda');
 var moment = require('moment');
+var mm = require('micromatch');
 
 var ObjectId = require('mongodb').ObjectID;
 
@@ -60,38 +61,92 @@ app.post('/schedule', function (req, res) {
 
 })
 
+app.get('/search', function(req, res) {
+  var match = [];
+  var data = req.query;
+  var numberOfGuests = data.numberOfGuests || 0;
+  var city = data.city ? ['*' + data.city.toLowerCase() + '*'] : ['*', ''];
+  var startDate = data.startDate;
+  var endDate = data.endDate;
+
+  var d0 = moment(startDate);
+  var d1 = moment(endDate);
+  var delta = d1.diff(d0, 'days');
+
+  if (delta <= 0) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify([]));
+    return;
+  }
+
+  console.log('delta', delta);
+
+  MongoClient.connect(url, function(err, db) {
+     db.collection('hosts').find().toArray(function(err, docs) {
+       match = getHostsWithSchedule(
+         docs,
+         startDate,
+         endDate
+       );
+
+       match = match.filter(function(doc) {
+         return R.filter(R.propEq('available', false))(doc.availability).length === 0
+             && mm([doc.city.toLowerCase()], city).length > 0
+             && numberOfGuests <= doc.list_person_capacity
+       });
+
+       res.setHeader('Content-Type', 'application/json');
+       res.send(JSON.stringify(match));
+       db.close();
+     });
+  });
+  // numberOfGuests <= list_person_capacity
+  // date between start and end
+  // city ~= city
+});
+
+getHostsWithSchedule = function(docs, startDate, endDate) {
+  var match = [];
+  docs.forEach(function(doc) {
+    var days = doc.schedule;
+    if (days) {
+      var d0 = moment(startDate);
+      var d1 = moment(endDate);
+      var delta = d1.diff(d0, 'days');
+      var availability = [];
+  
+      for (var i=0; i<delta; i++) {
+         var d = d0.format('YYYY-MM-DD');
+         var avail = R.pipe(
+           R.find(R.propEq('date', d))
+         )(days);
+
+         availability.push(avail);
+  
+         d0.add(1, 'days');
+      }
+  
+      delete doc.schedule;
+      doc.availability = availability;
+      match.push(doc);
+    } else {
+      delete doc.schedule;
+      doc.availability = [];
+      match.push(doc);
+    }
+  });
+  return match;
+}
+
 app.get('/filter', function(req, res) {
   var match = [];
   MongoClient.connect(url, function(err, db) {
      db.collection('hosts').find().toArray(function(err, docs) {
-       docs.forEach(function(doc) {
-         var days = doc.schedule;
-         if (days) {
-           var d0 = moment(req.query.scheduleStartDate);
-           var d1 = moment(req.query.scheduleEndDate);
-           var delta = d1.diff(d0, 'days');
-           var availability = [];
-    
-           for (var i=0; i<delta; i++) {
-              var d = d0.format('YYYY-MM-DD');
-              var avail = R.pipe(
-                R.find(R.propEq('date', d))
-              )(days);
-
-              availability.push(avail);
-    
-              d0.add(1, 'days');
-           }
-    
-           delete doc.schedule;
-           doc.availability = availability;
-           match.push(doc);
-         } else {
-           delete doc.schedule;
-           doc.availability = [];
-           match.push(doc);
-         }
-       });
+       match = getHostsWithSchedule(
+         docs,
+         req.query.scheduleStartDate,
+         req.query.scheduleEndDate
+       );
        res.setHeader('Content-Type', 'application/json');
        res.send(JSON.stringify(match));
        db.close();
@@ -127,6 +182,7 @@ app.post('/fetch', function (req, res) {
                  .findOneAndUpdate(
                    {_id: ObjectId(_id)},
                    {$set: {
+                     city: doc.listing.city,
                      list_bedrooms: doc.listing.bedrooms,
                      list_beds: doc.listing.beds,
                      list_bathrooms: doc.listing.bathrooms,

@@ -242,7 +242,7 @@ const GridAdminHosts = React.createClass({
     }
     if (row.list_check_out_time) {
       if (/:/.test(row.list_check_out_time) === false) {
-         row.list_check_out_time = row.list_check_out_time + ':00';
+         row.list_check_out_time += ':00';
       }
     }
     // first convert to usd
