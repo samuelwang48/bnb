@@ -110,6 +110,7 @@ const GridAdminHosts = React.createClass({
       { key: 'region',          name: '$region',    editable: true, width: 100, editor: <RegionEditor items={this.getRegions} col="region" onUpdate={this.handleGeoUpdated} />},
       { key: 'city',            name: '$city',      editable: true, width: 100, editor: <RegionEditor items={this.getCities} col="city" onUpdate={this.handleGeoUpdated} />},
       { key: 'area',            name: '$area',      editable: true, width: 100},
+      { key: 'list_city',       name: '抓取地址',   editable: true, width: 100},
 //*/
       { key: 'list_bedrooms',         name: '卧室',   editable: true, width: 50},
       { key: 'list_beds',             name: '床',     editable: true, width: 50},

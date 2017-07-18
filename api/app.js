@@ -91,7 +91,11 @@ app.get('/search', function(req, res) {
 
        match = match.filter(function(doc) {
          return R.filter(R.propEq('available', false))(doc.availability).length === 0
-             && mm([doc.city.toLowerCase()], city).length > 0
+             &&
+             (
+                  mm([(doc.city || '').toLowerCase()], city).length > 0
+               || mm([(doc.list_city || '').toLowerCase()], city).length > 0
+             )
              && numberOfGuests <= doc.list_person_capacity
        });
 
@@ -182,7 +186,7 @@ app.post('/fetch', function (req, res) {
                  .findOneAndUpdate(
                    {_id: ObjectId(_id)},
                    {$set: {
-                     city: doc.listing.city,
+                     list_city: doc.listing.city,
                      list_bedrooms: doc.listing.bedrooms,
                      list_beds: doc.listing.beds,
                      list_bathrooms: doc.listing.bathrooms,

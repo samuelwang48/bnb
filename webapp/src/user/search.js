@@ -5,6 +5,7 @@ import moment from 'moment'
 import { DateRange } from 'react-date-range';
 import Popover from 'material-ui/Popover';
 import {AsyncTypeahead} from 'react-bootstrap-typeahead';
+import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 
 import {
   Pagination,
@@ -36,7 +37,12 @@ class UserSearch extends Component {
       minLength: 1,
       activePage: 1,
       api: 'http://' + window.location.hostname + ':8000',
-      results: []
+      results: [],
+      currency: {
+        usd2jpy: -1,
+        usd2cny: -1,
+      },
+      currentCurrency: 'cny'
     };
   };
 
@@ -101,14 +107,37 @@ class UserSearch extends Component {
       .then(function(response) {
         console.log('search results', response.data)
         var hosts = response.data;
-        hosts.map((host) => {
-          host.images = host.list_thumbnail_urls.map(function(t) {
+        hosts.map((row) => {
+          row.images = row.list_thumbnail_urls.map(function(t) {
             return {
               original: t.replace(/small$/, 'large'),
               thumbnail: t,
             }
           });
-          return host;
+
+          row.images.splice(1, 0, {
+              original: row.list_map_image_url,
+              thumbnail: row.list_map_image_url,
+          });
+
+          if (row.list_native_currency === 'USD') {
+            row.list_price_usd                         = Math.round(row.list_price);
+            // then calculate other currencies based on currentCurrency
+            if (_this.state.currentCurrency === 'usd') {
+              // do nothing
+              row.list_price_conv                         = '$' + Math.round(row.list_price_usd);
+            }
+            else if (_this.state.currentCurrency === 'jpy') {
+              const usd2jpy = _this.state.currency.usd2jpy;
+              row.list_price_conv                         = Math.round(row.list_price_usd * usd2jpy) + '円';
+            }
+            else if (_this.state.currentCurrency === 'cny') {
+              const usd2cny = _this.state.currency.usd2cny;
+              row.list_price_conv                         = Math.round(row.list_price_usd * usd2cny) + '元';
+            }
+          }
+
+          return row;
         })
         _this.setState({results: response.data})
       });
@@ -118,13 +147,14 @@ class UserSearch extends Component {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
         <div>
-          <Paper zDepth={2} rounded={false}
+          <Paper className="mobile-search-form"
+                 zDepth={2} rounded={false}
                  style={{
-                   padding: '10px',
+                   padding: '5px 10px 10px 10px',
                  }}>
             <Row>
               <FormGroup>
-                <Col sm={12}>
+                <Col xs={12}>
                   <AsyncTypeahead
                     {...this.state}
                     onSearch={this.handleSearchCities}
@@ -138,7 +168,7 @@ class UserSearch extends Component {
             </Row>
             <Row>
               <FormGroup>
-                <Col sm={12}>
+                <Col xs={12}>
                   <FormControl type="text"
                      inputRef={(input) => { this.dateRangeEl = input; }}
                      value={
@@ -175,7 +205,7 @@ class UserSearch extends Component {
             </Row>
             <Row>
               <FormGroup>
-                <Col sm={12}>
+                <Col xs={12}>
                   <FormControl type="number"
                                min="1"
                                inputRef={(input) => { this.numberOfGuests = input; }}
@@ -186,7 +216,7 @@ class UserSearch extends Component {
             </Row>
             <Row>
               <FormGroup>
-                <Col sm={10}>
+                <Col xs={10}>
                   <Button type="button" onClick={this.handleSearch}>
                     <FontAwesome name='rocket' /> 搜索
                   </Button>
@@ -194,16 +224,44 @@ class UserSearch extends Component {
               </FormGroup>
             </Row>
           </Paper>
-          <div>
+          <div className="user-search">
             {
               this.state.results.map(function(host, index){
                 return (
                   <div key={index}>
-                    <h5>{host.airbnb_pk}</h5>
                     <ImageGallery
                       showThumbnails={false}
                       items={host.images}
                       slideInterval={30000} />
+                    <div className="search-result">
+                      <Row>
+                        <Col xs={6}>
+                          {host.list_price_conv}
+                        </Col>
+                        <Col xs={6} className="text-right">
+                          <StarRatingComponent 
+                              name="rate1" 
+                              starCount={5}
+                              value={host.list_star_rating}
+                              renderStarIcon={(index, value) => {
+                                return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
+                              }}
+                              renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
+                          />
+                          <span className="rating-val">{host.list_star_rating}</span>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col xs={6}>
+                          {host.list_beds}张床
+                          &nbsp;·&nbsp; 
+                          {host.list_person_capacity}位房客
+                        </Col>
+                        <Col xs={6}>
+                          <Button bsStyle="success" className="pull-right">预定</Button>
+                        </Col>
+                      </Row>
+                    </div>
                   </div>
                 )
               })
@@ -225,6 +283,17 @@ class UserSearch extends Component {
         </div>
       </MuiThemeProvider>
     )
+  }
+
+  componentWillMount() {
+    let com = this;
+    const api = this.state.api;
+
+    axios
+      .get(api + '/currency')
+      .then(function(response) {
+        com.setState({currency: response.data[0]});
+      });
   }
 
 }

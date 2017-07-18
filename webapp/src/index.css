@@ -26,6 +26,9 @@ body {
 .search-form .area input {
   margin-top: -4px;
 }
+.mobile-search-form .row {
+  margin-top: 5px;
+}
 .arrow-right {
   margin-top: 23px;
 }
@@ -97,4 +100,21 @@ select.editor-main:focus {
   max-height: 330px;
   overflow: hidden;
 }
-
+.user-search {
+  color: #aaa;
+  padding: 10px;
+}
+.user-search .image-gallery-swipe {
+  height: 240px;
+  max-height: 240px;
+  overflow: hidden;
+}
+.rating-val {
+  position: relative;
+  top: -8px;
+  margin-left: 5px;
+}
+.search-result {
+  font-size: 12pt;
+  margin: 10px 0;
+}
