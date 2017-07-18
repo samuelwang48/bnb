@@ -125,7 +125,7 @@ getHostsWithSchedule = function(docs, startDate, endDate) {
            R.find(R.propEq('date', d))
          )(days);
 
-         availability.push(avail);
+         availability.push(avail || {});
   
          d0.add(1, 'days');
       }
