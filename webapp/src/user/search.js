@@ -14,7 +14,6 @@ import {
   FormGroup,
   FormControl,
   Button,
-  Thumbnail
 } from 'react-bootstrap';
 
 import ImageGallery from 'react-image-gallery';
@@ -90,6 +89,20 @@ class UserSearch extends Component {
     this.setState({numberOfGuests: this.numberOfGuests.value});
   }
 
+  handleReserve = (host) => {
+    let reservation = {
+      startDate: this.state.startDate,
+      endDate: this.state.endDate,
+      startDateStr: this.state.startDateStr,
+      endDateStr: this.state.endDateStr,
+      city: this.state.city,
+      numberOfGuests: this.state.numberOfGuests,
+      _id: host._id
+    }
+
+    this.props.onReserve(reservation);
+  }
+
   handleSearch = () => {
     let _this = this;
     let data = {
@@ -144,6 +157,8 @@ class UserSearch extends Component {
   }
 
   render() {
+    let _this = this;
+
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
         <div>
@@ -258,7 +273,8 @@ class UserSearch extends Component {
                           {host.list_person_capacity}位房客
                         </Col>
                         <Col xs={6}>
-                          <Button bsStyle="success" className="pull-right">预定</Button>
+                          <Button bsStyle="success" className="pull-right"
+                                  onClick={_this.handleReserve.bind(_this, host)} >预定</Button>
                         </Col>
                       </Row>
                     </div>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import AppNav from './AppNav';
 import UserSearch from './user/search';
+import UserBook from './user/book';
 import UserRequest from './user/request';
 import AdminRequests from './admin/requests';
 import AdminHosts from './admin/hosts';
@@ -22,15 +23,31 @@ class Home extends Component {
     super(props);
 
     this.state = {
+      reservation: null
     };
   }
 
+  handleReserve = (reservation) => {
+    this.setState({reservation});
+    this.props.history.push('/user/book/' + reservation._id);
+  }
+
+  componentDidUpdate() {
+    console.log(111, this.state);
+  }
+
   render() {
+    let _this = this;
     return (
       <div>
-        <AppNav {...this.props}/>
+        <AppNav {...this.props} />
         <div>
-          <Route path="/user/search" component={UserSearch}/>
+          <Route path="/user/search" render={({ match }) =>
+              <UserSearch onReserve={this.handleReserve} />
+          } />
+          <Route path="/user/book/:id"  render={({ match }) =>
+              <UserBook {...this.state} match={match} />
+          } />
           <Route path="/user/request" component={UserRequest}/>
           <Route path="/admin/requests" component={AdminRequests}/>
           <Route path="/admin/hosts" component={AdminHosts}/>

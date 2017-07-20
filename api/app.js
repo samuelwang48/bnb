@@ -245,6 +245,18 @@ app.get('/host', function (req, res) {
     });
 })
 
+app.get('/host/:id', function (req, res) {
+    var _id = req.params.id;
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       db.collection('hosts').findOne({_id: ObjectId(_id)}, {}, function(err, doc) {
+         res.setHeader('Content-Type', 'application/json');
+         res.send(JSON.stringify(doc));
+         db.close();
+       });
+    });
+})
+
 app.post('/host', function (req, res) {
     var data = req.body.data;
     // Connect using MongoClient
