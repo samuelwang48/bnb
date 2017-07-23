@@ -310,6 +310,10 @@ class UserSearch extends Component {
       .then(function(response) {
         com.setState({currency: response.data[0]});
       });
+
+    if (this.props.reservation) {
+       console.log('cached reservation detected')
+    }
   }
 
 }

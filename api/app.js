@@ -33,11 +33,15 @@ app.post('/schedule', function (req, res) {
         count: 2
       }).then(function(schedule) {
         MongoClient.connect(url, function(err, db) {
-
            var days = R.pipe(
              R.map(R.prop('days')),
              R.flatten,
-             R.map(function(d) { delete d.price; return d})
+             R.map(function(d) {
+               d.local_price = d.price.local_price;
+               d.local_currency = d.price.local_currency; 
+               delete d.price;
+               return d;
+             })
            )(schedule.calendar_months);
            db.collection('hosts').findOneAndUpdate(
              { _id: ObjectId(_id) },
@@ -216,7 +220,8 @@ app.post('/fetch', function (req, res) {
                    db.collection('hosts')
                      .findOne({_id: ObjectId(_id)}).then(function(result){
                          //console.log(result)
-                         resolve(result);
+                         //resolve(result);
+                         resolve(doc);
                      });
                  });
            }

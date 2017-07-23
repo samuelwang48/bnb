@@ -43,7 +43,7 @@ class Home extends Component {
         <AppNav {...this.props} />
         <div>
           <Route path="/user/search" render={({ match }) =>
-              <UserSearch onReserve={this.handleReserve} />
+              <UserSearch {...this.state} onReserve={this.handleReserve} />
           } />
           <Route path="/user/book/:id"  render={({ match }) =>
               <UserBook {...this.state} match={match} />
