@@ -431,7 +431,7 @@ console.log(123, current)
       var nth = R.nth(index, com.getRows());
       return R.pick(['_id', 'airbnb_pk'], nth);
     })(this.state.selectedIndexes);
-
+console.log('fetch schedule', data)
     const api = this.state.api;
     axios
       .post(api + '/schedule', {

@@ -33,7 +33,8 @@ class AppNav extends Component {
           <DropdownButton title="管理入口" id="adminMenu" bsSize="xsmall">
             <MenuItem eventKey="/admin/requests"
                       onSelect={this.onMenuItemSelect}>需求匹配管理</MenuItem>
-            <MenuItem>订单管理</MenuItem>
+            <MenuItem eventKey="/admin/orders"
+                      onSelect={this.onMenuItemSelect}>订单管理</MenuItem>
             <MenuItem eventKey="/admin/hosts"
                       onSelect={this.onMenuItemSelect}>房源管理</MenuItem>
           </DropdownButton>

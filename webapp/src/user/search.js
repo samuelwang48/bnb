@@ -97,7 +97,7 @@ class UserSearch extends Component {
       endDateStr: this.state.endDateStr,
       city: this.state.city,
       numberOfGuests: this.state.numberOfGuests,
-      _id: host._id
+      _id: host._id,
     }
 
     this.props.onReserve(reservation);

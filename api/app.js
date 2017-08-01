@@ -378,6 +378,37 @@ app.get('/request', function (req, res) {
     });
 })
 
+app.post('/book', function (req, res) {
+    var data = req.body.data;
+    if (!Array.isArray(data)) {
+        data = [data];
+    }
+    console.log(111, data);
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       data.forEach(function(d) {
+          db.collection('orders')
+            .insertOne(d)
+            .then(function() {
+              db.close();
+            });
+       })
+       res.setHeader('Content-Type', 'application/json');
+       res.send(JSON.stringify(data));
+    });
+})
+
+app.get('/order', function (req, res) {
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       db.collection('orders').find().toArray(function(err, docs) {
+         res.setHeader('Content-Type', 'application/json');
+         res.send(JSON.stringify(docs));
+         db.close();
+       });
+    });
+})
+
 app.listen(8000, function () {
   console.log('Example app listening on port 8000!')
 })
