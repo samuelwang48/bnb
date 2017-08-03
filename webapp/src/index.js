@@ -24,13 +24,19 @@ class Home extends Component {
     super(props);
 
     this.state = {
-      reservation: null
+      reservation: null,
+      results: [],
     };
   }
 
   handleReserve = (reservation) => {
     this.setState({reservation});
     this.props.history.push('/user/book/' + reservation._id);
+  }
+
+  handleSearch = (cond, results) => {
+    console.log('11search results', results)
+    this.setState({cond, results});
   }
 
   componentDidUpdate() {
@@ -44,7 +50,9 @@ class Home extends Component {
         <AppNav {...this.props} />
         <div>
           <Route path="/user/search" render={({ match }) =>
-              <UserSearch {...this.state} onReserve={this.handleReserve} />
+              <UserSearch {...this.state}
+                 onSearchResults={this.handleSearch}
+                 onReserve={this.handleReserve} />
           } />
           <Route path="/user/book/:id"  render={({ match }) =>
               <UserBook {...this.state} match={match} />

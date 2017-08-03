@@ -153,6 +153,13 @@ class UserSearch extends Component {
           return row;
         })
         _this.setState({results: response.data})
+
+        _this.props.onSearchResults({
+          city: _this.state.city,
+          startDate: moment(_this.state.startDate),
+          endDate: moment(_this.state.endDate),
+          numberOfGuests: _this.state.numberOfGuests
+        }, response.data);
       });
   }
 
@@ -171,6 +178,7 @@ class UserSearch extends Component {
               <FormGroup>
                 <Col xs={12}>
                   <AsyncTypeahead
+                    ref="cityEl"
                     {...this.state}
                     onSearch={this.handleSearchCities}
                     labelKey="primaryText"
@@ -301,7 +309,30 @@ class UserSearch extends Component {
     )
   }
 
+  componentDidMount() {
+    let cond = this.props.cond;
+    if (cond) {
+      this.setState({
+        startDate: cond.startDate,
+        endDate: cond.endDate,
+        startDateStr: cond.startDate.locale('zh-cn').format('L'),
+        endDateStr: cond.endDate.locale('zh-cn').format('L'),
+        city: cond.city,
+        numberOfGuests: cond.numberOfGuests
+      });
+      this.numberOfGuests.value = cond.numberOfGuests;
+      this.refs.cityEl.getInstance().state.text = cond.city;
+    }
+  }
+
   componentWillMount() {
+    console.log(123123, 'will mount')
+    console.log(123123, this.props.reservation)
+    let results = this.props.results;
+    if (results) {
+      this.setState({results});
+    }
+
     let com = this;
     const api = this.state.api;
 
