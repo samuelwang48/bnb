@@ -37,6 +37,8 @@ class AppNav extends Component {
                       onSelect={this.onMenuItemSelect}>订单管理</MenuItem>
             <MenuItem eventKey="/admin/hosts"
                       onSelect={this.onMenuItemSelect}>房源管理</MenuItem>
+            <MenuItem eventKey="/admin/agenda"
+                      onSelect={this.onMenuItemSelect}>Agenda</MenuItem>
           </DropdownButton>
         </div>
       </div>

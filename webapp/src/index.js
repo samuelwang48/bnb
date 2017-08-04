@@ -7,6 +7,7 @@ import UserRequest from './user/request';
 import AdminRequests from './admin/requests';
 import AdminHosts from './admin/hosts';
 import AdminOrders from './admin/orders';
+import Agenda from './admin/agenda';
 
 import {
   BrowserRouter as Router,
@@ -61,6 +62,7 @@ class Home extends Component {
           <Route path="/admin/requests" component={AdminRequests}/>
           <Route path="/admin/hosts" component={AdminHosts}/>
           <Route path="/admin/orders" component={AdminOrders}/>
+          <Route path="/admin/agenda" component={Agenda}/>
         </div>
       </div>
     )

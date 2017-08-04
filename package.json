@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "agenda": "^0.9.1",
+    "agendash": "^0.4.0",
     "airapi": "^0.1.0",
     "body-parser": "^1.17.1",
     "cors": "^2.8.3",

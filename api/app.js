@@ -3,6 +3,9 @@ var cors = require('cors')
 var airbnb = require('./airapi');
 var app = express();
 var bodyParser = require('body-parser');
+var Agenda = require('agenda');
+
+
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support encoded bodies
 
@@ -16,7 +19,99 @@ var ObjectId = require('mongodb').ObjectID;
 
 var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017/db';
+var agendaMongo = 'mongodb://localhost:27017/agenda';
+var agenda = new Agenda({db: {address: agendaMongo}});
 
+agenda.define('fetch_calendar', function(job, done) {
+  if (job.attrs.sw === false) {
+    job.fail('invalid schedule');
+    done();
+  } else {
+    job.disable();
+    done();
+  }
+});
+
+app.post('/queue/execute', function (req, res) {
+  var data = req.body.data;
+  var id = data.id;
+  var result = data.result;
+  var sw = data.sw;
+
+  agenda.jobs({_id: ObjectId(id)}, function(err, jobs) {
+    job = jobs[0];
+    job.attrs.sw = sw;
+    job.save();
+
+    job.run(function(err, job) {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(job));
+    })
+  });
+});
+
+app.post('/queue/jobs', function (req, res) {
+  agenda.jobs({
+    name: 'fetch_calendar',
+    disabled: {$exists: false}
+  }, function(err, jobs) {
+    var jobs = jobs.map(function(j) {
+      return {
+        id: j.attrs._id,
+        airbnb_pk: j.attrs.data.airbnb_pk,
+      }
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(jobs));
+  });
+});
+
+app.post('/queue/purge', function (req, res) {
+  agenda.cancel({name: 'fetch_calendar'}, function(err, numRemoved) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify([err, numRemoved]));
+  });
+})
+
+app.post('/queue/cal', function (req, res) {
+  var data = req.body.data;
+  var airbnb_pk = data.airbnb_pk;
+
+  var create_jobs = function(airbnb_pk) {
+    var promises = airbnb_pk.map(function(pk) {
+      return new Promise(function(resolve, reject) {
+        var job = agenda.create('fetch_calendar', {airbnb_pk: pk});
+        job.save(function(err) {
+          if (!err) {
+            console.log('Job successfully saved');
+            resolve(pk);
+          } else {
+            reject(pk);
+          }
+        });
+      });
+    });
+
+    Promise.all(promises).then(function(results) {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(results));
+    });
+  }
+
+  if (!airbnb_pk) {
+    agenda.cancel({name: 'fetch_calendar'}, function(err, numRemoved) {
+      MongoClient.connect(url, function(err, db) {
+         db.collection('hosts').find().toArray(function(err, docs) {
+           airbnb_pk = docs.map(function(d) { return d.airbnb_pk; });
+           db.close();
+           create_jobs(airbnb_pk);
+         });
+      });
+    });
+  } else {
+    create_jobs(airbnb_pk);
+  }
+})
 
 app.post('/schedule', function (req, res) {
   var data = req.body.data;

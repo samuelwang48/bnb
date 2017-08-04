@@ -47,3 +47,8 @@ NODE_ENV=production npm run build
 @reboot su - root -c '/usr/local/bin/forever start --spinSleepTime=5000 --minUptime=5000 /var/tmp/www/bnb/api/app.js'
 @reboot /sbin/service httpd restart
 ```
+
+## Agenda UI
+```
+./node_modules/.bin/agendash --db=mongodb://localhost/agenda --port=3001
+```
