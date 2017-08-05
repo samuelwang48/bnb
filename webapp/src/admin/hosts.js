@@ -101,6 +101,7 @@ const GridAdminHosts = React.createClass({
       { key: 'details',         name: '',           editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
       { key: 'list_star_rating',name: '星级',       editable: true, width: 40,  formatter: <StarFormatter { ...this.props }/>},
       { key: 'availability',             name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
+      { key: 'tf',             name: '日历同步',   editable: false, width: 70},
       { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
       { key: 'local_id',        name: '编号',       editable: true, width: 100},
       //{ key: 'list_user_last_name',  name: '姓',       editable: true, width: 80},

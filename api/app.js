@@ -22,13 +22,52 @@ var url = 'mongodb://localhost:27017/db';
 var agendaMongo = 'mongodb://localhost:27017/agenda';
 var agenda = new Agenda({db: {address: agendaMongo}});
 
+var findHostIdByAirbnbPk = function(airbnb_pk, callback) {
+  MongoClient.connect(url, function(err, db) {
+     db.collection('hosts').find({
+       airbnb_pk: airbnb_pk
+     }).toArray(function(err, docs) {
+       var ids = docs.map(function(d) { return d._id; });
+       db.close();
+       callback(ids);
+     });
+  });
+}
+
+var updateSchedule = function(ids, calendar_months, callback) {
+  MongoClient.connect(url, function(err, db) {
+     var days = R.pipe(
+       R.map(R.prop('days')),
+       R.flatten,
+       R.map(function(d) {
+         d.local_price = d.price.local_price;
+         d.local_currency = d.price.local_currency; 
+         delete d.price;
+         return d;
+       })
+     )(calendar_months);
+     db.collection('hosts').updateMany(
+       { _id: {$in: ids.map(function(id) { return ObjectId(id); })} },
+       { $set: { 'schedule': days, 'tf': moment().format('M/D HH:mm') } }
+     ).then(function() {
+       //console.log(JSON.stringify(arguments))
+       db.close();
+       callback(days);
+     })
+  });
+}
+
 agenda.define('fetch_calendar', function(job, done) {
-  if (job.attrs.sw === false) {
+  if (job.attrs._validity === false) {
     job.fail('invalid schedule');
     done();
   } else {
-    job.disable();
-    done();
+    findHostIdByAirbnbPk(job.attrs.data.airbnb_pk, function(ids) {
+      updateSchedule(ids, job.attrs.data.result, function() {
+        job.disable();
+        done();
+      })
+    });
   }
 });
 
@@ -36,16 +75,17 @@ app.post('/queue/execute', function (req, res) {
   var data = req.body.data;
   var id = data.id;
   var result = data.result;
-  var sw = data.sw;
+  var _validity = data._validity;
 
   agenda.jobs({_id: ObjectId(id)}, function(err, jobs) {
     job = jobs[0];
-    job.attrs.sw = sw;
+    job.attrs._validity = _validity;
+    job.attrs.data.result = result;
     job.save();
 
     job.run(function(err, job) {
       res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(job));
+      res.send(JSON.stringify([job, err]));
     })
   });
 });
@@ -83,7 +123,7 @@ app.post('/queue/cal', function (req, res) {
         var job = agenda.create('fetch_calendar', {airbnb_pk: pk});
         job.save(function(err) {
           if (!err) {
-            console.log('Job successfully saved');
+            //console.log('Job successfully saved');
             resolve(pk);
           } else {
             reject(pk);
@@ -103,6 +143,10 @@ app.post('/queue/cal', function (req, res) {
       MongoClient.connect(url, function(err, db) {
          db.collection('hosts').find().toArray(function(err, docs) {
            airbnb_pk = docs.map(function(d) { return d.airbnb_pk; });
+           airbnb_pk = R.pipe(
+             R.uniq,
+             R.reject(function(x) { return x === ''})
+           )(airbnb_pk);
            db.close();
            create_jobs(airbnb_pk);
          });
@@ -111,6 +155,13 @@ app.post('/queue/cal', function (req, res) {
   } else {
     create_jobs(airbnb_pk);
   }
+})
+
+app.post('/ip', function(req, res) {
+  var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(ip));
 })
 
 app.post('/schedule', function (req, res) {
@@ -127,26 +178,7 @@ app.post('/schedule', function (req, res) {
         year: dt.getFullYear(),
         count: 2
       }).then(function(schedule) {
-        MongoClient.connect(url, function(err, db) {
-           var days = R.pipe(
-             R.map(R.prop('days')),
-             R.flatten,
-             R.map(function(d) {
-               d.local_price = d.price.local_price;
-               d.local_currency = d.price.local_currency; 
-               delete d.price;
-               return d;
-             })
-           )(schedule.calendar_months);
-           db.collection('hosts').findOneAndUpdate(
-             { _id: ObjectId(_id) },
-             { $set: { 'schedule': days } }
-           ).then(function() {
-             //console.log(JSON.stringify(arguments))
-             db.close();
-             resolve(days);
-           })
-        });
+        updateSchedule([_id], schedule.calendar_months, resolve);
       }, function() {
         resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });

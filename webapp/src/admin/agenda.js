@@ -22,6 +22,7 @@ class BnbAgenda extends Component {
     this.state = {
       api: 'http://' + window.location.hostname + ':8000',
       interval: 200,
+      ip: '',
     }
   }
 
@@ -64,8 +65,30 @@ class BnbAgenda extends Component {
       });
   }
 
+  fetchCalendar(airbnb_pk) {
+    const d = new Date();
+    const airbnb_api = 'https://zh.airbnb.com/api/v2';
+    const resource = 'calendar_months';
+    let params = {
+      listing_id: airbnb_pk,
+      key: 'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+      currency: 'USD',
+      locale: 'en',
+      month: d.getMonth() + 1,
+      year: d.getFullYear(),
+      count: 2,
+      _format: 'with_conditions',
+    }
+
+    //return new Promise(function(resolve){resolve({data:{}})});
+
+    return axios
+      .get(airbnb_api + '/' + resource, {
+        params: params,
+      });
+  }
+
   handleExecute() {
-    let sw = true;
     const _this = this;
     const api = this.state.api;
     axios
@@ -75,25 +98,59 @@ class BnbAgenda extends Component {
         jobs.forEach((job, index)=>{
           setTimeout(() => {
             console.log('received job', job.id, 'pk', job.airbnb_pk);
-            axios
-              .post(api + '/queue/execute', {data: {
-                id: job.id,
-                result: 'post fetched!' + job.airbnb_pk,
-                sw: sw,
-              }})
-              .then(function(response) {
-                console.log('executed!', response.data);
-              });
-              sw = !sw;
+
+            _this.fetchCalendar(job.airbnb_pk)
+              .then((response)=>{
+                console.log('1 airbnb response', response)
+                let schedule = response.data;
+                let calendar_months = schedule.calendar_months;
+                console.log('1 airbnb response', calendar_months)
+                axios
+                  .post(api + '/queue/execute', {data: {
+                    id: job.id,
+                    result: calendar_months,
+                    _validity: true,
+                  }})
+                  .then(function(response) {
+                    console.log('executed!', response.data);
+                  });
+              }, (err)=>{
+                console.log('2 airbnb err', err)
+                axios
+                  .post(api + '/queue/execute', {data: {
+                    id: job.id,
+                    result: err,
+                    _validity: false,
+                  }})
+                  .then(function(response) {
+                    console.log('executed!', response.data);
+                  });
+              })
           }, index * _this.state.interval);
         })
       });
+  }
+
+  handleIntervalChange() {
+    this.setState({interval: parseInt(this.intervalRef.value)});
   }
 
   render() {
     const agenda = 'http://' + window.location.hostname + ':3001';
     return  (
       <div style={{padding: '15px'}}>
+        <Row>
+          <Col>
+            <Form inline>
+              客户端IP: {this.state.ip} &nbsp;
+              执行频率
+              <FormControl type="number"
+                           style={{width: 70}}
+                           inputRef={(input) => { this.intervalRef = input; }}
+                           onChange={this.handleIntervalChange.bind(this)}/>毫秒
+            </Form>
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Form inline>
@@ -121,6 +178,16 @@ class BnbAgenda extends Component {
   }
 
   componentDidMount() {
+    const _this = this;
+    const api = this.state.api;
+    axios
+      .post(api + '/ip', {data: {}})
+      .then(function(response) {
+        console.log('ip', response.data);
+        _this.setState({ip: response.data});
+      });
+
+    this.intervalRef.value = this.state.interval;
   }
 
 };
