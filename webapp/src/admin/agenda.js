@@ -10,9 +10,11 @@ const axios = require('axios');
 import {
   Row,
   Col,
-  Button,
+  //Button,
   FormControl,
   Form,
+  DropdownButton,
+  MenuItem,
 } from 'react-bootstrap';
 
 class BnbAgenda extends Component {
@@ -26,31 +28,31 @@ class BnbAgenda extends Component {
     }
   }
 
-  handleAllCalBat() {
-    if (!confirm('重建队列将抹去当前所有未完成的队列')) {
+  handleAllCalBat(type) {
+    if (!confirm('重建任务将抹去当前所有未完成的同类型任务')) {
       return
     }
     const api = this.state.api;
     axios
-      .post(api + '/queue/cal', {data: {}})
+      .post(api + '/queue/create', {data: {type: type}})
       .then(function(response) {
         console.log(response.data);
       });
   }
 
-  handlePurge() {
-    if (!confirm('清空队列将抹去当前所有未完成的队列')) {
+  handlePurge(type) {
+    if (!confirm('清空任务将抹去当前所有未完成的同类型任务')) {
       return
     }
     const api = this.state.api;
     axios
-      .post(api + '/queue/purge', {data: {}})
+      .post(api + '/queue/purge', {data: {type: type}})
       .then(function(response) {
         console.log(response.data);
       });
   }
 
-  handleSingleCalBat() {
+  handleSingleCalBat(type) {
     let airbnb_pk = this.airbnb_pk.value;
     if (!airbnb_pk) {
       alert('请输入airbnb_pk, 多个之间以逗号隔开');
@@ -59,18 +61,23 @@ class BnbAgenda extends Component {
     airbnb_pk = airbnb_pk.split(',');
     const api = this.state.api;
     axios
-      .post(api + '/queue/cal', {data: {airbnb_pk: airbnb_pk}})
+      .post(api + '/queue/create', {data: {
+         airbnb_pk: airbnb_pk,
+         type: type
+      }})
       .then(function(response) {
         console.log(response.data);
       });
   }
 
-  fetchCalendar(airbnb_pk) {
+  fetchCalendar(job) {
+    const _this = this;
+    const api = this.state.api;
     const d = new Date();
     const airbnb_api = 'https://zh.airbnb.com/api/v2';
     const resource = 'calendar_months';
     let params = {
-      listing_id: airbnb_pk,
+      listing_id: job.airbnb_pk,
       key: 'd306zoyjsyarp7ifhu67rjxn52tv0t20',
       currency: 'USD',
       locale: 'en',
@@ -85,47 +92,94 @@ class BnbAgenda extends Component {
     return axios
       .get(airbnb_api + '/' + resource, {
         params: params,
-      });
+      })
+      .then((response)=>{
+        console.log('fetched', response)
+        let schedule = response.data;
+        let calendar_months = schedule.calendar_months;
+        axios
+          .post(api + '/queue/execute', {data: {
+            id: job.id,
+            result: calendar_months,
+            _validity: true,
+          }})
+          .then(function(response) {
+            console.log('executed!', response.data);
+          });
+      }, (err)=>{
+        console.log('failed', err)
+        axios
+          .post(api + '/queue/execute', {data: {
+            id: job.id,
+            result: err,
+            _validity: false,
+          }})
+          .then(function(response) {
+            console.log('executed but failed!', response.data);
+          });
+      })
   }
 
-  handleExecute() {
+  fetchHost(job) {
+    const _this = this;
+    const api = this.state.api;
+    const d = new Date();
+    const airbnb_api = 'https://zh.airbnb.com/api/v1';
+    const resource = 'listings';
+
+    let params = {
+      key: 'd306zoyjsyarp7ifhu67rjxn52tv0t20',
+    }
+
+    //return new Promise(function(resolve){resolve({data:{}})});
+
+    return axios
+      .get(airbnb_api + '/' + resource + '/' + job.airbnb_pk, {
+        params: params,
+      })
+      .then((response)=>{
+        console.log('fetched', response)
+        let host = response.data;
+        axios
+          .post(api + '/queue/execute', {data: {
+            id: job.id,
+            result: host,
+            _validity: true,
+          }})
+          .then(function(response) {
+            console.log('executed!', response.data);
+          });
+      }, (err)=>{
+        console.log('failed', err)
+        axios
+          .post(api + '/queue/execute', {data: {
+            id: job.id,
+            result: err,
+            _validity: false,
+          }})
+          .then(function(response) {
+            console.log('executed but failed!', response.data);
+          });
+      })
+  }
+
+  handleExecute(type) {
     const _this = this;
     const api = this.state.api;
     axios
-      .post(api + '/queue/jobs', {})
+      .post(api + '/queue/jobs', {data: {type: type}})
       .then(function(response) {
         let jobs = response.data;
         jobs.forEach((job, index)=>{
           setTimeout(() => {
             console.log('received job', job.id, 'pk', job.airbnb_pk);
 
-            _this.fetchCalendar(job.airbnb_pk)
-              .then((response)=>{
-                console.log('1 airbnb response', response)
-                let schedule = response.data;
-                let calendar_months = schedule.calendar_months;
-                console.log('1 airbnb response', calendar_months)
-                axios
-                  .post(api + '/queue/execute', {data: {
-                    id: job.id,
-                    result: calendar_months,
-                    _validity: true,
-                  }})
-                  .then(function(response) {
-                    console.log('executed!', response.data);
-                  });
-              }, (err)=>{
-                console.log('2 airbnb err', err)
-                axios
-                  .post(api + '/queue/execute', {data: {
-                    id: job.id,
-                    result: err,
-                    _validity: false,
-                  }})
-                  .then(function(response) {
-                    console.log('executed!', response.data);
-                  });
-              })
+            if (type === 'fetch_calendar') {
+              _this.fetchCalendar(job)
+            }
+            else if (type === 'fetch_host') {
+              _this.fetchHost(job)
+            }
           }, index * _this.state.interval);
         })
       });
@@ -154,13 +208,45 @@ class BnbAgenda extends Component {
         <Row>
           <Col>
             <Form inline>
-             <Button onClick={this.handleAllCalBat.bind(this)}>重建排期队列</Button>&nbsp;
+             <DropdownButton title="自动重建任务" id="auto-create-task">
+               <MenuItem eventKey="1"
+                         onSelect={this.handleAllCalBat.bind(this, 'fetch_calendar')}
+                         >重建日历任务</MenuItem>
+               <MenuItem eventKey="1"
+                         onSelect={this.handleAllCalBat.bind(this, 'fetch_host')}
+                         >重建房源任务</MenuItem>
+             </DropdownButton>
+
              <FormControl type="text"
                           inputRef={(input) => { this.airbnb_pk = input; }}
-                          placeholder="airbnb_pk" />&nbsp;
-             <Button onClick={this.handleSingleCalBat.bind(this)}>手动排期入队</Button>&nbsp;
-             <Button onClick={this.handlePurge.bind(this)}>清空队列</Button>&nbsp;
-             <Button onClick={this.handleExecute.bind(this)}>开始执行队列</Button>
+                          placeholder="airbnb_pk" />
+
+             <DropdownButton title="手动建任务" id="manual-create-task">
+               <MenuItem eventKey="1"
+                         onSelect={this.handleSingleCalBat.bind(this, 'fetch_calendar')}
+                         >日历</MenuItem>
+               <MenuItem eventKey="1"
+                         onSelect={this.handleSingleCalBat.bind(this, 'fetch_host')}>
+                         房源</MenuItem>
+             </DropdownButton>
+
+             <DropdownButton title="清空任务" id="delete-task">
+               <MenuItem eventKey="1"
+                         onSelect={this.handlePurge.bind(this, 'fetch_calendar')}
+                         >清空日历任务</MenuItem>
+               <MenuItem eventKey="1"
+                         onSelect={this.handlePurge.bind(this, 'fetch_host')}
+                         >清空房源任务</MenuItem>
+             </DropdownButton>
+
+             <DropdownButton title="执行任务" id="run-task">
+               <MenuItem eventKey="1"
+                         onSelect={this.handleExecute.bind(this, 'fetch_calendar')}
+                         >同步日历</MenuItem>
+               <MenuItem eventKey="1"
+                         onSelect={this.handleExecute.bind(this, 'fetch_host')}
+                         >同步房源</MenuItem>
+             </DropdownButton>
             </Form>
           </Col>
         </Row>

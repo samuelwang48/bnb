@@ -57,6 +57,47 @@ var updateSchedule = function(ids, calendar_months, callback) {
   });
 }
 
+var updateHost = function(ids, doc, callback) {
+  MongoClient.connect(url, function(err, db) {
+    var updated = {
+      list_city: doc.listing.city,
+      list_bedrooms: doc.listing.bedrooms,
+      list_beds: doc.listing.beds,
+      list_bathrooms: doc.listing.bathrooms,
+      list_min_nights: doc.listing.min_nights,
+      list_person_capacity: doc.listing.person_capacity,
+      list_native_currency: doc.listing.native_currency,
+      list_price: doc.listing.price,
+      list_price_for_extra_person_native: doc.listing.price_for_extra_person_native,
+      list_cleaning_fee_native: doc.listing.cleaning_fee_native,
+      list_security_deposit_native: doc.listing.security_deposit_native,
+      list_primary_host: {
+        first_name: doc.listing.primary_host.first_name
+      },
+      list_check_out_time: doc.listing.check_out_time,
+      list_property_type: doc.listing.property_type,
+      list_reviews_count: doc.listing.reviews_count,
+      list_star_rating: doc.listing.star_rating,
+      list_room_type_category: doc.listing.room_type_category,
+      list_check_in_time: doc.listing.check_in_time,
+      list_check_in_time_ends_at: doc.listing.check_in_time_ends_at,
+      list_guest_included: doc.listing.guest_included,
+      list_thumbnail_urls: doc.listing.thumbnail_urls,
+      list_map_image_url: doc.listing.map_image_url,
+      'hf': moment().format('M/D HH:mm'),
+    };
+    db.collection('hosts')
+      .updateMany(
+        {_id: {$in: ids.map(function(id) { return ObjectId(id); })}},
+        {$set: updated}
+      )
+      .then(function() {
+        db.close();
+        callback(updated);
+      });
+  });
+}
+
 agenda.define('fetch_calendar', function(job, done) {
   if (job.attrs._validity === false) {
     job.fail('invalid schedule');
@@ -64,6 +105,20 @@ agenda.define('fetch_calendar', function(job, done) {
   } else {
     findHostIdByAirbnbPk(job.attrs.data.airbnb_pk, function(ids) {
       updateSchedule(ids, job.attrs.data.result, function() {
+        job.disable();
+        done();
+      })
+    });
+  }
+});
+
+agenda.define('fetch_host', function(job, done) {
+  if (job.attrs._validity === false) {
+    job.fail('invalid schedule');
+    done();
+  } else {
+    findHostIdByAirbnbPk(job.attrs.data.airbnb_pk, function(ids) {
+      updateHost(ids, job.attrs.data.result, function() {
         job.disable();
         done();
       })
@@ -91,8 +146,10 @@ app.post('/queue/execute', function (req, res) {
 });
 
 app.post('/queue/jobs', function (req, res) {
+  var data = req.body.data;
+  var task_type = data.type;
   agenda.jobs({
-    name: 'fetch_calendar',
+    name: task_type,
     disabled: {$exists: false}
   }, function(err, jobs) {
     var jobs = jobs.map(function(j) {
@@ -107,20 +164,23 @@ app.post('/queue/jobs', function (req, res) {
 });
 
 app.post('/queue/purge', function (req, res) {
-  agenda.cancel({name: 'fetch_calendar'}, function(err, numRemoved) {
+  var data = req.body.data;
+  var task_type = data.type;
+  agenda.cancel({name: task_type}, function(err, numRemoved) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify([err, numRemoved]));
   });
 })
 
-app.post('/queue/cal', function (req, res) {
+app.post('/queue/create', function (req, res) {
   var data = req.body.data;
+  var task_type = data.type;
   var airbnb_pk = data.airbnb_pk;
 
   var create_jobs = function(airbnb_pk) {
     var promises = airbnb_pk.map(function(pk) {
       return new Promise(function(resolve, reject) {
-        var job = agenda.create('fetch_calendar', {airbnb_pk: pk});
+        var job = agenda.create(task_type, {airbnb_pk: pk});
         job.save(function(err) {
           if (!err) {
             //console.log('Job successfully saved');
@@ -139,7 +199,7 @@ app.post('/queue/cal', function (req, res) {
   }
 
   if (!airbnb_pk) {
-    agenda.cancel({name: 'fetch_calendar'}, function(err, numRemoved) {
+    agenda.cancel({name: task_type}, function(err, numRemoved) {
       MongoClient.connect(url, function(err, db) {
          db.collection('hosts').find().toArray(function(err, docs) {
            airbnb_pk = docs.map(function(d) { return d.airbnb_pk; });
@@ -310,49 +370,7 @@ app.post('/fetch', function (req, res) {
     var _id = d._id;
     return new Promise(function(resolve, reject) {
       airbnb.getInfo(airbnb_pk).then(function(doc) {
-        MongoClient.connect(url, function(err, db) {
-           if (_id) {
-               console.log(_id, err);
-               db.collection('hosts')
-                 .findOneAndUpdate(
-                   {_id: ObjectId(_id)},
-                   {$set: {
-                     list_city: doc.listing.city,
-                     list_bedrooms: doc.listing.bedrooms,
-                     list_beds: doc.listing.beds,
-                     list_bathrooms: doc.listing.bathrooms,
-                     list_min_nights: doc.listing.min_nights,
-                     list_person_capacity: doc.listing.person_capacity,
-                     list_native_currency: doc.listing.native_currency,
-                     list_price: doc.listing.price,
-                     list_price_for_extra_person_native: doc.listing.price_for_extra_person_native,
-                     list_cleaning_fee_native: doc.listing.cleaning_fee_native,
-                     list_security_deposit_native: doc.listing.security_deposit_native,
-                     list_primary_host: {
-                       first_name: doc.listing.primary_host.first_name
-                     },
-                     list_check_out_time: doc.listing.check_out_time,
-                     list_property_type: doc.listing.property_type,
-                     list_reviews_count: doc.listing.reviews_count,
-                     list_star_rating: doc.listing.star_rating,
-                     list_room_type_category: doc.listing.room_type_category,
-                     list_check_in_time: doc.listing.check_in_time,
-                     list_check_in_time_ends_at: doc.listing.check_in_time_ends_at,
-                     list_guest_included: doc.listing.guest_included,
-                     list_thumbnail_urls: doc.listing.thumbnail_urls,
-                     list_map_image_url: doc.listing.map_image_url,
-                   }}
-                 )
-                 .then(function() {
-                   db.collection('hosts')
-                     .findOne({_id: ObjectId(_id)}).then(function(result){
-                         //console.log(result)
-                         //resolve(result);
-                         resolve(doc);
-                     });
-                 });
-           }
-        });
+        updateHost([_id], doc, resolve);
       }, function() {
         resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });
