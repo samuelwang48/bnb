@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import AppNav from './AppNav';
+import Login from './Login';
 import UserSearch from './user/search';
 import UserBook from './user/book';
 import UserRequest from './user/request';
@@ -8,6 +9,7 @@ import AdminRequests from './admin/requests';
 import AdminHosts from './admin/hosts';
 import AdminOrders from './admin/orders';
 import Agenda from './admin/agenda';
+import AdminUsers from './admin/users';
 
 import {
   BrowserRouter as Router,
@@ -50,6 +52,7 @@ class Home extends Component {
       <div>
         <AppNav {...this.props} />
         <div>
+          <Route path="/login" component={Login}/>
           <Route path="/user/search" render={({ match }) =>
               <UserSearch {...this.state}
                  onSearchResults={this.handleSearch}
@@ -62,6 +65,7 @@ class Home extends Component {
           <Route path="/admin/requests" component={AdminRequests}/>
           <Route path="/admin/hosts" component={AdminHosts}/>
           <Route path="/admin/orders" component={AdminOrders}/>
+          <Route path="/admin/users" component={AdminUsers}/>
           <Route path="/admin/agenda" component={Agenda}/>
         </div>
       </div>

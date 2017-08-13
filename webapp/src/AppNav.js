@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {DropdownButton, MenuItem} from 'react-bootstrap';
+import {Button, DropdownButton, MenuItem} from 'react-bootstrap';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
@@ -20,6 +20,8 @@ class AppNav extends Component {
     return (
       <div className="App">
         <div className="App-header">
+          <Button bsSize="xsmall"
+                  onClick={this.onMenuItemSelect.bind(this, '/login')}>登录</Button>
           <DropdownButton title="我是个人" id="guestMenu" bsSize="xsmall">
             <MenuItem eventKey="/user/search"
                       onSelect={this.onMenuItemSelect}>搜索浏览</MenuItem>
@@ -37,6 +39,8 @@ class AppNav extends Component {
                       onSelect={this.onMenuItemSelect}>订单管理</MenuItem>
             <MenuItem eventKey="/admin/hosts"
                       onSelect={this.onMenuItemSelect}>房源管理</MenuItem>
+            <MenuItem eventKey="/admin/users"
+                      onSelect={this.onMenuItemSelect}>用户管理</MenuItem>
             <MenuItem eventKey="/admin/agenda"
                       onSelect={this.onMenuItemSelect}>Agenda</MenuItem>
           </DropdownButton>

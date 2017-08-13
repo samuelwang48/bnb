@@ -123,7 +123,6 @@ class BnbAgenda extends Component {
   fetchHost(job) {
     const _this = this;
     const api = this.state.api;
-    const d = new Date();
     const airbnb_api = 'https://zh.airbnb.com/api/v1';
     const resource = 'listings';
 
@@ -186,7 +185,7 @@ class BnbAgenda extends Component {
   }
 
   handleIntervalChange() {
-    this.setState({interval: parseInt(this.intervalRef.value)});
+    this.setState({interval: parseInt(this.intervalRef.value, 10)});
   }
 
   render() {

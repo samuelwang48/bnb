@@ -4,23 +4,118 @@ var airbnb = require('./airapi');
 var app = express();
 var bodyParser = require('body-parser');
 var Agenda = require('agenda');
+var R = require('ramda');
+var moment = require('moment');
+var mm = require('micromatch');
+var ObjectId = require('mongodb').ObjectID;
+var MongoClient = require('mongodb').MongoClient;
+var url = 'mongodb://localhost:27017/db';
+var agendaMongo = 'mongodb://localhost:27017/agenda';
+var agenda = new Agenda({db: {address: agendaMongo}});
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 
 
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support encoded bodies
 
-app.use(cors());
+var whiteList = {
+    "http://localhost:3000": true,
+    "http://localhost:5000": true,
+    "https://cnjpbnb.com": true,
+    "https://www.cnjpbnb.com": true,
+};
 
-var R = require('ramda');
-var moment = require('moment');
-var mm = require('micromatch');
+var allowCrossDomain = function(req, res, next) {
+  if(whiteList[req.headers.origin]){            
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, X-Requested-With, Origin, Accept');        
+    next();
+  } 
+};
+app.use(allowCrossDomain);
 
-var ObjectId = require('mongodb').ObjectID;
+app.use(cookieParser());
+app.use(session({
+  secret: 'ilovescotchscotchyscotchscotch',
+  resave: true,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: false
+  }
+})); // session secret
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
 
-var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost:27017/db';
-var agendaMongo = 'mongodb://localhost:27017/agenda';
-var agenda = new Agenda({db: {address: agendaMongo}});
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    MongoClient.connect(url, function(err, db) {
+      db.collection('users').findOne({
+        username: username,
+        password: password,
+      }, {}, function (err, user) {
+        db.close();
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, false);
+        }
+        return done(null, user);
+      });
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  console.log('serialize user')
+  done(null, user.username);
+});
+
+passport.deserializeUser(function(username, done) {
+  console.log('deserialize user')
+  MongoClient.connect(url, function(err, db) {
+    db.collection('users').findOne({
+      username: username,
+    }, {}, function (err, user) {
+      db.close();
+      done(err, user);
+    });
+  });
+});
+
+var isLoggedIn = function(req, res, next) {
+    // if user is authenticated in the session, carry on 
+    if (req.isAuthenticated())
+        return next();
+    // if they aren't redirect them to the home page
+    res.setHeader('Content-Type', 'application/json');
+    res.status(401).send(JSON.stringify('please log in first'));
+};
+
+app.post('/poke',
+  [isLoggedIn],
+  function(req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify('poked'));
+  });
+
+app.post('/login',
+  passport.authenticate('local'),
+  function(req, res) {
+    if (req.isAuthenticated()) {
+      res.redirect(req.headers.origin + '/login');
+    } else {
+      res.redirect(req.headers.origin + '/login');
+    }
+  });
 
 var findHostIdByAirbnbPk = function(airbnb_pk, callback) {
   MongoClient.connect(url, function(err, db) {
@@ -551,6 +646,43 @@ app.get('/order', function (req, res) {
          res.send(JSON.stringify(docs));
          db.close();
        });
+    });
+})
+
+app.get('/user', function (req, res) {
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       db.collection('users').find().toArray(function(err, docs) {
+         res.setHeader('Content-Type', 'application/json');
+         res.send(JSON.stringify(docs));
+         db.close();
+       });
+    });
+})
+
+app.post('/user', function (req, res) {
+    var data = req.body.data;
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       data.forEach(function(d) {
+           var _id = d._id;
+           if (_id) {
+               delete d._id;
+               db.collection('users')
+                 .replaceOne({_id: ObjectId(_id)}, d)
+                 .then(function() {
+                   db.close();
+                 });
+           } else {
+               db.collection('users')
+                 .insertOne(d)
+                 .then(function() {
+                   db.close();
+                 });
+           }
+       })
+       res.setHeader('Content-Type', 'application/json');
+       res.send(JSON.stringify(data));
     });
 })
 
