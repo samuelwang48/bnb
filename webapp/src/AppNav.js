@@ -26,6 +26,8 @@ class AppNav extends Component {
             <MenuItem eventKey="/user/search"
                       onSelect={this.onMenuItemSelect}>搜索浏览</MenuItem>
             <MenuItem>我的订单</MenuItem>
+            <MenuItem eventKey="/user/account"
+                      onSelect={this.onMenuItemSelect}>账户管理</MenuItem>
           </DropdownButton>
           <DropdownButton title="我是机构" id="guestMenu" bsSize="xsmall">
             <MenuItem eventKey="/user/request"

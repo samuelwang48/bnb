@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import AppNav from './AppNav';
 import Login from './Login';
+import UserAccount from './user/account';
 import UserSearch from './user/search';
 import UserBook from './user/book';
 import UserRequest from './user/request';
@@ -61,6 +62,7 @@ class Home extends Component {
           <Route path="/user/book/:id"  render={({ match }) =>
               <UserBook {...this.state} match={match} />
           } />
+          <Route path="/user/account" component={UserAccount}/>
           <Route path="/user/request" component={UserRequest}/>
           <Route path="/admin/requests" component={AdminRequests}/>
           <Route path="/admin/hosts" component={AdminHosts}/>

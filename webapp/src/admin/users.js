@@ -45,13 +45,33 @@ const DetailsFormatter = React.createClass({
   }
 });
 
+const BooleanFormatter = React.createClass({
+  onChange() {
+    this.props.onChange(this);
+  },
+
+  render() {
+    return (
+      <div>
+        <input type="checkbox"
+               onChange={this.onChange}
+               checked={this.props.value}/>
+      </div>
+    )
+  }
+});
+
 const GridAdminUsers = React.createClass({
 
   getInitialState() {
+    let _this = this;
+
     this._columns = [
       { key: 'details', name: '', editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
       { key: 'username', name: 'username', editable: true, width: 100},
-      { key: 'password', name: 'password', editable: true},
+      { key: 'password', name: 'password', editable: true, width: 100},
+      { key: 'isBroker', name: '代理权限', editable: true, formatter: <BooleanFormatter onChange={this.handleCheckbox}/>, width: 100},
+      { key: 'isAdmin', name: '管理员权限', editable: true, formatter: <BooleanFormatter onChange={this.handleCheckbox}/> },
     ];
 
     this._columns.forEach((col)=>{
@@ -71,6 +91,16 @@ const GridAdminUsers = React.createClass({
     };
   },
 
+  handleCheckbox(cell) {
+    let row = this.getRows()[cell.props.rowIdx];
+    let val = cell.props.value === true || cell.props.value === 1 ? 0 : 1;
+    row[cell.props.column.key] = val;
+    
+
+    let rows = R.clone(this.getRows());
+    this.setState({ rows });
+  },
+
   getRows() {
     return Selectors.getRows(this.state);
   },
@@ -81,6 +111,8 @@ const GridAdminUsers = React.createClass({
 
   rowGetter(i) {
     const row = this.getRows()[i];
+    row.isBroker = row.isBroker === true || row.isBroker === 1 ? 1 : 0;
+    row.isAdmin = row.isAdmin === true || row.isAdmin === 1 ? 1 : 0;
     return row;
   },
 
@@ -134,17 +166,18 @@ const GridAdminUsers = React.createClass({
     const com = this;
     let rows = R.clone(this.getRows());
     console.log('x', com.getRows().length)
-/*
+
     const data = R.map((index) => {
       var nth = R.nth(index, com.getRows());
       rows[index].deleted = true;
       console.log('delete', nth.airbnb_pk)
       return nth._id
     })(this.state.selectedIndexes);
+
     console.log('y', rows.length)
     const api = this.state.api;
     axios
-      .delete(api + '/request', {data: data})
+      .delete(api + '/user', {data: data})
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -153,11 +186,6 @@ const GridAdminUsers = React.createClass({
           rows: rows,
         })
       });
-*/
-        com.setState({
-          selectedIndexes: [],
-          rows: rows,
-        })
   },
 
   handleGridRowsUpdated({ fromRow = null, toRow = null, updated = null }) {
@@ -179,6 +207,8 @@ const GridAdminUsers = React.createClass({
     const newRow = {
       'username': '',
       'password': '',
+      'isBroker': 0,
+      'isAdmin': 0,
     };
 
     let rows = R.clone(this.getRows());

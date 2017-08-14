@@ -12,216 +12,27 @@ var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017/db';
 var agendaMongo = 'mongodb://localhost:27017/agenda';
 var agenda = new Agenda({db: {address: agendaMongo}});
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-
 
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support encoded bodies
 
-var whiteList = {
-    "http://localhost:3000": true,
-    "http://localhost:5000": true,
-    "https://cnjpbnb.com": true,
-    "https://www.cnjpbnb.com": true,
-};
-
-var allowCrossDomain = function(req, res, next) {
-  if(whiteList[req.headers.origin]){            
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, X-Requested-With, Origin, Accept');        
-    next();
-  } 
-};
-app.use(allowCrossDomain);
-
-app.use(cookieParser());
-app.use(session({
-  secret: 'ilovescotchscotchyscotchscotch',
-  resave: true,
-  saveUninitialized: false,
-  cookie: {
-    secure: false,
-    httpOnly: false
-  }
-})); // session secret
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
-
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    MongoClient.connect(url, function(err, db) {
-      db.collection('users').findOne({
-        username: username,
-        password: password,
-      }, {}, function (err, user) {
-        db.close();
-        if (err) {
-          return done(err);
-        }
-        if (!user) {
-          return done(null, false);
-        }
-        return done(null, user);
-      });
-    });
-  }
-));
-
-passport.serializeUser(function(user, done) {
-  console.log('serialize user')
-  done(null, user.username);
-});
-
-passport.deserializeUser(function(username, done) {
-  console.log('deserialize user')
-  MongoClient.connect(url, function(err, db) {
-    db.collection('users').findOne({
-      username: username,
-    }, {}, function (err, user) {
-      db.close();
-      done(err, user);
-    });
-  });
-});
-
-var isLoggedIn = function(req, res, next) {
-    // if user is authenticated in the session, carry on 
-    if (req.isAuthenticated())
-        return next();
-    // if they aren't redirect them to the home page
-    res.setHeader('Content-Type', 'application/json');
-    res.status(401).send(JSON.stringify('please log in first'));
-};
+var auth = require('./auth')(app, MongoClient, url);
+var helpers = require('./helpers')(MongoClient, url);
+var jobs = require('./jobs')(agenda, helpers);
+var acl = require('./acl');
 
 app.post('/poke',
-  [isLoggedIn],
+  [auth.isLoggedIn, acl.is('admin')],
   function(req, res) {
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify('poked'));
+    res.send(JSON.stringify(['poked', req.user]));
   });
 
-app.post('/login',
-  passport.authenticate('local'),
-  function(req, res) {
-    if (req.isAuthenticated()) {
-      res.redirect(req.headers.origin + '/login');
-    } else {
-      res.redirect(req.headers.origin + '/login');
-    }
-  });
-
-var findHostIdByAirbnbPk = function(airbnb_pk, callback) {
-  MongoClient.connect(url, function(err, db) {
-     db.collection('hosts').find({
-       airbnb_pk: airbnb_pk
-     }).toArray(function(err, docs) {
-       var ids = docs.map(function(d) { return d._id; });
-       db.close();
-       callback(ids);
-     });
-  });
-}
-
-var updateSchedule = function(ids, calendar_months, callback) {
-  MongoClient.connect(url, function(err, db) {
-     var days = R.pipe(
-       R.map(R.prop('days')),
-       R.flatten,
-       R.map(function(d) {
-         d.local_price = d.price.local_price;
-         d.local_currency = d.price.local_currency; 
-         delete d.price;
-         return d;
-       })
-     )(calendar_months);
-     db.collection('hosts').updateMany(
-       { _id: {$in: ids.map(function(id) { return ObjectId(id); })} },
-       { $set: { 'schedule': days, 'tf': moment().format('M/D HH:mm') } }
-     ).then(function() {
-       //console.log(JSON.stringify(arguments))
-       db.close();
-       callback(days);
-     })
-  });
-}
-
-var updateHost = function(ids, doc, callback) {
-  MongoClient.connect(url, function(err, db) {
-    var updated = {
-      list_city: doc.listing.city,
-      list_bedrooms: doc.listing.bedrooms,
-      list_beds: doc.listing.beds,
-      list_bathrooms: doc.listing.bathrooms,
-      list_min_nights: doc.listing.min_nights,
-      list_person_capacity: doc.listing.person_capacity,
-      list_native_currency: doc.listing.native_currency,
-      list_price: doc.listing.price,
-      list_price_for_extra_person_native: doc.listing.price_for_extra_person_native,
-      list_cleaning_fee_native: doc.listing.cleaning_fee_native,
-      list_security_deposit_native: doc.listing.security_deposit_native,
-      list_primary_host: {
-        first_name: doc.listing.primary_host.first_name
-      },
-      list_check_out_time: doc.listing.check_out_time,
-      list_property_type: doc.listing.property_type,
-      list_reviews_count: doc.listing.reviews_count,
-      list_star_rating: doc.listing.star_rating,
-      list_room_type_category: doc.listing.room_type_category,
-      list_check_in_time: doc.listing.check_in_time,
-      list_check_in_time_ends_at: doc.listing.check_in_time_ends_at,
-      list_guest_included: doc.listing.guest_included,
-      list_thumbnail_urls: doc.listing.thumbnail_urls,
-      list_map_image_url: doc.listing.map_image_url,
-      'hf': moment().format('M/D HH:mm'),
-    };
-    db.collection('hosts')
-      .updateMany(
-        {_id: {$in: ids.map(function(id) { return ObjectId(id); })}},
-        {$set: updated}
-      )
-      .then(function() {
-        db.close();
-        callback(updated);
-      });
-  });
-}
-
-agenda.define('fetch_calendar', function(job, done) {
-  if (job.attrs._validity === false) {
-    job.fail('invalid schedule');
-    done();
-  } else {
-    findHostIdByAirbnbPk(job.attrs.data.airbnb_pk, function(ids) {
-      updateSchedule(ids, job.attrs.data.result, function() {
-        job.disable();
-        done();
-      })
-    });
-  }
-});
-
-agenda.define('fetch_host', function(job, done) {
-  if (job.attrs._validity === false) {
-    job.fail('invalid schedule');
-    done();
-  } else {
-    findHostIdByAirbnbPk(job.attrs.data.airbnb_pk, function(ids) {
-      updateHost(ids, job.attrs.data.result, function() {
-        job.disable();
-        done();
-      })
-    });
-  }
-});
-
-app.post('/queue/execute', function (req, res) {
+app.post('/queue/execute',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var data = req.body.data;
   var id = data.id;
   var result = data.result;
@@ -240,7 +51,9 @@ app.post('/queue/execute', function (req, res) {
   });
 });
 
-app.post('/queue/jobs', function (req, res) {
+app.post('/queue/jobs',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var data = req.body.data;
   var task_type = data.type;
   agenda.jobs({
@@ -258,7 +71,9 @@ app.post('/queue/jobs', function (req, res) {
   });
 });
 
-app.post('/queue/purge', function (req, res) {
+app.post('/queue/purge',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var data = req.body.data;
   var task_type = data.type;
   agenda.cancel({name: task_type}, function(err, numRemoved) {
@@ -267,7 +82,9 @@ app.post('/queue/purge', function (req, res) {
   });
 })
 
-app.post('/queue/create', function (req, res) {
+app.post('/queue/create',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var data = req.body.data;
   var task_type = data.type;
   var airbnb_pk = data.airbnb_pk;
@@ -333,7 +150,7 @@ app.post('/schedule', function (req, res) {
         year: dt.getFullYear(),
         count: 2
       }).then(function(schedule) {
-        updateSchedule([_id], schedule.calendar_months, resolve);
+        helpers.updateSchedule([_id], schedule.calendar_months, resolve);
       }, function() {
         resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });
@@ -465,7 +282,7 @@ app.post('/fetch', function (req, res) {
     var _id = d._id;
     return new Promise(function(resolve, reject) {
       airbnb.getInfo(airbnb_pk).then(function(doc) {
-        updateHost([_id], doc, resolve);
+        helpers.updateHost([_id], doc, resolve);
       }, function() {
         resolve({airbnb_pk: airbnb_pk, error: 'airbnb not found'});
       });
@@ -534,6 +351,22 @@ app.delete('/host', function (req, res) {
     MongoClient.connect(url, function(err, db) {
        data.forEach(function(_id) {
          db.collection('hosts')
+           .deleteOne({_id: ObjectId(_id)})
+           .then(function() {
+             db.close();
+             res.setHeader('Content-Type', 'application/json');
+             res.send(JSON.stringify(arguments));
+           });
+       })
+    });
+})
+
+app.delete('/user', function (req, res) {
+    var data = req.body;
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       data.forEach(function(_id) {
+         db.collection('users')
            .deleteOne({_id: ObjectId(_id)})
            .then(function() {
              db.close();

@@ -34,7 +34,11 @@ class BnbAgenda extends Component {
     }
     const api = this.state.api;
     axios
-      .post(api + '/queue/create', {data: {type: type}})
+      .post(api + '/queue/create', {
+        data: {type: type}
+      }, {
+        withCredentials: true
+      })
       .then(function(response) {
         console.log(response.data);
       });
@@ -46,7 +50,11 @@ class BnbAgenda extends Component {
     }
     const api = this.state.api;
     axios
-      .post(api + '/queue/purge', {data: {type: type}})
+      .post(api + '/queue/purge', {
+        data: {type: type}
+      }, {
+        withCredentials: true
+      })
       .then(function(response) {
         console.log(response.data);
       });
@@ -61,10 +69,14 @@ class BnbAgenda extends Component {
     airbnb_pk = airbnb_pk.split(',');
     const api = this.state.api;
     axios
-      .post(api + '/queue/create', {data: {
-         airbnb_pk: airbnb_pk,
-         type: type
-      }})
+      .post(api + '/queue/create', {
+        data: {
+          airbnb_pk: airbnb_pk,
+          type: type
+        }
+      }, {
+        withCredentials: true
+      })
       .then(function(response) {
         console.log(response.data);
       });
@@ -98,22 +110,30 @@ class BnbAgenda extends Component {
         let schedule = response.data;
         let calendar_months = schedule.calendar_months;
         axios
-          .post(api + '/queue/execute', {data: {
-            id: job.id,
-            result: calendar_months,
-            _validity: true,
-          }})
+          .post(api + '/queue/execute', {
+            data: {
+              id: job.id,
+              result: calendar_months,
+              _validity: true,
+            }
+          }, {
+            withCredentials: true
+          })
           .then(function(response) {
             console.log('executed!', response.data);
           });
       }, (err)=>{
         console.log('failed', err)
         axios
-          .post(api + '/queue/execute', {data: {
-            id: job.id,
-            result: err,
-            _validity: false,
-          }})
+          .post(api + '/queue/execute', {
+            data: {
+              id: job.id,
+              result: err,
+              _validity: false,
+            }
+          }, {
+            withCredentials: true
+          })
           .then(function(response) {
             console.log('executed but failed!', response.data);
           });
@@ -140,22 +160,30 @@ class BnbAgenda extends Component {
         console.log('fetched', response)
         let host = response.data;
         axios
-          .post(api + '/queue/execute', {data: {
-            id: job.id,
-            result: host,
-            _validity: true,
-          }})
+          .post(api + '/queue/execute', {
+            data: {
+              id: job.id,
+              result: host,
+              _validity: true,
+            }
+          }, {
+            withCredentials: true
+          })
           .then(function(response) {
             console.log('executed!', response.data);
           });
       }, (err)=>{
         console.log('failed', err)
         axios
-          .post(api + '/queue/execute', {data: {
-            id: job.id,
-            result: err,
-            _validity: false,
-          }})
+          .post(api + '/queue/execute', {
+            data: {
+              id: job.id,
+              result: err,
+              _validity: false,
+            }
+          }, {
+            withCredentials: true
+          })
           .then(function(response) {
             console.log('executed but failed!', response.data);
           });
@@ -166,7 +194,11 @@ class BnbAgenda extends Component {
     const _this = this;
     const api = this.state.api;
     axios
-      .post(api + '/queue/jobs', {data: {type: type}})
+      .post(api + '/queue/jobs', {
+        data: {type: type}
+      }, {
+            withCredentials: true
+      })
       .then(function(response) {
         let jobs = response.data;
         jobs.forEach((job, index)=>{

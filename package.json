@@ -8,6 +8,7 @@
     "agendash": "^0.4.0",
     "airapi": "^0.1.0",
     "body-parser": "^1.17.1",
+    "connect-roles": "^3.1.2",
     "cors": "^2.8.3",
     "express": "^4.15.2",
     "micromatch": "^3.0.4",

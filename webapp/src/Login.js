@@ -43,42 +43,40 @@ class Login extends Component {
   render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-        <Form horizontal style={{width: '80%', margin: '20px 0'}}>
-          <form action={this.state.api + '/login'} method="POST">
-             <FormGroup>
-               <Col componentClass={ControlLabel} xs={2}>
-                 用户名
-               </Col>
-               <Col xs={4}>
-                 <FormControl type="text" name="username" />
-               </Col>
-             </FormGroup>
+        <Form horizontal style={{width: '80%', margin: '20px 0'}} action={this.state.api + '/login'} method="POST">
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              用户名
+            </Col>
+            <Col xs={4}>
+              <FormControl type="text" name="username" />
+            </Col>
+          </FormGroup>
    
-             <FormGroup>
-               <Col componentClass={ControlLabel} xs={2}>
-                 密码
-               </Col>
-               <Col xs={4}>
-                 <FormControl type="password" name="password" />
-               </Col>
-             </FormGroup>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              密码
+            </Col>
+            <Col xs={4}>
+              <FormControl type="password" name="password" />
+            </Col>
+          </FormGroup>
          
-             <FormGroup>
-               <Col xsOffset={2} xs={10}>
-                 <Button type="submit">
-                   登录
-                 </Button>
-               </Col>
-             </FormGroup>
-   
-             <FormGroup>
-               <Col xsOffset={2} xs={10}>
-                 <Button type="button" onClick={this.handlePoke}>
-                   Poke
-                 </Button>
-               </Col>
-             </FormGroup>
-          </form>
+          <FormGroup>
+            <Col xsOffset={2} xs={10}>
+              <Button type="submit">
+                登录
+              </Button>
+            </Col>
+          </FormGroup>
+
+          <FormGroup>
+            <Col xsOffset={2} xs={10}>
+              <Button type="button" onClick={this.handlePoke}>
+                Poke
+              </Button>
+            </Col>
+          </FormGroup>
         </Form>
       </MuiThemeProvider>
     );
