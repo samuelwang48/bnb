@@ -11,13 +11,14 @@
     "classnames": "^2.2.5",
     "electron-to-chromium": "^1.3.10",
     "immutable": "^3.8.1",
-    "material-ui": "^0.18.0",
+    "material-ui": "^1.0.0-beta.4",
+    "material-ui-icons": "^1.0.0-alpha.19",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
     "ramda": "^0.23.0",
     "react": "^15.5.4",
     "react-autocomplete": "^1.5.3",
-    "react-bootstrap": "^0.31.0",
+    "react-bootstrap": "^0.31.2",
     "react-bootstrap-typeahead": "^1.4.2",
     "react-data-grid-addons": "^2.0.41",
     "react-date-range": "^0.9.3",
@@ -28,7 +29,8 @@
     "react-moment": "^0.2.2",
     "react-router-dom": "^4.1.1",
     "react-tap-event-plugin": "^2.0.1",
-    "reselect": "^3.0.1"
+    "reselect": "^3.0.1",
+    "typeface-roboto": "0.0.35"
   },
   "scripts": {
     "start": "react-scripts start",

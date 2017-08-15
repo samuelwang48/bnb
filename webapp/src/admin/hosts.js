@@ -3,13 +3,8 @@ import moment from 'moment'
 
 import Dotdotdot from 'react-dotdotdot'
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-import CircularProgress from 'material-ui/CircularProgress';
 import Drawer from 'material-ui/Drawer';
-import MenuItem from 'material-ui/MenuItem';
+import { MenuItem } from 'material-ui/Menu';
 
 import R from 'ramda';
 
@@ -181,7 +176,6 @@ const GridAdminHosts = React.createClass({
       } else {
         region = '全部省份';
       }
-      this.getRows()[this.state.current.rowIdx].region = region;
       current.region = region;
       this.setState({current});
     }
@@ -541,10 +535,9 @@ console.log('fetch schedule', data)
     return  (
       <div>
         <div className="spinner">
-          <CircularProgress
+          <span
             style={ this.state.loading ? {} : {display: 'none'}}
-            ref={ node => this.spinner = node }
-            size={40} thickness={5} />
+            ref={ node => this.spinner = node } />
         </div>
         <div>
           <ReactDataGrid
@@ -857,11 +850,9 @@ console.log('fetch schedule', data)
 class AdminHosts extends Component {
   render() {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
         <GridAdminHosts/>
       </div>
-      </MuiThemeProvider>
     )
   }
 }

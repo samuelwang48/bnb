@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-
 const axios = require('axios');
 
 import {
@@ -312,11 +307,9 @@ class BnbAgenda extends Component {
 class Agenda extends Component {
   render() {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
         <BnbAgenda/>
       </div>
-      </MuiThemeProvider>
     )
   }
 }

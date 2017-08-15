@@ -2,19 +2,10 @@ import React, { Component } from 'react';
 
 const axios = require('axios');
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-
 import {Card, CardActions, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 import moment from 'moment'
 var R = require('ramda');
-
-import ContentAdd from 'material-ui/svg-icons/content/add-circle-outline';
-import ContentRemove from 'material-ui/svg-icons/content/remove-circle-outline';
-
 
 import {
   Row,
@@ -86,95 +77,91 @@ class UserBook extends Component {
         let reservation = this.props.reservation || this.state.reservation;
 
         return (
-          <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-            <Card>
-              <CardMedia
-                overlay={<CardTitle title={
-                  host.city + ' · ' + host.list_beds + '张床'
-                } subtitle={
-                  <StarRatingComponent 
-                      name="rate1" 
-                      starCount={5}
-                      value={host.list_star_rating}
-                      renderStarIcon={(index, value) => {
-                        return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
-                      }}
-                      renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
-                  />
-                } />}
-              >
-                <img src={host.images[0].original} alt="" />
-              </CardMedia>
-              <CardTitle title="预订" subtitle="" />
-              <CardText>
-                <Row style={{'marginTop': '-25px'}}>
-                  <Col xs={6}>入住</Col>
-                  <Col xs={6}>退房</Col>
-                </Row>
-                <Row>
-                  <Col xs={6}>{reservation.startDateStr}</Col>
-                  <Col xs={6}>{reservation.endDateStr}</Col>
-                </Row>
-                <hr style={{margin: '10px 0'}} />
-                <Row>
-                  <Col xs={6}>房客人数 成人</Col>
-                  <Col xs={6}>
-                    <ContentRemove onClick={this.handleNumberOfAdults.bind(this, -1)} />
-                    <span style={{
-                      'fontSize': '15pt',
-                      'margin': '10px',
-                      'position': 'relative',
-                      'top': '-5px'
-                    }}>{this.state.numberOfAdults}</span>
-                    <ContentAdd onClick={this.handleNumberOfAdults.bind(this, 1)} />
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={6}>儿童 2 - 12岁</Col>
-                  <Col xs={6}>
-                    <ContentRemove onClick={this.handleNumberOfKids.bind(this, -1)} />
-                    <span style={{
-                      'fontSize': '15pt',
-                      'margin': '10px',
-                      'position': 'relative',
-                      'top': '-5px'
-                    }}>{this.state.numberOfKids}</span>
-                    <ContentAdd onClick={this.handleNumberOfKids.bind(this, 1)} />
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={6}>婴幼儿 2岁以下</Col>
-                  <Col xs={6}>
-                    <ContentRemove onClick={this.handleNumberOfBabies.bind(this, -1)} />
-                    <span style={{
-                      'fontSize': '15pt',
-                      'margin': '10px',
-                      'position': 'relative',
-                      'top': '-5px'
-                    }}>{this.state.numberOfBabies}</span>
-                    <ContentAdd onClick={this.handleNumberOfBabies.bind(this, 1)} />
-                  </Col>
-                </Row>
-                <hr style={{margin: '5px 0'}} />
-                {this.state.rowNights}
-                {this.state.rowCleaning}
-                {this.state.rowExtraPersonTotal}
-                <hr style={{margin: '5px 0'}} />
-                {this.state.rowTotal}
-              </CardText>
-              <CardActions>
-                <Button bsStyle="success"
-                        onClick={this.handleSubmit.bind(this)}>申请预订</Button>
-              </CardActions>
-            </Card>
-          </MuiThemeProvider>
+          <Card>
+            <CardMedia
+              overlay={<CardTitle title={
+                host.city + ' · ' + host.list_beds + '张床'
+              } subtitle={
+                <StarRatingComponent 
+                    name="rate1" 
+                    starCount={5}
+                    value={host.list_star_rating}
+                    renderStarIcon={(index, value) => {
+                      return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
+                    }}
+                    renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
+                />
+              } />}
+            >
+              <img src={host.images[0].original} alt="" />
+            </CardMedia>
+            <CardTitle title="预订" subtitle="" />
+            <CardText>
+              <Row style={{'marginTop': '-25px'}}>
+                <Col xs={6}>入住</Col>
+                <Col xs={6}>退房</Col>
+              </Row>
+              <Row>
+                <Col xs={6}>{reservation.startDateStr}</Col>
+                <Col xs={6}>{reservation.endDateStr}</Col>
+              </Row>
+              <hr style={{margin: '10px 0'}} />
+              <Row>
+                <Col xs={6}>房客人数 成人</Col>
+                <Col xs={6}>
+                  <Button onClick={this.handleNumberOfAdults.bind(this, -1)}>-</Button>
+                  <span style={{
+                    'fontSize': '15pt',
+                    'margin': '10px',
+                    'position': 'relative',
+                    'top': '-5px'
+                  }}>{this.state.numberOfAdults}</span>
+                  <Button onClick={this.handleNumberOfAdults.bind(this, 1)}>+</Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>儿童 2 - 12岁</Col>
+                <Col xs={6}>
+                  <Button onClick={this.handleNumberOfKids.bind(this, -1)}>-</Button>
+                  <span style={{
+                    'fontSize': '15pt',
+                    'margin': '10px',
+                    'position': 'relative',
+                    'top': '-5px'
+                  }}>{this.state.numberOfKids}</span>
+                  <Button onClick={this.handleNumberOfKids.bind(this, 1)}>+</Button>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>婴幼儿 2岁以下</Col>
+                <Col xs={6}>
+                  <Button onClick={this.handleNumberOfBabies.bind(this, -1)}>-</Button>
+                  <span style={{
+                    'fontSize': '15pt',
+                    'margin': '10px',
+                    'position': 'relative',
+                    'top': '-5px'
+                  }}>{this.state.numberOfBabies}</span>
+                  <Button onClick={this.handleNumberOfBabies.bind(this, 1)}>+</Button>
+                </Col>
+              </Row>
+              <hr style={{margin: '5px 0'}} />
+              {this.state.rowNights}
+              {this.state.rowCleaning}
+              {this.state.rowExtraPersonTotal}
+              <hr style={{margin: '5px 0'}} />
+              {this.state.rowTotal}
+            </CardText>
+            <CardActions>
+              <Button bsStyle="success"
+                      onClick={this.handleSubmit.bind(this)}>申请预订</Button>
+            </CardActions>
+          </Card>
         )
       }
       else {
         return (
-          <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-            <div></div>
-          </MuiThemeProvider>
+          <div></div>
         )
       }
   }

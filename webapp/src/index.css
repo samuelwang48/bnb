@@ -1,8 +1,45 @@
 body {
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: sans-serif;
   font-size: 12px !important;
+}
+html, #root, div[data-reactroot] {
+  height: 100%;
+}
+.login-page {
+  height: 100%;
+  background-image: url('/bg.jpg');
+  background-size: 150%;
+  background-repeat: no-repeat;
+  background-position: top;
+  padding-top: 20px;
+}
+.login-inner {
+  height: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+}
+.login-page h1 {
+  margin: 0;
+  padding: 10px 30px 0 30px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 1);
+  letter-spacing: 3px;
+  font-size: 31px;
+}
+.login-box {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 5px;
+}
+.login-box .input-group-addon {
+  background: #fff;
+}
+.login-box .form-group {
+  margin: 10px !important;
 }
 .search-form .r1 {
   margin: 0 auto !important;

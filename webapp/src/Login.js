@@ -2,18 +2,13 @@ import React, { Component } from 'react';
 
 const axios = require('axios');
 import {
+  InputGroup,
   Col,
   Form,
   FormGroup,
   FormControl,
-  ControlLabel,
   Button
 } from 'react-bootstrap';
-
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 
 class Login extends Component {
   constructor(props) {
@@ -42,43 +37,43 @@ class Login extends Component {
 
   render() {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-        <Form horizontal style={{width: '80%', margin: '20px 0'}} action={this.state.api + '/login'} method="POST">
-          <FormGroup>
-            <Col componentClass={ControlLabel} xs={2}>
-              用户名
-            </Col>
-            <Col xs={4}>
-              <FormControl type="text" name="username" />
-            </Col>
-          </FormGroup>
-   
-          <FormGroup>
-            <Col componentClass={ControlLabel} xs={2}>
-              密码
-            </Col>
-            <Col xs={4}>
-              <FormControl type="password" name="password" />
-            </Col>
-          </FormGroup>
-         
-          <FormGroup>
-            <Col xsOffset={2} xs={10}>
-              <Button type="submit">
-                登录
-              </Button>
-            </Col>
-          </FormGroup>
-
-          <FormGroup>
-            <Col xsOffset={2} xs={10}>
-              <Button type="button" onClick={this.handlePoke}>
-                Poke
-              </Button>
-            </Col>
-          </FormGroup>
-        </Form>
-      </MuiThemeProvider>
+      <div className="login-page">
+        <div className="login-inner">
+          <h1 style={{letterSpacing: '7px', fontSize: '25px'}}>日本民宿专业平台</h1>
+          <h1>CNJPBNB.com</h1>
+          <Form horizontal style={{padding: '30px'}} action={this.state.api + '/login'} method="POST">
+            <div className="login-box">
+              <FormGroup>
+                <InputGroup>
+                  <InputGroup.Addon>账户</InputGroup.Addon>
+                  <FormControl type="text" name="username" />
+                </InputGroup>
+              </FormGroup>
+    
+              <FormGroup>
+                <InputGroup>
+                  <InputGroup.Addon>密码</InputGroup.Addon>
+                  <FormControl type="password" name="password" />
+                </InputGroup>
+              </FormGroup>
+             
+              <FormGroup>
+                <Col className="text-center" style={{marginTop: '10px'}}>
+                  <Button style={{width: '48%'}} className="pull-left"
+                          bsStyle="success"
+                          type="submit">
+                    登录
+                  </Button>
+                  <Button style={{width: '48%'}} className="pull-right"
+                          type="button" onClick={this.handlePoke}>
+                    随便逛逛
+                  </Button>
+                </Col>
+              </FormGroup>
+            </div>
+          </Form>
+        </div>
+      </div>
     );
   }
 }

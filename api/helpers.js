@@ -1,3 +1,4 @@
+var R = require('ramda');
 var moment = require('moment');
 var ObjectId = require('mongodb').ObjectID;
 

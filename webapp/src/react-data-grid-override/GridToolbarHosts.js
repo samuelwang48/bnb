@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import moment from 'moment'
 require('../../react-data-grid/themes/react-data-grid-toolbar.css');
 import { DateRange } from 'react-date-range';
-import Popover from 'material-ui/Popover';
 import TextField from 'material-ui/TextField';
+import Menu from 'material-ui/Menu';
 import {
   Form,
   FormGroup,
@@ -138,7 +138,7 @@ class Toolbar extends Component {
           onTouchTap={this.props.onCurrencyPopoverTap}>
           {this.state.currencyButtonText}
         </button>
-        <Popover
+        <Menu
           open={this.props.currencyOpen}
           anchorEl={this.currencyButton}
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
@@ -243,7 +243,7 @@ class Toolbar extends Component {
               </Col>
             </Row>
           </div>
-        </Popover>
+        </Menu>
       </span>
     );
   }
@@ -290,25 +290,23 @@ class Toolbar extends Component {
       return (
         <div>
           <TextField
-            ref={(input) => { this.startDateEl = input; }}
+            inputRef={(input) => { this.startDateEl = input; }}
             value={this.state.startDateStr}
             className="date-start"
-            hintText="入住日期"
+            placeholder="入住日期"
             style={{width: 120}}
             onTouchTap={this.handleScheduleTouchTap}
           />
           <TextField
             value={this.state.endDateStr}
             className="date-end"
-            hintText="退房日期"
+            placeholder="退房日期"
             style={{width: 120}}
             onTouchTap={this.handleScheduleTouchTap}
           />
-          <Popover
+          <Menu
             open={this.state.dateOpen}
             anchorEl={this.state.dateOpenAnchorEl}
-            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-            targetOrigin={{horizontal: 'left', vertical: 'top'}}
             onRequestClose={this.handleScheduleRequestClose}
           >
             <DateRange
@@ -323,7 +321,7 @@ class Toolbar extends Component {
                       className="btn"
                       onClick={this.handleScheduleRequestClose}>选定并显示</button>
             </div>
-          </Popover>
+          </Menu>
         </div>
       );
   }

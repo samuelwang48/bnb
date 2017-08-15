@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
-import CircularProgress from 'material-ui/CircularProgress';
-
 import R from 'ramda';
 
 const axios = require('axios');
@@ -221,10 +215,9 @@ const GridAdminUsers = React.createClass({
     return  (
       <div>
         <div className="spinner">
-          <CircularProgress
+          <span
             style={ this.state.loading ? {} : {display: 'none'}}
-            ref={ node => this.spinner = node }
-            size={40} thickness={5} />
+            ref={ node => this.spinner = node } />
         </div>
         <div>
           <ReactDataGrid
@@ -283,11 +276,9 @@ const GridAdminUsers = React.createClass({
 class AdminUsers extends Component {
   render() {
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
       <div>
         <GridAdminUsers/>
       </div>
-      </MuiThemeProvider>
     )
   }
 }

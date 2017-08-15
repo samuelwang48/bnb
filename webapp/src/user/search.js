@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 const axios = require('axios');
 import moment from 'moment'
 import { DateRange } from 'react-date-range';
-import Popover from 'material-ui/Popover';
 import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import StarRatingComponent from '../lib/StarRatingComponent.jsx';
+import Menu from 'material-ui/Menu';
 
 import {
   Pagination,
@@ -21,11 +21,6 @@ import ImageGallery from 'react-image-gallery';
 import { getGeo } from '../Geo';
 import FontAwesome from 'react-fontawesome';
 import Paper from 'material-ui/Paper';
-
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-//import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 
 class UserSearch extends Component {
   constructor(props) {
@@ -167,145 +162,141 @@ class UserSearch extends Component {
     let _this = this;
 
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme(lightBaseTheme)}>
-        <div>
-          <Paper className="mobile-search-form"
-                 zDepth={2} rounded={false}
-                 style={{
-                   padding: '5px 10px 10px 10px',
-                 }}>
-            <Row>
-              <FormGroup>
-                <Col xs={12}>
-                  <AsyncTypeahead
-                    ref="cityEl"
-                    {...this.state}
-                    onSearch={this.handleSearchCities}
-                    labelKey="primaryText"
-                    multiple={false}
-                    onInputChange={this.handleCityChange}
-                    placeholder="目的地"
+      <div>
+        <Paper className="mobile-search-form"
+               zDepth={2} rounded={false}
+               style={{
+                 padding: '5px 10px 10px 10px',
+               }}>
+          <Row>
+            <FormGroup>
+              <Col xs={12}>
+                <AsyncTypeahead
+                  ref="cityEl"
+                  {...this.state}
+                  onSearch={this.handleSearchCities}
+                  labelKey="primaryText"
+                  multiple={false}
+                  onInputChange={this.handleCityChange}
+                  placeholder="目的地"
+                />
+              </Col>
+            </FormGroup>
+          </Row>
+          <Row>
+            <FormGroup>
+              <Col xs={12}>
+                <FormControl type="text"
+                   inputRef={(input) => { this.dateRangeEl = input; }}
+                   value={
+                     this.state.startDateStr && this.state.endDateStr
+                   ? this.state.startDateStr + ' - ' + this.state.endDateStr
+                   : ''
+                   }
+                   onTouchTap={this.onRangePopoverTap}
+                   placeholder="时间段" />
+                <Menu
+                  open={this.state.dateOpen}
+                  anchorEl={this.state.dateOpenAnchorEl}
+                  onRequestClose={this.handleScheduleRequestClose}
+                >
+                  <DateRange
+                    lang="cn"
+                    linkedCalendars={ true }
+                    minDate={moment()}
+                    startDate={moment(this.state.startDate)}
+                    endDate={moment(this.state.endDate)}
+                    //onInit={this.handleSelect}
+                    onChange={this.handleScheduleSelect}
                   />
-                </Col>
-              </FormGroup>
-            </Row>
-            <Row>
-              <FormGroup>
-                <Col xs={12}>
-                  <FormControl type="text"
-                     inputRef={(input) => { this.dateRangeEl = input; }}
-                     value={
-                       this.state.startDateStr && this.state.endDateStr
-                     ? this.state.startDateStr + ' - ' + this.state.endDateStr
-                     : ''
-                     }
-                     onTouchTap={this.onRangePopoverTap}
-                     placeholder="时间段" />
-                  <Popover
-                    open={this.state.dateOpen}
-                    anchorEl={this.state.dateOpenAnchorEl}
-                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                    targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                    onRequestClose={this.handleScheduleRequestClose}
-                  >
-                    <DateRange
-                      lang="cn"
-                      linkedCalendars={ true }
-                      minDate={moment()}
-                      startDate={moment(this.state.startDate)}
-                      endDate={moment(this.state.endDate)}
-                      //onInit={this.handleSelect}
-                      onChange={this.handleScheduleSelect}
-                    />
-                    <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
-                      <button type="button"
-                              className="btn"
-                              onClick={this.handleScheduleRequestClose}>选定</button>
-                    </div>
-                  </Popover>
-                </Col>
-              </FormGroup>
-            </Row>
-            <Row>
-              <FormGroup>
-                <Col xs={12}>
-                  <FormControl type="number"
-                               min="1"
-                               inputRef={(input) => { this.numberOfGuests = input; }}
-                               onChange={this.handleNumberOfGuests}
-                               placeholder="人数" />
-                </Col>
-              </FormGroup>
-            </Row>
-            <Row>
-              <FormGroup>
-                <Col xs={10}>
-                  <Button type="button" onClick={this.handleSearch}>
-                    <FontAwesome name='rocket' /> 搜索
-                  </Button>
-                </Col>
-              </FormGroup>
-            </Row>
-          </Paper>
-          <div className="user-search">
-            {
-              this.state.results.map(function(host, index){
-                return (
-                  <div key={index}>
-                    <ImageGallery
-                      showThumbnails={false}
-                      items={host.images}
-                      slideInterval={30000} />
-                    <div className="search-result">
-                      <Row>
-                        <Col xs={6}>
-                          {host.list_price_conv}
-                        </Col>
-                        <Col xs={6} className="text-right">
-                          <StarRatingComponent 
-                              name="rate1" 
-                              starCount={5}
-                              value={host.list_star_rating}
-                              renderStarIcon={(index, value) => {
-                                return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
-                              }}
-                              renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
-                          />
-                          <span className="rating-val">{host.list_star_rating}</span>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col xs={6}>
-                          {host.list_beds}张床
-                          &nbsp;·&nbsp; 
-                          {host.list_person_capacity}位房客
-                        </Col>
-                        <Col xs={6}>
-                          <Button bsStyle="success" className="pull-right"
-                                  onClick={_this.handleReserve.bind(_this, host)} >预定</Button>
-                        </Col>
-                      </Row>
-                    </div>
+                  <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
+                    <button type="button"
+                            className="btn"
+                            onClick={this.handleScheduleRequestClose}>选定</button>
                   </div>
-                )
-              })
-            }
-          </div>
-          <div className="text-center">
-            <Pagination
-              prev
-              next
-              first
-              last
-              ellipsis
-              boundaryLinks
-              items={20}
-              maxButtons={5}
-              activePage={this.state.activePage}
-              onSelect={this.handlePageSelect} />
-          </div>
+                </Menu>
+              </Col>
+            </FormGroup>
+          </Row>
+          <Row>
+            <FormGroup>
+              <Col xs={12}>
+                <FormControl type="number"
+                             min="1"
+                             inputRef={(input) => { this.numberOfGuests = input; }}
+                             onChange={this.handleNumberOfGuests}
+                             placeholder="人数" />
+              </Col>
+            </FormGroup>
+          </Row>
+          <Row>
+            <FormGroup>
+              <Col xs={10}>
+                <Button type="button" onClick={this.handleSearch}>
+                  <FontAwesome name='rocket' /> 搜索
+                </Button>
+              </Col>
+            </FormGroup>
+          </Row>
+        </Paper>
+        <div className="user-search">
+          {
+            this.state.results.map(function(host, index){
+              return (
+                <div key={index}>
+                  <ImageGallery
+                    showThumbnails={false}
+                    items={host.images}
+                    slideInterval={30000} />
+                  <div className="search-result">
+                    <Row>
+                      <Col xs={6}>
+                        {host.list_price_conv}
+                      </Col>
+                      <Col xs={6} className="text-right">
+                        <StarRatingComponent 
+                            name="rate1" 
+                            starCount={5}
+                            value={host.list_star_rating}
+                            renderStarIcon={(index, value) => {
+                              return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
+                            }}
+                            renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
+                        />
+                        <span className="rating-val">{host.list_star_rating}</span>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col xs={6}>
+                        {host.list_beds}张床
+                        &nbsp;·&nbsp; 
+                        {host.list_person_capacity}位房客
+                      </Col>
+                      <Col xs={6}>
+                        <Button bsStyle="success" className="pull-right"
+                                onClick={_this.handleReserve.bind(_this, host)} >预定</Button>
+                      </Col>
+                    </Row>
+                  </div>
+                </div>
+              )
+            })
+          }
         </div>
-      </MuiThemeProvider>
+        <div className="text-center">
+          <Pagination
+            prev
+            next
+            first
+            last
+            ellipsis
+            boundaryLinks
+            items={20}
+            maxButtons={5}
+            activePage={this.state.activePage}
+            onSelect={this.handlePageSelect} />
+        </div>
+      </div>
     )
   }
 
