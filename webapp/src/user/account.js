@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 
 const axios = require('axios');
 import {
+  InputGroup,
   Col,
   Form,
   FormGroup,
   FormControl,
-  ControlLabel,
   Button
 } from 'react-bootstrap';
 
@@ -37,37 +37,32 @@ class UserAccount extends Component {
 
   render() {
     return (
-      <Form horizontal style={{width: '80%', margin: '20px 0'}} action={this.state.api + '/logout'} method="POST">
+      <Form horizontal style={{padding: '0 30px'}}
+            action={this.state.api + '/logout'} method="POST">
         <FormGroup>
-          <Col componentClass={ControlLabel} xs={2}>
-            用户名
-          </Col>
-          <Col xs={4}>
+          <InputGroup>
+            <InputGroup.Addon>账户</InputGroup.Addon>
             <FormControl type="text" name="username" />
-          </Col>
+          </InputGroup>
         </FormGroup>
-   
+    
         <FormGroup>
-          <Col componentClass={ControlLabel} xs={2}>
-            密码
-          </Col>
-          <Col xs={4}>
+          <InputGroup>
+            <InputGroup.Addon>密码</InputGroup.Addon>
             <FormControl type="password" name="password" />
-          </Col>
+          </InputGroup>
         </FormGroup>
-       
+        
         <FormGroup>
-          <Col xsOffset={2} xs={10}>
-            <Button type="submit">
-              退出账号
+          <Col className="text-center">
+            <Button style={{width: '48%'}} className="pull-left"
+                    bsStyle="danger"
+                    type="submit">
+              退出登录
             </Button>
-          </Col>
-        </FormGroup>
-   
-        <FormGroup>
-          <Col xsOffset={2} xs={10}>
-            <Button type="button" onClick={this.handlePoke}>
-              Poke
+            <Button style={{width: '48%'}} className="pull-right"
+                    type="button" onClick={this.handlePoke}>
+              随便逛逛
             </Button>
           </Col>
         </FormGroup>

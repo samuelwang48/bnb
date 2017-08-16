@@ -164,7 +164,6 @@ class UserSearch extends Component {
     return (
       <div>
         <Paper className="mobile-search-form"
-               zDepth={2} rounded={false}
                style={{
                  padding: '5px 10px 10px 10px',
                }}>
@@ -193,7 +192,7 @@ class UserSearch extends Component {
                    ? this.state.startDateStr + ' - ' + this.state.endDateStr
                    : ''
                    }
-                   onTouchTap={this.onRangePopoverTap}
+                   onMouseUp={this.onRangePopoverTap}
                    placeholder="时间段" />
                 <Menu
                   open={this.state.dateOpen}
@@ -211,7 +210,7 @@ class UserSearch extends Component {
                   />
                   <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
                     <button type="button"
-                            className="btn"
+                            className="btn btn-default"
                             onClick={this.handleScheduleRequestClose}>选定</button>
                   </div>
                 </Menu>
@@ -231,9 +230,12 @@ class UserSearch extends Component {
           </Row>
           <Row>
             <FormGroup>
-              <Col xs={10}>
-                <Button type="button" onClick={this.handleSearch}>
-                  <FontAwesome name='rocket' /> 搜索
+              <Col xs={12} className="text-center">
+                <Button style={{width: '48%', letterSpacing: '5px'}}
+                        bsStyle="default"
+                        type="button"
+                        onClick={this.handleSearch}>
+                  <FontAwesome name='rocket' style={{fontSize: '18px'}} />搜民宿
                 </Button>
               </Col>
             </FormGroup>
@@ -243,15 +245,15 @@ class UserSearch extends Component {
           {
             this.state.results.map(function(host, index){
               return (
-                <div key={index}>
+                <div key={index} className="search-result">
                   <ImageGallery
                     showThumbnails={false}
                     items={host.images}
                     slideInterval={30000} />
-                  <div className="search-result">
+                  <div className="result-details">
                     <Row>
                       <Col xs={6}>
-                        {host.list_price_conv}
+                        {host.list_price_conv}/晚
                       </Col>
                       <Col xs={6} className="text-right">
                         <StarRatingComponent 
@@ -267,12 +269,12 @@ class UserSearch extends Component {
                       </Col>
                     </Row>
                     <Row>
-                      <Col xs={6}>
+                      <Col xs={8}>
                         {host.list_beds}张床
                         &nbsp;·&nbsp; 
-                        {host.list_person_capacity}位房客
+                        可住{host.list_person_capacity}位房客
                       </Col>
-                      <Col xs={6}>
+                      <Col xs={4}>
                         <Button bsStyle="success" className="pull-right"
                                 onClick={_this.handleReserve.bind(_this, host)} >预定</Button>
                       </Col>

@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 
 const axios = require('axios');
 
-import {Card, CardActions, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import {CardContent} from 'material-ui/Card';
+
+import AddIcon from 'material-ui-icons/AddCircleOutline';
+import RemoveIcon from 'material-ui-icons/RemoveCircleOutline';
+
 import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 import moment from 'moment'
 var R = require('ramda');
@@ -77,26 +81,25 @@ class UserBook extends Component {
         let reservation = this.props.reservation || this.state.reservation;
 
         return (
-          <Card>
-            <CardMedia
-              overlay={<CardTitle title={
-                host.city + ' · ' + host.list_beds + '张床'
-              } subtitle={
-                <StarRatingComponent 
-                    name="rate1" 
-                    starCount={5}
-                    value={host.list_star_rating}
-                    renderStarIcon={(index, value) => {
-                      return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
-                    }}
-                    renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
-                />
-              } />}
-            >
-              <img src={host.images[0].original} alt="" />
-            </CardMedia>
-            <CardTitle title="预订" subtitle="" />
-            <CardText>
+          <div>
+            <div className="book-pic">
+              <img style={{width: '100%'}} src={host.images[0].original} alt="" />
+            </div>
+            <div className="book-head">
+              {host.city + ' · ' + host.list_beds + '张床'}
+            </div>
+            <div className="book-rating">
+              <StarRatingComponent 
+                  name="rate1" 
+                  starCount={5}
+                  value={host.list_star_rating}
+                  renderStarIcon={(index, value) => {
+                    return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
+                  }}
+                  renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
+              />
+            </div>
+            <CardContent>
               <Row style={{'marginTop': '-25px'}}>
                 <Col xs={6}>入住</Col>
                 <Col xs={6}>退房</Col>
@@ -109,40 +112,40 @@ class UserBook extends Component {
               <Row>
                 <Col xs={6}>房客人数 成人</Col>
                 <Col xs={6}>
-                  <Button onClick={this.handleNumberOfAdults.bind(this, -1)}>-</Button>
+                  <RemoveIcon onClick={this.handleNumberOfAdults.bind(this, -1)}/>
                   <span style={{
                     'fontSize': '15pt',
                     'margin': '10px',
                     'position': 'relative',
                     'top': '-5px'
                   }}>{this.state.numberOfAdults}</span>
-                  <Button onClick={this.handleNumberOfAdults.bind(this, 1)}>+</Button>
+                  <AddIcon onClick={this.handleNumberOfAdults.bind(this, 1)}/>
                 </Col>
               </Row>
               <Row>
                 <Col xs={6}>儿童 2 - 12岁</Col>
                 <Col xs={6}>
-                  <Button onClick={this.handleNumberOfKids.bind(this, -1)}>-</Button>
+                  <RemoveIcon onClick={this.handleNumberOfKids.bind(this, -1)}/>
                   <span style={{
                     'fontSize': '15pt',
                     'margin': '10px',
                     'position': 'relative',
                     'top': '-5px'
                   }}>{this.state.numberOfKids}</span>
-                  <Button onClick={this.handleNumberOfKids.bind(this, 1)}>+</Button>
+                  <AddIcon onClick={this.handleNumberOfKids.bind(this, 1)}/>
                 </Col>
               </Row>
               <Row>
                 <Col xs={6}>婴幼儿 2岁以下</Col>
                 <Col xs={6}>
-                  <Button onClick={this.handleNumberOfBabies.bind(this, -1)}>-</Button>
+                  <RemoveIcon onClick={this.handleNumberOfBabies.bind(this, -1)}/>
                   <span style={{
                     'fontSize': '15pt',
                     'margin': '10px',
                     'position': 'relative',
                     'top': '-5px'
                   }}>{this.state.numberOfBabies}</span>
-                  <Button onClick={this.handleNumberOfBabies.bind(this, 1)}>+</Button>
+                  <AddIcon onClick={this.handleNumberOfBabies.bind(this, 1)}/>
                 </Col>
               </Row>
               <hr style={{margin: '5px 0'}} />
@@ -151,12 +154,18 @@ class UserBook extends Component {
               {this.state.rowExtraPersonTotal}
               <hr style={{margin: '5px 0'}} />
               {this.state.rowTotal}
-            </CardText>
-            <CardActions>
+            </CardContent>
+            <div className="text-center">
               <Button bsStyle="success"
+                      style={{width: '48%'}}
                       onClick={this.handleSubmit.bind(this)}>申请预订</Button>
-            </CardActions>
-          </Card>
+            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+          </div>
         )
       }
       else {

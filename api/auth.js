@@ -6,6 +6,7 @@ var LocalStrategy = require('passport-local').Strategy;
 module.exports = function(app, MongoClient, url) {
 
   var whiteList = {
+      "http://192.168.0.148:3000": true,
       "http://localhost:3000": true,
       "http://localhost:5000": true,
       "https://cnjpbnb.com": true,
@@ -83,7 +84,7 @@ module.exports = function(app, MongoClient, url) {
         return res.redirect(req.headers.origin + '/login?auth=0');
       }
       req.logIn(user, function(err) {
-         return res.redirect(req.headers.origin + '/user/account');
+         return res.redirect(req.headers.origin + '/user/search');
       });
     })(req, res);
   });

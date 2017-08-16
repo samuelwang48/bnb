@@ -122,7 +122,7 @@ class UserRequest extends Component {
 
   render() {
     return (
-      <Form horizontal style={{width: '80%', margin: '20px 0'}}>
+      <Form horizontal style={{width: '100%', padding: '0 30px'}}>
         <FormGroup>
           <Col componentClass={ControlLabel} sm={2}>
             委托人微信
@@ -154,7 +154,7 @@ class UserRequest extends Component {
                          inputRef={(input) => { this.startDateEl = input; }}
                          placeholder=""
                          value={this.state.startDateStr}
-                         onTouchTap={this.onRangePopoverTap}/>
+                         onMouseUp={this.onRangePopoverTap}/>
           </Col>
         </FormGroup>
 
@@ -167,7 +167,7 @@ class UserRequest extends Component {
                          inputRef={(input) => { this.endDateEl = input; }}
                          placeholder=""
                          value={this.state.endDateStr}
-                         onTouchTap={this.onRangePopoverTap}/>
+                         onMouseUp={this.onRangePopoverTap}/>
             <Menu
               open={this.state.dateOpen}
               anchorEl={this.state.dateOpenAnchorEl}
@@ -184,7 +184,7 @@ class UserRequest extends Component {
               />
               <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
                 <button type="button"
-                        className="btn"
+                        className="btn btn-default"
                         onClick={this.handleScheduleRequestClose}>选定</button>
               </div>
             </Menu>
@@ -195,7 +195,7 @@ class UserRequest extends Component {
           <Col componentClass={ControlLabel} sm={2}>
             目的地城市
           </Col>
-          <Col sm={4}>
+          <Col sm={4} className="region-editor">
             <RegionEditor items={this.getCities}
                           col="city"
                           onUpdate={this.handleGeoUpdated}
@@ -255,12 +255,16 @@ class UserRequest extends Component {
         </FormGroup>
       
         <FormGroup>
-          <Col smOffset={2} sm={10}>
-            <Button type="button" onClick={this.handleSubmit}>
-              提交
+          <Col smOffset={2} sm={10} className="text-center">
+            <Button style={{width: '48%'}}
+                    onClick={this.handleSubmit}
+                    bsStyle="primary"
+                    type="button">
+              提交需求
             </Button>
           </Col>
         </FormGroup>
+        <br />
       </Form>
     );
   }

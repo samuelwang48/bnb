@@ -1,3 +1,5 @@
+html, body {
+}
 body {
   height: 100%;
   margin: 0;
@@ -40,6 +42,24 @@ html, #root, div[data-reactroot] {
 }
 .login-box .form-group {
   margin: 10px !important;
+}
+.region-editor>div {
+  width: 100%;
+}
+.region-editor input {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .search-form .r1 {
   margin: 0 auto !important;
@@ -97,18 +117,6 @@ html, #root, div[data-reactroot] {
 .react-grid-Viewport {
   top: 63px !important;
 }
-input[role=combobox] {
-  width: 100%;
-  height: 33px;
-}
-input[role=combobox]:focus,
-input.editor-main:focus,
-select.editor-main:focus {
-  border: 2px solid #000 !important;
-  background: #57cfff !important;
-  color: #fff !important;
-  border-radius: 4px !important;
-}
 .line-through * {
   text-decoration: line-through;
   color: red;
@@ -138,10 +146,17 @@ select.editor-main:focus {
   overflow: hidden;
 }
 .user-search {
-  color: #aaa;
-  padding: 10px;
+  color: #666;
+  padding: 7px;
+}
+.user-search .search-result {
+  box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.3);
+  border-radius: 5px;
+  margin: 13px 0 20px 0;
 }
 .user-search .image-gallery-swipe {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   height: 240px;
   max-height: 240px;
   overflow: hidden;
@@ -151,7 +166,26 @@ select.editor-main:focus {
   top: -8px;
   margin-left: 5px;
 }
-.search-result {
+.result-details {
   font-size: 12pt;
   margin: 10px 0;
+  padding: 0 10px 10px 10px;
+}
+.book-pic {
+  height: 250px;
+}
+.book-head {
+  background: rgb(0, 0, 0);
+  opacity: 0.55;
+  color: #fff;
+  font-size: 30px;
+  padding: 5px 10px;
+  height: 80px;
+  margin-top: -84px;
+}
+.book-rating {
+  margin-top: -34px;
+  margin-left: 10px;
+  font-size: 19px;
+  margin-bottom: 20px;
 }
