@@ -171,6 +171,8 @@ app.get('/search', function(req, res) {
   var city = data.city ? ['*' + data.city.toLowerCase() + '*'] : ['*', ''];
   var startDate = data.startDate;
   var endDate = data.endDate;
+  var page = data.page;
+  var size = 4;
 
   var d0 = moment(startDate);
   var d1 = moment(endDate);
@@ -200,7 +202,12 @@ app.get('/search', function(req, res) {
                || mm([(doc.list_city || '').toLowerCase()], city).length > 0
              )
              && numberOfGuests <= doc.list_person_capacity
+       }).map(function(doc, index) {
+         doc.index = index;
+         return doc;
        });
+
+       match = match.splice(page * size, size);
 
        res.setHeader('Content-Type', 'application/json');
        res.send(JSON.stringify(match));

@@ -26,6 +26,7 @@
     "react-dotdotdot": "^1.1.0",
     "react-fontawesome": "^1.6.1",
     "react-image-gallery": "^0.8.0",
+    "react-infinite": "^0.12.1",
     "react-moment": "^0.2.2",
     "react-router-dom": "^4.1.1",
     "react-tap-event-plugin": "^2.0.1",

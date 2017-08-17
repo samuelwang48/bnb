@@ -8,7 +8,6 @@ import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 import Menu from 'material-ui/Menu';
 
 import {
-  Pagination,
   Row,
   Col,
   FormGroup,
@@ -20,13 +19,16 @@ import ImageGallery from 'react-image-gallery';
 
 import { getGeo } from '../Geo';
 import FontAwesome from 'react-fontawesome';
-import Paper from 'material-ui/Paper';
+
+var Infinite = require('react-infinite');
 
 class UserSearch extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      isInfiniteLoading: false,
+      pageLoaded: 0,
       options: [],
       minLength: 1,
       activePage: 1,
@@ -51,11 +53,8 @@ class UserSearch extends Component {
     });
   };
 
-  handlePageSelect = () => {
-
-  }
-
   handleScheduleRequestClose = (range) => {
+    this.handleStopSearch();
     this.setState({
       dateOpen: false,
     });
@@ -77,10 +76,12 @@ class UserSearch extends Component {
   };
 
   handleCityChange = (text) => {
+    this.handleStopSearch();
     this.setState({city: text});
   }
 
   handleNumberOfGuests = () => {
+    this.handleStopSearch();
     this.setState({numberOfGuests: this.numberOfGuests.value});
   }
 
@@ -98,15 +99,39 @@ class UserSearch extends Component {
     this.props.onReserve(reservation);
   }
 
+  handleStopSearch() {
+    this.setState({
+      pageLoaded: 0
+    });
+  }
+
+  handleStartSearch() {
+    this.setState({
+      results: [],
+      pageLoaded: 0
+    }, () => {
+      this.handleSearch();
+    });
+  }
+
   handleSearch = () => {
+    this.setState({isInfiniteLoading: true});
+
     let _this = this;
     let data = {
       city: this.state.city,
       startDate: this.state.startDate,
       endDate: this.state.endDate,
-      numberOfGuests: this.state.numberOfGuests
+      numberOfGuests: this.state.numberOfGuests,
+      page: this.state.pageLoaded
     }
-    console.log(data)
+
+    if (data.page === 0) {
+      this.setState({
+        results: [],
+      });
+    }
+
     const api = this.state.api;
     axios
       .get(api + '/search', {
@@ -147,15 +172,39 @@ class UserSearch extends Component {
 
           return row;
         })
-        _this.setState({results: response.data})
+        const results = _this.state.results.concat(hosts);
+        _this.setState({
+          results: results,
+          pageLoaded: ++data.page,
+          isInfiniteLoading: false
+        })
 
         _this.props.onSearchResults({
           city: _this.state.city,
           startDate: moment(_this.state.startDate),
           endDate: moment(_this.state.endDate),
           numberOfGuests: _this.state.numberOfGuests
-        }, response.data);
+        }, results, _this.state.pageLoaded);
       });
+  }
+
+  handleInfiniteLoad() {
+    console.log('handle infinite load', this.state.pageLoaded)
+    if (this.state.isInfiniteLoading === true) {
+      this.setState({ isInfiniteLoading: false });
+      return
+    }
+    if (this.state.pageLoaded === 0) {
+      this.setState({ isInfiniteLoading: false });
+      return
+    }
+    this.handleSearch();
+  }
+
+  elementInfiniteLoad() {
+      return <div className="text-center" style={{padding: '10px'}}>
+        数据读取中...
+      </div>;
   }
 
   render() {
@@ -163,10 +212,7 @@ class UserSearch extends Component {
 
     return (
       <div>
-        <Paper className="mobile-search-form"
-               style={{
-                 padding: '5px 10px 10px 10px',
-               }}>
+        <div className="search-form">
           <Row>
             <FormGroup>
               <Col xs={12}>
@@ -234,14 +280,20 @@ class UserSearch extends Component {
                 <Button style={{width: '48%', letterSpacing: '5px'}}
                         bsStyle="default"
                         type="button"
-                        onClick={this.handleSearch}>
+                        onClick={this.handleStartSearch.bind(this)}>
                   <FontAwesome name='rocket' style={{fontSize: '18px'}} />搜民宿
                 </Button>
               </Col>
             </FormGroup>
           </Row>
-        </Paper>
+        </div>
         <div className="user-search">
+          <Infinite containerHeight={463} elementHeight={326}
+                    infiniteLoadBeginEdgeOffset={100}
+                    onInfiniteLoad={this.handleInfiniteLoad.bind(this)}
+                    isInfiniteLoading={this.state.isInfiniteLoading}
+                    loadingSpinnerDelegate={this.elementInfiniteLoad()}
+                    useWindowAsScrollContainer>
           {
             this.state.results.map(function(host, index){
               return (
@@ -284,19 +336,7 @@ class UserSearch extends Component {
               )
             })
           }
-        </div>
-        <div className="text-center">
-          <Pagination
-            prev
-            next
-            first
-            last
-            ellipsis
-            boundaryLinks
-            items={20}
-            maxButtons={5}
-            activePage={this.state.activePage}
-            onSelect={this.handlePageSelect} />
+          </Infinite>
         </div>
       </div>
     )
@@ -310,7 +350,7 @@ class UserSearch extends Component {
         endDate: cond.endDate,
         startDateStr: cond.startDate.locale('zh-cn').format('L'),
         endDateStr: cond.endDate.locale('zh-cn').format('L'),
-        city: cond.city,
+        city: cond.city || '',
         numberOfGuests: cond.numberOfGuests
       });
       this.numberOfGuests.value = cond.numberOfGuests;
@@ -319,11 +359,13 @@ class UserSearch extends Component {
   }
 
   componentWillMount() {
-    console.log(123123, 'will mount')
-    console.log(123123, this.props.reservation)
     let results = this.props.results;
     if (results) {
       this.setState({results});
+    }
+    let pageLoaded = this.props.pageLoaded;
+    if (pageLoaded) {
+      this.setState({pageLoaded});
     }
 
     let com = this;

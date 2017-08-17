@@ -31,6 +31,7 @@ class Home extends Component {
     this.state = {
       reservation: null,
       results: [],
+      pageLoaded: 0,
     };
   }
 
@@ -39,13 +40,11 @@ class Home extends Component {
     this.props.history.push('/user/book/' + reservation._id);
   }
 
-  handleSearch = (cond, results) => {
-    console.log('11search results', results)
-    this.setState({cond, results});
+  handleSearch = (cond, results, pageLoaded) => {
+    this.setState({cond, results, pageLoaded});
   }
 
   componentDidUpdate() {
-    console.log(111, this.state);
   }
 
   render() {

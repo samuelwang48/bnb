@@ -135,14 +135,12 @@ class Toolbar extends Component {
           ref={(btn) => { this.currencyButton = btn; }}
           type="button"
           className="btn"
-          onTouchTap={this.props.onCurrencyPopoverTap}>
+          onMouseUp={this.props.onCurrencyPopoverTap}>
           {this.state.currencyButtonText}
         </button>
         <Menu
           open={this.props.currencyOpen}
           anchorEl={this.currencyButton}
-          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          targetOrigin={{horizontal: 'left', vertical: 'top'}}
           onRequestClose={this.props.onCurrencyPopoverClose}
         >
           <div style={{padding: 10}}>
@@ -295,14 +293,14 @@ class Toolbar extends Component {
             className="date-start"
             placeholder="入住日期"
             style={{width: 120}}
-            onTouchTap={this.handleScheduleTouchTap}
+            onMouseUp={this.handleScheduleTouchTap}
           />
           <TextField
             value={this.state.endDateStr}
             className="date-end"
             placeholder="退房日期"
             style={{width: 120}}
-            onTouchTap={this.handleScheduleTouchTap}
+            onMouseUp={this.handleScheduleTouchTap}
           />
           <Menu
             open={this.state.dateOpen}

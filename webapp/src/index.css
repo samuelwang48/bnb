@@ -61,30 +61,13 @@ html, #root, div[data-reactroot] {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
-.search-form .r1 {
-  margin: 0 auto !important;
-  max-width: 380px !important;
+.search-form {
+  max-width: 375px;
+  overflow: hidden;
 }
-.search-form .r2 {
-  margin: 0 auto !important;
-  max-width: 380px !important;
-}
-.search-form .r3 {
-  margin: 0 auto !important;
-  max-width: 380px !important;
-}
-.search-form .r4 {
-  margin: 0 auto !important;
-  max-width: 380px !important;
-}
-.search-form .area div:first-child {
-  bottom: 15px !important;
-}
-.search-form .area input {
-  margin-top: -4px;
-}
-.mobile-search-form .row {
-  margin-top: 5px;
+.search-form .row {
+  margin: 0 5px;
+  margin-bottom: 5px;
 }
 .arrow-right {
   margin-top: 23px;
@@ -147,12 +130,12 @@ html, #root, div[data-reactroot] {
 }
 .user-search {
   color: #666;
-  padding: 7px;
+  padding: 10px;
 }
 .user-search .search-result {
   box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.3);
   border-radius: 5px;
-  margin: 13px 0 20px 0;
+  margin-bottom: 10px;
 }
 .user-search .image-gallery-swipe {
   border-top-left-radius: 5px;
@@ -168,7 +151,6 @@ html, #root, div[data-reactroot] {
 }
 .result-details {
   font-size: 12pt;
-  margin: 10px 0;
   padding: 0 10px 10px 10px;
 }
 .book-pic {
