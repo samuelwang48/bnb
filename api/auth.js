@@ -9,8 +9,8 @@ module.exports = function(app, MongoClient, url) {
       "http://192.168.0.148:3000": true,
       "http://localhost:3000": true,
       "http://localhost:5000": true,
-      "https://cnjpbnb.com": true,
-      "https://www.cnjpbnb.com": true,
+      "http://cnjpbnb.com": true,
+      "http://www.cnjpbnb.com": true,
       "https://zh.airbnb.com": true,
   };
   
