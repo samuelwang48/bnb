@@ -36,6 +36,7 @@ class AppNav extends Component {
   }
 
   onMenuItemSelect = (eventKey) => {
+    this.props.updateAppTitle('');
     this.props.history.push(eventKey);
     this.handleDrawerClose();
   }
@@ -46,6 +47,9 @@ class AppNav extends Component {
 
   handleDrawerOpen() {
     this.setState({drawerOpen: true});
+  }
+
+  componentDidUpdate() {
   }
 
   render() {

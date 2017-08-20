@@ -44,6 +44,9 @@ class OrderEditor extends Component {
   onClick(e) {
     e.stopPropagation();
   }
+  onChange(e) {
+    this.props.onChange(this);
+  }
   onMouseOver(e) {
     e.stopPropagation();
   }
@@ -56,9 +59,11 @@ class OrderEditor extends Component {
     return (
       <div style={{textAlign: 'center'}}
            onMouseOver={this.onMouseOver}
-           onClick={this.onClick}>
-        <select style={{width: '90%'}}>
-          <option>选择操作</option>
+           onClick={this.onClick}
+           onChange={this.onChange.bind(this)}>
+        <select style={{width: '90%'}} ref={ node => this.selectRef = node }>
+          <option value=''>选择操作</option>
+          <option value='reset'>重置(慎用)</option>
           {options}
         </select>
       </div>
@@ -73,7 +78,7 @@ class GridAdminOrders extends Component {
     this._columns = [
       { key: 'details', name: '', editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
       { key: 'inbound', name: '订单状态', editable: false, width: 100},
-      { key: 'outbound', name: '状态操作', editable: false, formatter: <OrderEditor />, width: 100},
+      { key: 'outbound', name: '状态操作', editable: false, formatter: <OrderEditor onChange={this.handleOrderChange.bind(this)} />, width: 100},
       { key: 'guestWechat', name: '房客微信', editable: true, width: 100},
       { key: 'usd2jpy', name: 'JPY', editable: true, width: 50},
       { key: 'usd2cny', name: 'CNY', editable: true, width: 50},
@@ -108,6 +113,32 @@ class GridAdminOrders extends Component {
     };
   }
 
+  handleOrderChange(orderEditor) {
+    const api = this.state.api;
+    let com = this;
+    let rowIdx = orderEditor.props.rowIdx;
+    let action = orderEditor.selectRef.value;
+    let row = this.getRows()[rowIdx];
+    //console.log(rowIdx, action, row);
+
+    axios
+      .post(api + '/order/proceed', {
+        data: {
+          action: action,
+          _id: row._id
+        }
+      })
+      //.get('http://106.14.204.221:8000/host')
+      .then(function(response) {
+        console.log('received', response.data);
+        //com.setState({rows: response.data});
+        let rows = R.clone(com.getRows());
+        rows[rowIdx] = R.merge(rows[rowIdx], response.data);
+        com.setState({ rows });
+        orderEditor.selectRef.value = '';
+      });
+  }
+
   getRows() {
     return Selectors.getRows(this.state);
   }
@@ -118,8 +149,6 @@ class GridAdminOrders extends Component {
 
   rowGetter(i) {
     const row = this.getRows()[i];
-    if (!row.state) row.state = '{}';
-    //console.log(JSON.parse(row.state))
     if (!row.inbound) row.inbound = 'unknown';
     if (!row.outbound) row.outbound = [];
     return row;

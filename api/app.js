@@ -21,6 +21,8 @@ var helpers = require('./helpers')(MongoClient, url);
 var jobs = require('./jobs')(agenda, helpers);
 var acl = require('./acl');
 
+var orderProcess = require('./bpm/order')(MongoClient, url);
+
 app.post('/poke',
   [auth.isLoggedIn, acl.is('admin')],
   function(req, res) {
@@ -449,10 +451,25 @@ app.get('/order', function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('orders').find().toArray(function(err, docs) {
+         docs = docs.map((d)=>{
+           delete d.state;
+           return d;
+         });
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(docs));
          db.close();
        });
+    });
+})
+
+app.post('/order/proceed', function (req, res) {
+    var data = req.body.data;
+    var action = data.action;
+    var _id = data._id;
+
+    orderProcess.rest_run(_id, action, (err, doc) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(doc));
     });
 })
 

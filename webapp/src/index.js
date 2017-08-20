@@ -57,6 +57,7 @@ class Home extends Component {
     return (
       <div>
         <AppNav {...this.props}
+                updateAppTitle={this.updateAppTitle}
                 appTitle={this.state.appTitle} />
         <Route path="/user/search" render={({ match }) =>
             <UserSearch {...this.state}
