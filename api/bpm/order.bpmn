@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.9.0">
+  <bpmn:process id="orderProcess" isExecutable="true">
+    <bpmn:startEvent id="received" name="Received">
+      <bpmn:outgoing>flowReceive</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="archived" name="Archived">
+      <bpmn:incoming>flowCheckout</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flowReceive" name="Review" sourceRef="received" targetRef="reviewed" />
+    <bpmn:sequenceFlow id="flowReview" sourceRef="reviewed" targetRef="isApproved" />
+    <bpmn:sequenceFlow id="flowReject" name="Reject" sourceRef="isApproved" targetRef="rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="JavaScript"><![CDATA[
+      this.variables.taskInput.reviewed.isApproved == false
+      ]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flowApprove" name="Pay" sourceRef="isApproved" targetRef="paid">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="JavaScript"><![CDATA[
+      this.variables.taskInput.reviewed.isApproved == true
+      ]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flowPay" name="Checkout" sourceRef="paid" targetRef="checkedOut" />
+    <bpmn:sequenceFlow id="flowCheckout" name="Archive" sourceRef="checkedOut" targetRef="archived" />
+    <bpmn:manualTask id="paid" name="Paid">
+      <bpmn:incoming>flowApprove</bpmn:incoming>
+      <bpmn:outgoing>flowPay</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="checkedOut" name="Checked Out">
+      <bpmn:incoming>flowPay</bpmn:incoming>
+      <bpmn:outgoing>flowCheckout</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="isApproved" name="isApproved">
+      <bpmn:incoming>flowReview</bpmn:incoming>
+      <bpmn:outgoing>flowApprove</bpmn:outgoing>
+      <bpmn:outgoing>flowReject</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="rejected" name="Rejected">
+      <bpmn:incoming>flowReject</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:manualTask id="reviewed" name="Reviewed">
+      <bpmn:incoming>flowReceive</bpmn:incoming>
+      <bpmn:outgoing>flowReview</bpmn:outgoing>
+    </bpmn:manualTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="received">
+        <dc:Bounds x="150" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="148" y="138" width="46" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0jacpby_di" bpmnElement="archived">
+        <dc:Bounds x="890" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="888" y="141" width="43" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0cxpkqj_di" bpmnElement="flowReceive">
+        <di:waypoint xsi:type="dc:Point" x="186" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="252" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="198" y="98" width="37" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0122v5u_di" bpmnElement="flowApprove">
+        <di:waypoint xsi:type="dc:Point" x="460" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="525" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="483" y="99" width="19" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_098d44t_di" bpmnElement="flowPay">
+        <di:waypoint xsi:type="dc:Point" x="625" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="697" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="639" y="99" width="47" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_188txdu_di" bpmnElement="flowCheckout">
+        <di:waypoint xsi:type="dc:Point" x="797" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="890" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="827" y="99" width="37" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ManualTask_0rl5g5l_di" bpmnElement="paid">
+        <dc:Bounds x="525" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ManualTask_1nsa3pu_di" bpmnElement="checkedOut">
+        <dc:Bounds x="697" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_11laxpy_di" bpmnElement="isApproved" isMarkerVisible="true">
+        <dc:Bounds x="410" y="95.09653916211292" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="407" y="75" width="56" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0o0vttx_di" bpmnElement="rejected">
+        <dc:Bounds x="417" y="296.0965391621129" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="414" y="335" width="44" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gtkm2v_di" bpmnElement="flowReject">
+        <di:waypoint xsi:type="dc:Point" x="435" y="145" />
+        <di:waypoint xsi:type="dc:Point" x="435" y="224" />
+        <di:waypoint xsi:type="dc:Point" x="435" y="224" />
+        <di:waypoint xsi:type="dc:Point" x="435" y="296" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="445" y="166" width="32" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g4n0lm_di" bpmnElement="flowReview">
+        <di:waypoint xsi:type="dc:Point" x="352" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="410" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="336" y="98.5" width="90" height="13" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ManualTask_0yeeg6x_di" bpmnElement="reviewed">
+        <dc:Bounds x="252" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

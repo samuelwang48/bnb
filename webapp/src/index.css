@@ -171,3 +171,11 @@ html, #root, div[data-reactroot] {
   font-size: 19px;
   margin-bottom: 20px;
 }
+.app-title {
+  display: inline-block;
+  position: relative;
+  top: -7px;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}

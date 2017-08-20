@@ -13,7 +13,6 @@ import LocationCityIcon from 'material-ui-icons/LocationCity';
 import GroupAddIcon from 'material-ui-icons/GroupAdd';
 import CloudDownloadIcon from 'material-ui-icons/CloudDownload';
 import FaceIcon from 'material-ui-icons/Face';
-import SearchIcon from 'material-ui-icons/Search';
 
 import IconButton from 'material-ui/IconButton';
 
@@ -142,6 +141,7 @@ class AppNav extends Component {
           <IconButton onClick={this.handleDrawerOpen.bind(this)} aria-label="菜单">
             <MenuIcon />
           </IconButton>
+          <div className="app-title">{this.props.appTitle || ''}</div>
           <div className="pull-right text-center" style={{margin: '5px'}}>
             <div>日本民宿专业平台</div>
             <div style={{letterSpacing: '1px'}}>CNJPBNB.com</div>

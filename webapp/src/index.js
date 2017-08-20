@@ -32,6 +32,7 @@ class Home extends Component {
       reservation: null,
       results: [],
       pageLoaded: 0,
+      appTitle: '',
     };
   }
 
@@ -44,6 +45,10 @@ class Home extends Component {
     this.setState({cond, results, pageLoaded});
   }
 
+  updateAppTitle = (appTitle) => {
+    this.setState({appTitle});
+  }
+
   componentDidUpdate() {
   }
 
@@ -51,7 +56,8 @@ class Home extends Component {
     let _this = this;
     return (
       <div>
-        <AppNav {...this.props} />
+        <AppNav {...this.props}
+                appTitle={this.state.appTitle} />
         <Route path="/user/search" render={({ match }) =>
             <UserSearch {...this.state}
                onSearchResults={this.handleSearch}
@@ -64,7 +70,9 @@ class Home extends Component {
         <Route path="/user/request" component={UserRequest}/>
         <Route path="/admin/requests" component={AdminRequests}/>
         <Route path="/admin/hosts" component={AdminHosts}/>
-        <Route path="/admin/orders" component={AdminOrders}/>
+        <Route path="/admin/orders" render={({ match }) =>
+            <AdminOrders updateAppTitle={this.updateAppTitle} />
+        }/>
         <Route path="/admin/users" component={AdminUsers}/>
         <Route path="/admin/agenda" component={Agenda}/>
       </div>

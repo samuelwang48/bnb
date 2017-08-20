@@ -8,6 +8,8 @@
     "agendash": "^0.4.0",
     "airapi": "^0.1.0",
     "body-parser": "^1.17.1",
+    "bpmn-engine": "^4.1.2",
+    "camunda-bpmn-moddle": "^0.12.0",
     "connect-roles": "^3.1.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.3",
