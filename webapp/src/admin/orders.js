@@ -277,7 +277,9 @@ class GridAdminOrders extends Component {
     let com = this;
     const api = this.state.api;
     axios
-      .get(api + '/order')
+      .get(api + '/order', {
+        withCredentials: true
+      })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
         com.setState({rows: response.data});

@@ -66,19 +66,12 @@ module.exports = function(app, MongoClient, url) {
   
   passport.serializeUser(function(user, done) {
     console.log('serialize user')
-    done(null, user.username);
+    done(null, user);
   });
   
-  passport.deserializeUser(function(username, done) {
+  passport.deserializeUser(function(user, done) {
     console.log('deserialize user')
-    MongoClient.connect(url, function(err, db) {
-      db.collection('users').findOne({
-        username: username,
-      }, {}, function (err, user) {
-        db.close();
-        done(err, user);
-      });
-    });
+    done(null, user);
   });
 
   app.get(wechatCallbackPath, function (req, res) {
@@ -168,7 +161,8 @@ module.exports = function(app, MongoClient, url) {
 
   return {
     isLoggedIn: function(req, res, next) {
-        // if user is authenticated in the session, carry on 
+        // if user is authenticated in the session, carry on
+        console.log('logged in or not', req.isAuthenticated())
         if (req.isAuthenticated())
             return next();
         // if they aren't redirect them to the home page
