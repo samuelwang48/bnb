@@ -91,6 +91,7 @@ module.exports = function(app, MongoClient, url) {
     };
 
     client.getAccessToken(code, function (err, result) {
+      if (err) return;
       var accessToken = result.data.access_token;
       var openid = result.data.openid;
 
