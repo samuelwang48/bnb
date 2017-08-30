@@ -61,10 +61,11 @@ class AppNav extends Component {
         >
           <Row>
             <Col xs={4}>
-              <Avatar style={{margin: '10px 0 0 10px'}}>A</Avatar>
+              <Avatar style={{margin: '10px 0 0 10px', width: '50px', height: '50px'}}
+                      src={this.props.user.headimgurl}></Avatar>
             </Col>
             <Col xs={8}>
-              <div style={{margin: '15px 0 0 0'}}>%userName%</div>
+              <div style={{margin: '15px 0 0 0'}}>{this.props.user.nickname}</div>
               <div style={{margin: '5px 0 0 0'}}>
                 <Form horizontal
                       style={{margin: '0'}}

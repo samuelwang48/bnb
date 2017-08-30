@@ -62,9 +62,16 @@ const GridAdminUsers = React.createClass({
 
     this._columns = [
       { key: 'details', name: '', editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
-      { key: 'username', name: 'username', editable: true, width: 100},
-      { key: 'password', name: 'password', editable: true, width: 100},
-      { key: 'isBroker', name: '代理权限', editable: true, formatter: <BooleanFormatter onChange={this.handleCheckbox}/>, width: 100},
+      { key: 'username', name: 'username', editable: true, width: 40},
+      { key: 'password', name: 'password', editable: true, width: 40},
+      { key: 'nickname', name: '微信昵称', editable: false, width: 100},
+      { key: 'sex',      name: 'sex', editable: false, width: 40},
+      { key: 'city',     name: 'city', editable: false, width: 80},
+      { key: 'province', name: 'province', editable: false, width: 80},
+      { key: 'country',  name: 'country', editable: false, width: 80},
+      { key: 'openid',   name: 'openid', editable: false, width: 80},
+      { key: 'headimgurl', name: 'headimgurl', editable: false, width: 80},
+      { key: 'isBroker', name: '代理权限', editable: true, formatter: <BooleanFormatter onChange={this.handleCheckbox}/>, width: 80},
       { key: 'isAdmin', name: '管理员权限', editable: true, formatter: <BooleanFormatter onChange={this.handleCheckbox}/> },
     ];
 

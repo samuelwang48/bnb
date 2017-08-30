@@ -24,7 +24,7 @@ var acl = require('./acl');
 var orderProcess = require('./bpm/order')(MongoClient, url);
 
 app.post('/poke',
-  [auth.isLoggedIn, acl.is('admin')],
+  [auth.isLoggedIn],
   function(req, res) {
     // If this function gets called, authentication was successful.
     // `req.user` contains the authenticated user.
@@ -447,7 +447,9 @@ app.post('/book', function (req, res) {
     });
 })
 
-app.get('/order', function (req, res) {
+app.get('/order',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('orders').find().toArray(function(err, docs) {
@@ -479,6 +481,20 @@ app.get('/user', function (req, res) {
        db.collection('users').find().toArray(function(err, docs) {
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(docs));
+         db.close();
+       });
+    });
+})
+
+app.get('/user_info',
+  [auth.isLoggedIn],
+  function(req, res) {
+    var _id = req.user._id;
+    // Connect using MongoClient
+    MongoClient.connect(url, function(err, db) {
+       db.collection('users').findOne({_id: ObjectId(_id)}, {}, function(err, doc) {
+         res.setHeader('Content-Type', 'application/json');
+         res.send(JSON.stringify(doc));
          db.close();
        });
     });

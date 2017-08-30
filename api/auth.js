@@ -3,6 +3,10 @@ var session = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
+var OAuth = require('wechat-oauth');
+var client = new OAuth('', '');
+var wechatCallbackPath = '/wechat';
+
 module.exports = function(app, MongoClient, url) {
 
   var whiteList = {
@@ -22,7 +26,9 @@ module.exports = function(app, MongoClient, url) {
       res.header('Access-Control-Allow-Headers',
                  'Content-Type, Content-Length, X-Requested-With, Origin, Accept');        
       next();
-    } 
+    } else {
+      next();
+    }
   };
   app.use(allowCrossDomain);
   app.use(cookieParser());
@@ -75,18 +81,84 @@ module.exports = function(app, MongoClient, url) {
     });
   });
 
-  app.post('/login', function(req, res) {
-    passport.authenticate('local', function(err, user) {
-      if (err) {
-        return res.redirect(req.headers.origin + '/login?auth=0');
-      }
-      if (!user) {
-        return res.redirect(req.headers.origin + '/login?auth=0');
-      }
-      req.logIn(user, function(err) {
-         return res.redirect(req.headers.origin + '/user/search');
+  app.get(wechatCallbackPath, function (req, res) {
+    var data = req.query;
+    var code = data.code;
+    var state = data.state;
+    var login = function(openid) {
+      MongoClient.connect(url, function(err, db) {
+        db.collection('users')
+          .findOne({openid: openid}, {}, function(err, doc) {
+             db.close();
+             req.logIn(doc, function(err) {
+                return res.redirect(state + '/user/search');
+             });
+          })
       });
-    })(req, res);
+    };
+
+    client.getAccessToken(code, function (err, result) {
+      var accessToken = result.data.access_token;
+      var openid = result.data.openid;
+
+      client.getUser(openid, function (err, result) {
+        var userInfo = result;
+
+        MongoClient.connect(url, function(err, db) {
+          db.collection('users').findOne({openid: userInfo.openid}, {}, function(err, doc) {
+            if (!doc) {
+              db.collection('users')
+                .insertOne(userInfo)
+                .then(function() {
+                  db.close();
+                  login(userInfo.openid);
+                });
+            } else {
+              db.collection('users')
+                .updateOne({openid: userInfo.openid}, {
+                  $set: userInfo
+                })
+                .then(function() {
+                  db.close();
+                  login(userInfo.openid);
+                });
+            }
+          });
+        });
+
+      });
+
+    });
+  });
+
+  app.post('/login', function(req, res) {
+    var data = req.query;
+    if (data.strategy === 'local') {
+      passport.authenticate('local', function(err, user) {
+        if (err) {
+          return res.redirect(req.headers.origin + '/login?auth=0');
+        }
+        if (!user) {
+          return res.redirect(req.headers.origin + '/login?auth=0');
+        }
+        req.logIn(user, function(err) {
+           return res.redirect(req.headers.origin + '/user/search');
+        });
+      })(req, res);
+    } else if (data.strategy === 'wechat') {
+      var method = '';
+      if (/MicroMessenger/i.test(req.headers['user-agent'])) {
+        method = 'getAuthorizeURL';
+      } else {
+        method = 'getAuthorizeURLForWebsite';
+      }
+      var url = client[method](
+        'http://' + req.headers.host + wechatCallbackPath,
+         req.headers.origin,
+        'snsapi_login'
+      );
+      return res.redirect(url);
+    }
   });
 
   app.post('/logout', function(req, res){

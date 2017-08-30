@@ -24,15 +24,22 @@ import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './fa/font-awesome-4.7.0/css/font-awesome.min.css';
 import "../node_modules/react-image-gallery/styles/css/image-gallery.css";
 
+const axios = require('axios');
+
 class Home extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      api: 'http://' + window.location.hostname + ':8000',
       reservation: null,
       results: [],
       pageLoaded: 0,
       appTitle: '',
+      user: {
+        headimgurl: '',
+        nickname: '',
+      },
     };
   }
 
@@ -49,7 +56,17 @@ class Home extends Component {
     this.setState({appTitle});
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
+    let com = this;
+    const api = this.state.api;
+    axios
+      .get(api + '/user_info', {
+        withCredentials: true
+      })
+      .then(function(response) {
+        console.log('app did mount', response.data)
+        com.setState({user: response.data});
+      });
   }
 
   render() {
@@ -58,6 +75,7 @@ class Home extends Component {
       <div>
         <AppNav {...this.props}
                 updateAppTitle={this.updateAppTitle}
+                user={this.state.user}
                 appTitle={this.state.appTitle} />
         <Route path="/user/search" render={({ match }) =>
             <UserSearch {...this.state}
