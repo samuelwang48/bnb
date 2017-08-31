@@ -4,7 +4,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 var OAuth = require('wechat-oauth');
-var client = new OAuth('', '');
+var client = new OAuth(process.env.BNB_WECHAT_APPID, process.env.BNB_WECHAT_SECRET);
 var wechatCallbackPath = '/wechat';
 
 module.exports = function(app, MongoClient, url) {
