@@ -119,7 +119,9 @@ const GridAdminRequests = React.createClass({
     console.log('y', rows.length)
     const api = this.state.api;
     axios
-      .delete(api + '/request', {data: data})
+      .delete(api + '/request', {data: data}, {
+        withCredentials: true
+      })
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -190,7 +192,9 @@ const GridAdminRequests = React.createClass({
     let com = this;
     const api = this.state.api;
     axios
-      .get(api + '/request')
+      .get(api + '/request', {
+        withCredentials: true
+      })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
         com.setState({rows: response.data});
@@ -209,6 +213,10 @@ class AdminRequests extends Component {
         <GridAdminRequests/>
       </div>
     )
+  }
+
+  componentWillMount() {
+    this.props.updateAppTitle('代理需求管理');
   }
 }
 

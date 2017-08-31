@@ -131,14 +131,18 @@ app.post('/queue/create',
   }
 })
 
-app.post('/ip', function(req, res) {
+app.post('/ip',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
   res.setHeader('Content-Type', 'application/json');
   res.send(JSON.stringify(ip));
 })
 
-app.post('/schedule', function (req, res) {
+app.post('/schedule',
+  [auth.isLoggedIn],
+  function (req, res) {
   var data = req.body.data;
 
   var promises = data.map(function(d) {
@@ -166,7 +170,9 @@ app.post('/schedule', function (req, res) {
 
 })
 
-app.get('/search', function(req, res) {
+app.get('/search',
+  [auth.isLoggedIn],
+  function (req, res) {
   var match = [];
   var data = req.query;
   var numberOfGuests = data.numberOfGuests || 0;
@@ -221,7 +227,9 @@ app.get('/search', function(req, res) {
   // city ~= city
 });
 
-app.get('/filter', function(req, res) {
+app.get('/filter',
+  [auth.isLoggedIn],
+  function (req, res) {
   var match = [];
   MongoClient.connect(url, function(err, db) {
      db.collection('hosts').find().toArray(function(err, docs) {
@@ -250,7 +258,9 @@ app.get('/', function (req, res) {
   });
 })
 
-app.post('/fetch', function (req, res) {
+app.post('/fetch',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
   var data = req.body.data;
 
   var promises = data.map(function(d) {
@@ -271,7 +281,9 @@ app.post('/fetch', function (req, res) {
   });
 })
 
-app.get('/host', function (req, res) {
+app.get('/host',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('hosts').find().toArray(function(err, docs) {
@@ -283,7 +295,9 @@ app.get('/host', function (req, res) {
     });
 })
 
-app.get('/host/:id', function (req, res) {
+app.get('/host/:id',
+  [auth.isLoggedIn],
+  function (req, res) {
     var _id = req.params.id;
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
@@ -295,7 +309,9 @@ app.get('/host/:id', function (req, res) {
     });
 })
 
-app.post('/host', function (req, res) {
+app.post('/host',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     var data = req.body.data;
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
@@ -321,7 +337,9 @@ app.post('/host', function (req, res) {
     });
 })
 
-app.delete('/host', function (req, res) {
+app.delete('/host',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     var data = req.body;
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
@@ -337,7 +355,9 @@ app.delete('/host', function (req, res) {
     });
 })
 
-app.delete('/user', function (req, res) {
+app.delete('/user',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     var data = req.body;
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
@@ -353,7 +373,9 @@ app.delete('/user', function (req, res) {
     });
 })
 
-app.get('/currency',  function (req, res) {
+app.get('/currency',
+  [auth.isLoggedIn],
+  function (req, res) {
     MongoClient.connect(url, function(err, db) {
       db.collection('currency').find().toArray(function(err, rates) {
         if (rates.length === 1) {
@@ -371,7 +393,9 @@ app.get('/currency',  function (req, res) {
     });
 })
 
-app.post('/currency', function (req, res) {
+app.post('/currency',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     var data = req.body.data;
     var _db;
     var insertOne = function() {
@@ -396,7 +420,9 @@ app.post('/currency', function (req, res) {
     });
 })
 
-app.post('/request', function (req, res) {
+app.post('/request',
+  [auth.isLoggedIn, acl.is('admin') || acl.is('broker')],
+  function (req, res) {
     var data = req.body.data;
     if (!Array.isArray(data)) {
         data = [data];
@@ -416,7 +442,9 @@ app.post('/request', function (req, res) {
     });
 })
 
-app.get('/request', function (req, res) {
+app.get('/request',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('requests').find().toArray(function(err, docs) {
@@ -427,18 +455,22 @@ app.get('/request', function (req, res) {
     });
 })
 
-app.post('/book', function (req, res) {
+app.post('/book',
+  [auth.isLoggedIn],
+  function (req, res) {
     var data = req.body.data;
     if (!Array.isArray(data)) {
         data = [data];
     }
-    console.log(111, data);
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        data.forEach(function(d) {
           db.collection('orders')
             .insertOne(d)
-            .then(function() {
+            .then(function(cmd) {
+              orderProcess.rest_run(cmd.insertedId, 'reset', (err, doc) => {
+                console.log('new order received', cmd.insertedId)
+              });
               db.close();
             });
        })
@@ -464,7 +496,9 @@ app.get('/order',
     });
 })
 
-app.post('/order/proceed', function (req, res) {
+app.post('/order/proceed',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     var data = req.body.data;
     var action = data.action;
     var _id = data._id;
@@ -475,7 +509,9 @@ app.post('/order/proceed', function (req, res) {
     });
 })
 
-app.get('/user', function (req, res) {
+app.get('/user',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('users').find().toArray(function(err, docs) {
@@ -500,7 +536,9 @@ app.get('/user_info',
     });
 })
 
-app.post('/user', function (req, res) {
+app.post('/user',
+  [auth.isLoggedIn, acl.is('himself')],
+  function (req, res) {
     var data = req.body.data;
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {

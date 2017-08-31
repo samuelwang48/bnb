@@ -268,6 +268,10 @@ class UserRequest extends Component {
       </Form>
     );
   }
+
+  componentWillMount() {
+    this.props.updateAppTitle('提交民宿需求');
+  }
 }
 
 export default UserRequest;

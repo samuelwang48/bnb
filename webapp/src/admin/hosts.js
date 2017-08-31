@@ -341,7 +341,9 @@ console.log(123, current)
     let rows = R.clone(this.getRows());
     const api = this.state.api;
     axios
-      .post(api + '/host', {data: rows})
+      .post(api + '/host', {data: rows}, {
+        withCredentials: true
+      })
       .then(function(response) {
         confirm(response.data.length + ' rows saved');
         console.log('saved', response.data)
@@ -368,7 +370,9 @@ console.log(123, current)
     console.log('y', rows.length)
     const api = this.state.api;
     axios
-      .delete(api + '/host', {data: data})
+      .delete(api + '/host', {data: data}, {
+        withCredentials: true
+      })
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -396,6 +400,8 @@ console.log(123, current)
     axios
       .post(api + '/fetch', {
          data: data
+      }, {
+        withCredentials: true
       })
       .then(function(response) {
         console.log('fetched', response.data);
@@ -429,6 +435,8 @@ console.log('fetch schedule', data)
     axios
       .post(api + '/schedule', {
          data: data
+      }, {
+        withCredentials: true
       })
       .then(function(response) {
         console.log('fetched', response.data);
@@ -497,7 +505,9 @@ console.log('fetch schedule', data)
     
     const api = this.state.api;
     axios
-      .post(api + '/currency', {data: {currency}})
+      .post(api + '/currency', {data: {currency}}, {
+        withCredentials: true
+      })
       .then(function(response) {
         confirm('currency exchange rates saved');
         console.log('currency exchange rates saved', response.data)
@@ -521,7 +531,8 @@ console.log('fetch schedule', data)
         params: {
           scheduleStartDate: range.startDate,
           scheduleEndDate: range.endDate,
-        }
+        },
+        withCredentials: true
       })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
@@ -828,14 +839,18 @@ console.log('fetch schedule', data)
     let com = this;
     const api = this.state.api;
     axios
-      .get(api + '/host')
+      .get(api + '/host', {
+        withCredentials: true
+      })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
         com.setState({rows: response.data});
       });
 
     axios
-      .get(api + '/currency')
+      .get(api + '/currency', {
+        withCredentials: true
+      })
       .then(function(response) {
         com.setState({currency: response.data[0]});
       });
@@ -854,6 +869,10 @@ class AdminHosts extends Component {
         <GridAdminHosts/>
       </div>
     )
+  }
+
+  componentWillMount() {
+    this.props.updateAppTitle('房源管理');
   }
 }
 

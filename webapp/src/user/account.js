@@ -69,6 +69,10 @@ class UserAccount extends Component {
       </Form>
     );
   }
+
+  componentWillMount() {
+    this.props.updateAppTitle('账号设置');
+  }
 }
 
 export default UserAccount;

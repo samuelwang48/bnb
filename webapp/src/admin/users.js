@@ -150,7 +150,9 @@ const GridAdminUsers = React.createClass({
     let rows = R.clone(this.getRows());
     const api = this.state.api;
     axios
-      .post(api + '/user', {data: rows})
+      .post(api + '/user', {data: rows}, {
+        withCredentials: true
+      })
       .then(function(response) {
         confirm(response.data.length + ' rows saved');
         console.log('saved', response.data)
@@ -178,7 +180,9 @@ const GridAdminUsers = React.createClass({
     console.log('y', rows.length)
     const api = this.state.api;
     axios
-      .delete(api + '/user', {data: data})
+      .delete(api + '/user', {data: data}, {
+        withCredentials: true
+      })
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -268,7 +272,9 @@ const GridAdminUsers = React.createClass({
     let com = this;
     const api = this.state.api;
     axios
-      .get(api + '/user')
+      .get(api + '/user', {
+        withCredentials: true
+      })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
         com.setState({rows: response.data});
@@ -287,6 +293,10 @@ class AdminUsers extends Component {
         <GridAdminUsers/>
       </div>
     )
+  }
+
+  componentWillMount() {
+    this.props.updateAppTitle('用户管理');
   }
 }
 

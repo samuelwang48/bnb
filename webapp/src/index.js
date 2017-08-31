@@ -79,21 +79,36 @@ class Home extends Component {
                 appTitle={this.state.appTitle} />
         <Route path="/user/search" render={({ match }) =>
             <UserSearch {...this.state}
+               updateAppTitle={this.updateAppTitle}
                onSearchResults={this.handleSearch}
                onReserve={this.handleReserve} />
         } />
         <Route path="/user/book/:id"  render={({ match }) =>
-            <UserBook {...this.state} match={match} />
+            <UserBook {...this.state}
+                      match={match}
+                      updateAppTitle={this.updateAppTitle} />
         } />
-        <Route path="/user/account" component={UserAccount}/>
-        <Route path="/user/request" component={UserRequest}/>
-        <Route path="/admin/requests" component={AdminRequests}/>
-        <Route path="/admin/hosts" component={AdminHosts}/>
+        <Route path="/user/account" render={({ match }) =>
+            <UserAccount updateAppTitle={this.updateAppTitle} />
+        }/>
+        <Route path="/user/request" render={({ match }) =>
+            <UserRequest updateAppTitle={this.updateAppTitle} />
+        }/>
+        <Route path="/admin/requests" render={({ match }) =>
+            <AdminRequests updateAppTitle={this.updateAppTitle} />
+        }/>
+        <Route path="/admin/hosts" render={({ match }) =>
+            <AdminHosts updateAppTitle={this.updateAppTitle} />
+        }/>
         <Route path="/admin/orders" render={({ match }) =>
             <AdminOrders updateAppTitle={this.updateAppTitle} />
         }/>
-        <Route path="/admin/users" component={AdminUsers}/>
-        <Route path="/admin/agenda" component={Agenda}/>
+        <Route path="/admin/users" render={({ match }) =>
+            <AdminUsers updateAppTitle={this.updateAppTitle} />
+        }/>
+        <Route path="/admin/agenda" render={({ match }) =>
+            <Agenda updateAppTitle={this.updateAppTitle} />
+        }/>
       </div>
     )
   }

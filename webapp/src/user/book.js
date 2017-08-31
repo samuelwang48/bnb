@@ -197,7 +197,9 @@ class UserBook extends Component {
 
     const api = this.state.api;
     axios
-      .post(api + '/book', {data: reservation})
+      .post(api + '/book', {data: reservation}, {
+        withCredentials: true
+      })
       .then(function(response) {
         confirm('预定申请已提交，可在我的订单中查看进度');
         console.log('booked', response.data)
@@ -375,18 +377,23 @@ class UserBook extends Component {
   }
 
   componentWillMount() {
+    this.props.updateAppTitle('预订');
     let _this = this;
     const api = this.state.api;
     let reservation = this.props.reservation || this.state.reservation;
     axios
-      .get(api + '/currency')
+      .get(api + '/currency', {
+        withCredentials: true
+      })
       .then(function(response) {
         _this.setState({currency: response.data[0]});
       })
       .then(function() {
     
         axios
-          .get(api + '/host/' + _this.props.match.params.id)
+          .get(api + '/host/' + _this.props.match.params.id, {
+            withCredentials: true
+          })
           .then(function(response) {
             let host = response.data;
             console.log(host)
@@ -394,6 +401,8 @@ class UserBook extends Component {
               .post(api + '/schedule', {
                  data: [{airbnb_pk: host.airbnb_pk,
                         _id: host._id}]
+              }, {
+                 withCredentials: true
               })
               .then(function(response) {
                 console.log('fetched schedule', response.data);

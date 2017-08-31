@@ -286,9 +286,6 @@ class BnbAgenda extends Component {
     )
   }
 
-  componentWillMount() {
-  }
-
   componentDidMount() {
     const _this = this;
     const api = this.state.api;
@@ -312,6 +309,11 @@ class Agenda extends Component {
       </div>
     )
   }
+
+  componentWillMount() {
+    this.props.updateAppTitle('同步数据');
+  }
+
 }
 
 export default Agenda;

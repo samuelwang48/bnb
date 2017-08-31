@@ -135,7 +135,8 @@ class UserSearch extends Component {
     const api = this.state.api;
     axios
       .get(api + '/search', {
-        params: data
+        params: data,
+        withCredentials: true
       })
       .then(function(response) {
         console.log('search results', response.data)
@@ -359,6 +360,8 @@ class UserSearch extends Component {
   }
 
   componentWillMount() {
+    this.props.updateAppTitle('搜民宿');
+
     let results = this.props.results;
     if (results) {
       this.setState({results});
@@ -372,7 +375,9 @@ class UserSearch extends Component {
     const api = this.state.api;
 
     axios
-      .get(api + '/currency')
+      .get(api + '/currency', {
+        withCredentials: true
+      })
       .then(function(response) {
         com.setState({currency: response.data[0]});
       });

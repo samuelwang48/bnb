@@ -14,4 +14,8 @@ acl.use('broker', function (req) {
   if (req.user.isBroker === 1) return true;
 });
 
+acl.use('himself', function (req) {
+  return false;
+});
+
 module.exports = acl;

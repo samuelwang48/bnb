@@ -127,6 +127,8 @@ class GridAdminOrders extends Component {
           action: action,
           _id: row._id
         }
+      }, {
+        withCredentials: true
       })
       //.get('http://106.14.204.221:8000/host')
       .then(function(response) {
@@ -206,7 +208,9 @@ class GridAdminOrders extends Component {
     console.log('y', rows.length)
     const api = this.state.api;
     axios
-      .delete(api + '/request', {data: data})
+      .delete(api + '/request', {data: data}, {
+        withCredentials: true
+      })
       .then(function(response) {
         //confirm(com.state.selectedIndexes.length + ' rows deleted');
         console.log('deleted', response.data)
@@ -306,7 +310,7 @@ class AdminOrders extends Component {
   }
 
   componentWillMount() {
-    this.props.updateAppTitle('订单管理')
+    this.props.updateAppTitle('订单管理');
   }
 }
 
