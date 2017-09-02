@@ -1,5 +1,6 @@
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
@@ -39,7 +40,11 @@ module.exports = function(app, MongoClient, url) {
     cookie: {
       secure: false,
       httpOnly: false
-    }
+    },
+    maxAge: new Date(Date.now() + 3600000),
+    store: new MongoStore({
+      url: url,
+    }),
   })); // session secret
   app.use(passport.initialize());
   app.use(passport.session()); // persistent login sessions
