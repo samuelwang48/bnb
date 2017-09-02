@@ -529,6 +529,7 @@ app.get('/user_info',
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        db.collection('users').findOne({_id: ObjectId(_id)}, {}, function(err, doc) {
+         delete doc.password;
          res.setHeader('Content-Type', 'application/json');
          res.send(JSON.stringify(doc));
          db.close();

@@ -39,6 +39,7 @@ class Home extends Component {
       user: {
         headimgurl: '',
         nickname: '',
+        username: '',
       },
     };
   }
@@ -66,6 +67,8 @@ class Home extends Component {
       .then(function(response) {
         console.log('app did mount', response.data)
         com.setState({user: response.data});
+      }, function() {
+        window.location.href = '/login';
       });
   }
 

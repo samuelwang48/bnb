@@ -58,6 +58,7 @@ module.exports = function(app, MongoClient, url) {
           if (!user) {
             return done(null, false);
           }
+          delete user.password;
           return done(null, user);
         });
       });

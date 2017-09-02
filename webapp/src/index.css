@@ -179,3 +179,7 @@ html, #root, div[data-reactroot] {
   font-weight: bold;
   letter-spacing: 2px;
 }
+.app-menu .fa,
+.app-menu li>svg {
+  margin-right: 0px !important;
+}

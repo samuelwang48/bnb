@@ -53,19 +53,88 @@ class AppNav extends Component {
   }
 
   render() {
+    let _this = this;
+
+    function BrokerMenus(props) {
+      if (props.display) {
+        return (
+          <div>
+            <List subheader={<ListSubheader>代理商入口</ListSubheader>}>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/user/request')}>
+                <ListItemIcon>
+                  <HotelIcon />
+                </ListItemIcon>
+                <ListItemText primary="提交民宿需求" />
+              </ListItem>
+            </List>
+            <Divider />
+          </div>
+        );
+      }
+      return null;
+    }
+
+    function AdminMenus(props) {
+      if (props.display) {
+        return (
+          <div>
+            <List subheader={<ListSubheader>后台管理</ListSubheader>}>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/requests')}>
+                <ListItemIcon>
+                  <FaceIcon />
+                </ListItemIcon>
+                <ListItemText primary="代理需求管理" />
+              </ListItem>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/orders')}>
+                <ListItemIcon>
+                  <AccountBoxIcon />
+                </ListItemIcon>
+                <ListItemText primary="订单管理" />
+              </ListItem>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/hosts')}>
+                <ListItemIcon>
+                  <LocationCityIcon />
+                </ListItemIcon>
+                <ListItemText primary="房源管理" />
+              </ListItem>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/users')}>
+                <ListItemIcon>
+                  <GroupAddIcon />
+                </ListItemIcon>
+                <ListItemText primary="用户管理" />
+              </ListItem>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/agenda')}>
+                <ListItemIcon>
+                  <CloudDownloadIcon />
+                </ListItemIcon>
+                <ListItemText primary="同步数据" />
+              </ListItem>
+            </List>
+          </div>
+        );
+      }
+      return null;
+    }
+
+
     return (
       <div className="App">
         <Drawer
+          className="app-menu"
           open={this.state.drawerOpen}
           onRequestClose={this.handleDrawerClose.bind(this)}
         >
           <Row>
             <Col xs={4}>
               <Avatar style={{margin: '10px 0 0 10px', width: '50px', height: '50px'}}
-                      src={this.props.user.headimgurl}></Avatar>
+                      src={this.props.user.headimgurl}>
+                { this.props.user.headimgurl ? '' : this.props.user.username.substr(0, 2)}
+              </Avatar>
             </Col>
             <Col xs={8}>
-              <div style={{margin: '15px 0 0 0'}}>{this.props.user.nickname}</div>
+              <div style={{margin: '15px 0 0 0'}}>
+                {this.props.user.nickname || this.props.user.username }
+              </div>
               <div style={{margin: '5px 0 0 0'}}>
                 <Form horizontal
                       style={{margin: '0'}}
@@ -78,68 +147,33 @@ class AppNav extends Component {
             </Col>
           </Row>
           <div>
-          <List>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/search')}>
-              <ListItemIcon>
-                <FontAwesome name='rocket' style={{fontSize: '26px'}} />
-              </ListItemIcon>
-              <ListItemText primary="搜民宿" />
-            </ListItem>
-            <ListItem button>
-              <ListItemIcon>
-                <DraftsIcon />
-              </ListItemIcon>
-              <ListItemText primary="我的订单" />
-            </ListItem>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/account')}>
-              <ListItemIcon>
-                <AccountBoxIcon />
-              </ListItemIcon>
-              <ListItemText primary="账号设置" />
-            </ListItem>
-          </List>
-          <Divider />
-          <List subheader={<ListSubheader>代理商入口</ListSubheader>}>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/request')}>
-              <ListItemIcon>
-                <HotelIcon />
-              </ListItemIcon>
-              <ListItemText primary="提交民宿需求" />
-            </ListItem>
-          </List>
-          <Divider />
-          <List subheader={<ListSubheader>后台管理</ListSubheader>}>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/admin/requests')}>
-              <ListItemIcon>
-                <FaceIcon />
-              </ListItemIcon>
-              <ListItemText primary="代理需求管理" />
-            </ListItem>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/admin/orders')}>
-              <ListItemIcon>
-                <AccountBoxIcon />
-              </ListItemIcon>
-              <ListItemText primary="订单管理" />
-            </ListItem>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/admin/hosts')}>
-              <ListItemIcon>
-                <LocationCityIcon />
-              </ListItemIcon>
-              <ListItemText primary="房源管理" />
-            </ListItem>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/admin/users')}>
-              <ListItemIcon>
-                <GroupAddIcon />
-              </ListItemIcon>
-              <ListItemText primary="用户管理" />
-            </ListItem>
-            <ListItem button onClick={this.onMenuItemSelect.bind(this, '/admin/agenda')}>
-              <ListItemIcon>
-                <CloudDownloadIcon />
-              </ListItemIcon>
-              <ListItemText primary="同步数据" />
-            </ListItem>
-          </List>
+            <List>
+              <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/search')}>
+                <ListItemIcon>
+                  <FontAwesome name='rocket' style={{fontSize: '26px'}} />
+                </ListItemIcon>
+                <ListItemText primary="搜民宿" />
+              </ListItem>
+              <ListItem button>
+                <ListItemIcon>
+                  <DraftsIcon />
+                </ListItemIcon>
+                <ListItemText primary="我的订单" />
+              </ListItem>
+              <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/account')}>
+                <ListItemIcon>
+                  <AccountBoxIcon />
+                </ListItemIcon>
+                <ListItemText primary="账号设置" />
+              </ListItem>
+            </List>
+            <Divider />
+            <BrokerMenus display={
+               this.props.user.isBroker === 1 || this.props.user.isAdmin === 1
+            } />
+            <AdminMenus display={
+               this.props.user.isAdmin === 1
+            } />
           </div>
         </Drawer>
         <div className="App-header">
