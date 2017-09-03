@@ -153,9 +153,6 @@ html, #root, div[data-reactroot] {
   font-size: 12pt;
   padding: 0 10px 10px 10px;
 }
-.book-pic {
-  height: 250px;
-}
 .book-pic .image-gallery-play-button {
   display: none;
 }
