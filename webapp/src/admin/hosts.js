@@ -30,12 +30,16 @@ const CalFormatter = React.createClass({
        !!globalState.scheduleStartDate === false ) return(<span></span>);
     let availability = this.props.value;
     let dates = availability.map(function(avail, i) {
-      return  (
-         <span className="cal-date"
-               style={{ background: avail.available ? '#3cdc00' : '#ccc'}}
-               key={i}
-         >{avail.date.replace(/.*\-(\d+)/, "$1")}</span>
-      )
+      if (avail.date) {
+        return  (
+           <span className="cal-date"
+                 style={{ background: avail.available ? '#3cdc00' : '#ccc'}}
+                 key={i}
+           >{avail.date.replace(/.*\-(\d+)/, "$1")}</span>
+        )
+      } else {
+        return null;
+      }
     });
 
     return (

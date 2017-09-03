@@ -56,15 +56,22 @@ class UserAccount extends Component {
         <FormGroup>
           <Col className="text-center">
             <Button style={{width: '48%'}} className="pull-left"
+                    type="button" onClick={this.handlePoke}>
+              保存设置
+            </Button>
+            <Button style={{width: '48%'}} className="pull-right"
                     bsStyle="danger"
                     type="submit">
               退出登录
             </Button>
-            <Button style={{width: '48%'}} className="pull-right"
-                    type="button" onClick={this.handlePoke}>
-              随便逛逛
-            </Button>
           </Col>
+        </FormGroup>
+
+        <FormGroup>
+          <Button style={{width: '48%'}} className="pull-right"
+                  type="button" onClick={this.handlePoke}>
+            随便逛逛
+          </Button>
         </FormGroup>
       </Form>
     );

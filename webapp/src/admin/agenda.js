@@ -99,6 +99,7 @@ class BnbAgenda extends Component {
     return axios
       .get(airbnb_api + '/' + resource, {
         params: params,
+        withCredentials: true
       })
       .then((response)=>{
         console.log('fetched', response)
@@ -150,6 +151,7 @@ class BnbAgenda extends Component {
     return axios
       .get(airbnb_api + '/' + resource + '/' + job.airbnb_pk, {
         params: params,
+        withCredentials: true
       })
       .then((response)=>{
         console.log('fetched', response)
@@ -192,7 +194,7 @@ class BnbAgenda extends Component {
       .post(api + '/queue/jobs', {
         data: {type: type}
       }, {
-            withCredentials: true
+        withCredentials: true
       })
       .then(function(response) {
         let jobs = response.data;
@@ -290,7 +292,9 @@ class BnbAgenda extends Component {
     const _this = this;
     const api = this.state.api;
     axios
-      .post(api + '/ip', {data: {}})
+      .post(api + '/ip', {data: {}}, {
+        withCredentials: true
+      })
       .then(function(response) {
         console.log('ip', response.data);
         _this.setState({ip: response.data});

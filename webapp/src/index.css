@@ -12,7 +12,7 @@ html, #root, div[data-reactroot] {
 }
 .login-page {
   height: 100%;
-  background-image: url('/bg.jpg');
+  background-color: #555;
   background-size: 150%;
   background-repeat: no-repeat;
   background-position: top;
@@ -155,6 +155,9 @@ html, #root, div[data-reactroot] {
 }
 .book-pic {
   height: 250px;
+}
+.book-pic .image-gallery-play-button {
+  display: none;
 }
 .book-head {
   background: rgb(0, 0, 0);

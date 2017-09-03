@@ -61,7 +61,7 @@ module.exports = function(MongoClient, url) {
           list_room_type_category: doc.listing.room_type_category,
           list_check_in_time: doc.listing.check_in_time,
           list_check_in_time_ends_at: doc.listing.check_in_time_ends_at,
-          list_guest_included: doc.listing.guest_included,
+          list_guests_included: doc.listing.guests_included,
           list_thumbnail_urls: doc.listing.thumbnail_urls,
           list_map_image_url: doc.listing.map_image_url,
           'hf': moment().format('M/D HH:mm'),

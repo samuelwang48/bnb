@@ -11,6 +11,8 @@ import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 import moment from 'moment'
 var R = require('ramda');
 
+import ImageGallery from 'react-image-gallery';
+
 import {
   Row,
   Col,
@@ -31,11 +33,11 @@ class UserBook extends Component {
       },
       reservation: {
         city: "ku",
-        endDate: moment("2017-08-03"),
-        endDateStr: "2017年8月3日",
+        endDate: moment("2017-09-06"),
+        endDateStr: "2017年9月6日",
         numberOfGuests: "2",
-        startDate: moment("2017-08-01"),
-        startDateStr: "2017年8月1日",
+        startDate: moment("2017-09-05"),
+        startDateStr: "2017年9月5日",
         //_id: "5916868aff514a0667bff904",
         _id: "591685caff514a0667bff8fc",
       },
@@ -83,7 +85,10 @@ class UserBook extends Component {
         return (
           <div>
             <div className="book-pic">
-              <img style={{width: '100%'}} src={host.images[0].original} alt="" />
+              <ImageGallery
+                showThumbnails={false}
+                items={host.images}
+                slideInterval={30000} />
             </div>
             <div className="book-head">
               {host.city + ' · ' + host.list_beds + '张床'}
@@ -101,12 +106,14 @@ class UserBook extends Component {
             </div>
             <CardContent>
               <Row style={{'marginTop': '-25px'}}>
-                <Col xs={6}>入住</Col>
-                <Col xs={6}>退房</Col>
+                <Col xs={4}>入住</Col>
+                <Col xs={4}>退房</Col>
+                <Col xs={4}>标准人数</Col>
               </Row>
               <Row>
-                <Col xs={6}>{reservation.startDateStr}</Col>
-                <Col xs={6}>{reservation.endDateStr}</Col>
+                <Col xs={4}>{reservation.startDateStr}</Col>
+                <Col xs={4}>{reservation.endDateStr}</Col>
+                <Col xs={4}>{host.list_guests_included}</Col>
               </Row>
               <hr style={{margin: '10px 0'}} />
               <Row>
@@ -243,12 +250,17 @@ class UserBook extends Component {
   }
 
   genRowExtraPersonTotal(host, numberOfNights) {
+    const totalPerson = parseInt(this.state.numberOfAdults, 10)
+                      + parseInt(this.state.numberOfKids, 10);
+    const incluedPerson = host.list_guests_included;
+
+    let extraPerson = 0;
+    if (totalPerson > incluedPerson) {
+      extraPerson = totalPerson - incluedPerson;
+    }
+
     host.extra_person_native_total = host.list_price_for_extra_person_native
-      * (
-         parseInt(this.state.numberOfAdults, 10)
-       + parseInt(this.state.numberOfKids, 10)
-       - 1
-      )
+      * extraPerson
       * numberOfNights;
     
     host = this.exchange(host,
@@ -265,8 +277,7 @@ class UserBook extends Component {
       <Row key={0}>
         <Col xs={8}>超员费
           ( {host.list_price_for_extra_person_native_conv}
-          &nbsp;x&nbsp;{parseInt(this.state.numberOfAdults, 10)
-                      + parseInt(this.state.numberOfKids, 10) - 1}人
+          &nbsp;x&nbsp;{extraPerson}人
           &nbsp;x&nbsp;{numberOfNights}晚 )
         </Col>
         <Col xs={4} className="text-right">{host.extra_person_native_total_conv}</Col>
@@ -413,6 +424,11 @@ class UserBook extends Component {
                     original: t.replace(/small$/, 'large'),
                     thumbnail: t,
                   }
+                });
+
+                host.images.splice(1, 0, {
+                    original: host.list_map_image_url,
+                    thumbnail: host.list_map_image_url,
                 });
         
                 let startDate = moment(reservation.startDate);
