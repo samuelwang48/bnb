@@ -91,7 +91,7 @@ class UserBook extends Component {
                 slideInterval={30000} />
             </div>
             <div className="book-head">
-              {host.list_city + ' · ' + host.list_beds + '张床'}
+              {host.city_translation + ' · ' + host.list_beds + '张床'}
             </div>
             <div className="book-rating">
               <StarRatingComponent 

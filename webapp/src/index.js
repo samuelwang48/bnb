@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import AppNav from './AppNav';
 import Login from './Login';
 import UserAccount from './user/account';
+import UserOrder from './user/order';
 import UserSearch from './user/search';
 import UserBook from './user/book';
 import UserRequest from './user/request';
@@ -93,6 +94,9 @@ class Home extends Component {
         } />
         <Route path="/user/account" render={({ match }) =>
             <UserAccount updateAppTitle={this.updateAppTitle} />
+        }/>
+        <Route path="/user/order" render={({ match }) =>
+            <UserOrder updateAppTitle={this.updateAppTitle} />
         }/>
         <Route path="/user/request" render={({ match }) =>
             <UserRequest updateAppTitle={this.updateAppTitle} />

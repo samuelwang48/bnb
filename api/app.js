@@ -466,6 +466,7 @@ app.post('/book',
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        data.forEach(function(d) {
+          d.user_id = ObjectId(req.user._id);
           db.collection('orders')
             .insertOne(d)
             .then(function(cmd) {
@@ -494,6 +495,51 @@ app.get('/order',
          res.send(JSON.stringify(docs));
          db.close();
        });
+    });
+})
+
+app.get('/user/order',
+  [auth.isLoggedIn],
+  function (req, res) {
+    MongoClient.connect(url, function(err, db) {
+      var source = Rx.Observable.fromPromise(
+        new Promise((resolve, reject) => {
+          db.collection('orders').find({
+            user_id: ObjectId(req.user._id)
+          }).toArray(function(err, docs) {
+            resolve(docs);
+          });
+        })
+      )
+      .flatMap(function(docs) {
+        return Rx.Observable.fromPromise(
+          Promise.all(
+            docs.map( doc => {
+              return new Promise((resolve, reject) => {
+                db.collection('hosts').findOne({
+                  _id: ObjectId(doc.host_id)
+                }, {}, function(err, host) {
+                  delete host.airbnb_pk;
+                  delete host.schedule;
+                  doc.host = host;
+                  resolve(doc);
+                })
+              })
+            })
+          )
+        )
+      })
+
+      source.subscribe((docs) => {
+        db.close();
+        docs = docs.map((d)=>{
+          delete d.host_airbnb_pk;
+          delete d.state;
+          return d;
+        });
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(docs));
+      });
     });
 })
 
@@ -633,6 +679,7 @@ app.post('/translation',
         );
       })
       source.subscribe((docs) => {
+        db.close();
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify({
           rows: docs,

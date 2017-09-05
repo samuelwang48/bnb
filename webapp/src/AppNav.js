@@ -154,7 +154,7 @@ class AppNav extends Component {
                 </ListItemIcon>
                 <ListItemText primary="搜民宿" />
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/order')}>
                 <ListItemIcon>
                   <DraftsIcon />
                 </ListItemIcon>
