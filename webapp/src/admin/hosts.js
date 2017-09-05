@@ -17,7 +17,7 @@ import Selectors from '../react-data-grid-override/Selectors';
 import { geo, getGeo } from '../Geo';
 import { RegionEditor } from '../Editors';
 
-import {Grid, Row, Col} from 'react-bootstrap';
+import {Button, Grid, Row, Col} from 'react-bootstrap';
 import ImageGallery from 'react-image-gallery';
 
 let globalState = null;
@@ -102,14 +102,13 @@ const GridAdminHosts = React.createClass({
       { key: 'availability',    name: '可住日期',   editable: false, formatter: <CalFormatter {...this.props}/>},
       { key: 'tf',              name: '日历同步',   editable: false, width: 70},
       { key: 'hf',              name: '房源同步',   editable: false, width: 70},
-      { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 100},
-      { key: 'local_id',        name: '编号',       editable: true, width: 100},
+      { key: 'airbnb_pk',       name: '$airbnb_pk', editable: true, width: 80},
+      { key: 'local_id',        name: '编号',       editable: true, width: 80},
       { key: 'list_user_first_name', name: '名',    editable: true, width: 80},
       { key: 'wechat',          name: '$wechat',    editable: true, width: 100},
-      { key: 'region',          name: '$region',    editable: true, width: 100, editor: <RegionEditor items={this.getRegions} col="region" onUpdate={this.handleGeoUpdated} />},
-      { key: 'city',            name: '$city',      editable: true, width: 100, editor: <RegionEditor items={this.getCities} col="city" onUpdate={this.handleGeoUpdated} />},
-      { key: 'area',            name: '$area',      editable: true, width: 100},
-      { key: 'list_city',       name: '抓取地址',   editable: true, width: 100},
+      { key: 'list_city',       name: '抓取地址',   editable: false, width: 100},
+      { key: 'city_translation',name: '地址翻译',   editable: false, width: 100},
+      { key: 'keywords',        name: '关键词',     editable: true, width: 100},
       { key: 'list_bedrooms',         name: '卧室',   editable: true, width: 50},
       { key: 'list_beds',             name: '床',     editable: true, width: 50},
       { key: 'list_bathrooms',        name: '浴室',   editable: true, width: 50},
@@ -141,7 +140,9 @@ const GridAdminHosts = React.createClass({
       filters: {},
       sortColumn: null,
       sortDirection: null,
-      drawerOpen: false,
+      detailsDrawerOpen: false,
+      translationDrawerOpen: false,
+      translation: '',
       current: {
         images: [],
         regionId: -1,
@@ -299,9 +300,8 @@ const GridAdminHosts = React.createClass({
           thumbnail: current.list_map_image_url,
       });
       current.rowIdx = i;
-      const drawerOpen = true;
-console.log(123, current)
-      this.setState({ current, drawerOpen });
+      const detailsDrawerOpen = true;
+      this.setState({ current, detailsDrawerOpen });
     }
   },
 
@@ -494,6 +494,31 @@ console.log('fetch schedule', data)
     this.setState({ currencyPopoverOpen: true });
   },
 
+  handleTranslationSubmit() {
+    let translation = this.translationInput.value;
+    let com = this;
+    this.setState({loading: true});
+    const api = this.state.api;
+    axios
+      .post(api + '/translation', {data:
+        {
+          dict: translation
+        }
+      }, {
+        withCredentials: true
+      })
+      .then(function(response) {
+        console.log('translation saved')
+        com.setState({rows: response.data.rows,
+                      translation: response.data.dict,
+                      loading: false});
+      });
+  },
+
+  handleTranslationTap() {
+    this.setState({ translationDrawerOpen: true });
+  },
+
   handleCurrencyClose() {
     this.setState({ currencyPopoverOpen: false });
   },
@@ -575,6 +600,7 @@ console.log('fetch schedule', data)
                 currencyOpen={this.state.currencyPopoverOpen}
                 onCurrencyPopoverClose={this.handleCurrencyClose}
                 onCurrencyPopoverTap={this.handleCurrencyTap}
+                onTranslationPopoverTap={this.handleTranslationTap}
                 currency={this.state.currency}
                 onCurrencyUse={this.handleCurrencyUse}
                 onCurrencySave={this.handleCurrencySave}
@@ -599,240 +625,268 @@ console.log('fetch schedule', data)
       </div>
       <div>
         <Drawer
-          docked={false}
-          width={500}
-          open={this.state.drawerOpen}
-          onRequestChange={(drawerOpen) => this.setState({drawerOpen})}
-          openSecondary={true}
+          open={this.state.translationDrawerOpen}
+          onRequestClose={(translationDrawerOpen) => this.setState({translationDrawerOpen: false})}
         >
-          <div>
-            <ImageGallery
-              items={this.state.current ? this.state.current.images : []}
-              slideInterval={2000}/>
+          <div style={{
+            width: '500px',
+            height: '100%',
+          }}>
+            <textarea
+              ref={ node => this.translationInput = node }
+              defaultValue={this.state.translation}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}></textarea>
           </div>
-          <Grid style={{width: 500}} className="details">
-            <Row>
-              <Col xs={3}>
-                Airbnb编号
-              </Col>
-              <Col xs={9}>
-                <a href={'https://zh.airbnb.com/rooms/' + this.state.current.airbnb_pk} target="_blank">
-                  {this.state.current.airbnb_pk}
-                </a>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                名称
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_name}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                省
-              </Col>
-              <Col xs={9}>
-                {this.state.current.region}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                市
-              </Col>
-              <Col xs={9}>
-                {this.state.current.city}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                地址
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_address}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                卧室
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_bedrooms}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                床数
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_beds}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                浴室
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_bathrooms}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                入住时间开始
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_check_in_time_start}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                入住时间结束
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_check_in_time_end}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                最晚退房时间
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_check_out_time}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                起住天数
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_min_nights}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                价格
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_price_conv}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                清洁费
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_conv_cleaning_fee_native}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                押金
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_conv_security_deposit_native}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                价格包含人数
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_guests_included}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                可住人数
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_person_capacity}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                增员费
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_price_conv_for_extra_person_native}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                便利设施
-              </Col>
-              <Col xs={9}>
-                {this.state.current.list_amenities}
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                社区介绍
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_neighborhood_overview}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                房屋简介
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_description}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                使用权限
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_access}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                使用守则
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_house_rules}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                屋主互动
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_interaction}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                屋主备注
-              </Col>
-              <Col xs={9}>
-                <Dotdotdot clamp={3}>
-                  {this.state.current.list_notes}
-                </Dotdotdot>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={3}>
-                
-              </Col>
-              <Col xs={9}>
-              </Col>
-            </Row>
-          </Grid>
+          <Row>
+            <Col xs={12} className="text-center" style={{marginTop: '-60px'}}>
+              <Button style={{width: '48%'}}
+                      onClick={this.handleTranslationSubmit}
+                      bsStyle="default"
+                      type="button">
+                保存并应用
+              </Button>
+            </Col>
+          </Row>
+        </Drawer>
+      </div>
+      <div>
+        <Drawer
+          open={this.state.detailsDrawerOpen}
+          onRequestClose={(detailsDrawerOpen) => this.setState({detailsDrawerOpen: false})}
+        >
+          <div style={{width: '500px'}}>
+            <div>
+              <ImageGallery
+                items={this.state.current ? this.state.current.images : []}
+                slideInterval={2000}/>
+            </div>
+            <Grid style={{width: 500}} className="details">
+              <Row>
+                <Col xs={3}>
+                  Airbnb编号
+                </Col>
+                <Col xs={9}>
+                  <a href={'https://zh.airbnb.com/rooms/' + this.state.current.airbnb_pk} target="_blank">
+                    {this.state.current.airbnb_pk}
+                  </a>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  名称
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_name}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  省
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.region}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  市
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.city}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  地址
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_address}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  卧室
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_bedrooms}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  床数
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_beds}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  浴室
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_bathrooms}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  入住时间开始
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_check_in_time_start}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  入住时间结束
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_check_in_time_end}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  最晚退房时间
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_check_out_time}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  起住天数
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_min_nights}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  价格
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_price_conv}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  清洁费
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_conv_cleaning_fee_native}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  押金
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_conv_security_deposit_native}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  价格包含人数
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_guests_included}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  可住人数
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_person_capacity}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  增员费
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_price_conv_for_extra_person_native}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  便利设施
+                </Col>
+                <Col xs={9}>
+                  {this.state.current.list_amenities}
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  社区介绍
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_neighborhood_overview}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  房屋简介
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_description}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  使用权限
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_access}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  使用守则
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_house_rules}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  屋主互动
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_interaction}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  屋主备注
+                </Col>
+                <Col xs={9}>
+                  <Dotdotdot clamp={3}>
+                    {this.state.current.list_notes}
+                  </Dotdotdot>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={3}>
+                  
+                </Col>
+                <Col xs={9}>
+                </Col>
+              </Row>
+            </Grid>
+          </div>
         </Drawer>
       </div>
     </div>
@@ -857,6 +911,14 @@ console.log('fetch schedule', data)
       })
       .then(function(response) {
         com.setState({currency: response.data[0]});
+      });
+
+    axios
+      .get(api + '/translation', {
+        withCredentials: true
+      })
+      .then(function(response) {
+        com.setState({translation: response.data.dict});
       });
   },
 

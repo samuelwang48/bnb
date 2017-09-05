@@ -12,6 +12,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = 'mongodb://localhost:27017/db';
 var agendaMongo = 'mongodb://localhost:27017/agenda';
 var agenda = new Agenda({db: {address: agendaMongo}});
+var Rx = require('rxjs');
 
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '5mb' })); // support encoded bodies
@@ -206,8 +207,8 @@ app.get('/search',
          return R.filter(R.propEq('available', false))(doc.availability).length === 0
              &&
              (
-                  mm([(doc.city || '').toLowerCase()], city).length > 0
-               || mm([(doc.list_city || '').toLowerCase()], city).length > 0
+                  mm([(doc.keywords || '').toLowerCase()], city).length > 0
+               || mm([(doc.city_translation || '').toLowerCase()], city).length > 0
              )
              && numberOfGuests <= doc.list_person_capacity
        }).map(function(doc, index) {
@@ -563,6 +564,83 @@ app.post('/user',
        res.setHeader('Content-Type', 'application/json');
        res.send(JSON.stringify(data));
     });
+})
+
+app.get('/translation',
+  function (req, res) {
+    MongoClient.connect(url, function(err, db) {
+       db.collection('translation')
+         .find({})
+         .sort({$natural: -1})
+         .limit(1)
+         .toArray(function(err, docs) {
+           db.close();
+           res.setHeader('Content-Type', 'application/json');
+           res.send(JSON.stringify(docs[0]));
+         });
+    });
+  }
+)
+
+app.post('/translation',
+  [auth.isLoggedIn, acl.is('admin')],
+  function (req, res) {
+    var translation = req.body.data;
+    var dict = translation.dict;
+
+    MongoClient.connect(url, (err, db) => {
+      var source = Rx.Observable.fromPromise(
+        new Promise((resolve, reject) => {
+          db.collection('translation')
+            .insertOne(translation)
+            .then(resolve)
+        })
+      )
+      .flatMap(function() {
+        return new Promise((resolve, reject) => {
+          db.collection('hosts').find().toArray((err, docs)=>{
+            resolve(docs);
+          })
+        })
+      })
+      .flatMap(function(docs) {
+        return Rx.Observable.fromPromise(
+          Promise.all(
+            docs.map((d) => {
+              return new Promise((resolve, reject) => {
+                db.collection('hosts').updateOne({
+                  _id: ObjectId(d._id)
+                }, {
+                  $set: {
+                    city_translation: helpers.translate(d.list_city, dict)
+                  }
+                }, () => {
+                  resolve();
+                })
+              })
+            })
+          )
+        );
+      })
+      .flatMap(function() {
+        return Rx.Observable.fromPromise(
+          new Promise((resolve, reject) => {
+            db.collection('hosts').find().toArray((err, docs) => {
+              docs.forEach(function(d) { delete d.schedule; });
+              resolve(docs);
+            })
+          })
+        );
+      })
+      source.subscribe((docs) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+          rows: docs,
+          dict: dict
+        }));
+      });
+   })
+
 })
 
 app.listen(8000, function () {

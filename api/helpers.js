@@ -108,6 +108,16 @@ module.exports = function(MongoClient, url) {
         }
       });
       return match;
+    },
+    translate: function(text, dict) {
+      text = text || '';
+      dict = dict.trim().split(/[\n\r]/g);
+      dict.forEach(d => {
+        var from = d.split(',')[0].trim();
+        var to  = d.split(',')[1].trim();
+        text = text.replace(new RegExp(from, 'ig'), to);
+      })
+      return text;
     }
   }
 };

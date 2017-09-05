@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 const axios = require('axios');
 import moment from 'moment'
 import { DateRange } from 'react-date-range';
-import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import StarRatingComponent from '../lib/StarRatingComponent.jsx';
 import Menu from 'material-ui/Menu';
 
@@ -17,7 +16,6 @@ import {
 
 import ImageGallery from 'react-image-gallery';
 
-import { getGeo } from '../Geo';
 import FontAwesome from 'react-fontawesome';
 
 var Infinite = require('react-infinite');
@@ -41,8 +39,6 @@ class UserSearch extends Component {
       currentCurrency: 'cny'
     };
   };
-
-  cities = getGeo().cities.map((c) => { return c.props; })
 
   onRangePopoverTap = () => {
     // This prevents ghost click.
@@ -71,13 +67,9 @@ class UserSearch extends Component {
     this.setState(state);
   };
 
-  handleSearchCities = () => {
-    this.setState({options: this.cities})
-  };
-
   handleCityChange = (text) => {
     this.handleStopSearch();
-    this.setState({city: text});
+    this.setState({city: this.cityEl.value});
   }
 
   handleNumberOfGuests = () => {
@@ -217,13 +209,10 @@ class UserSearch extends Component {
           <Row>
             <FormGroup>
               <Col xs={12}>
-                <AsyncTypeahead
-                  ref="cityEl"
-                  {...this.state}
-                  onSearch={this.handleSearchCities}
-                  labelKey="primaryText"
-                  multiple={false}
-                  onInputChange={this.handleCityChange}
+                <FormControl type="text"
+                  inputRef={(input) => { this.cityEl = input; }}
+                  value={this.state.city}
+                  onChange={this.handleCityChange}
                   placeholder="目的地"
                 />
               </Col>
@@ -355,7 +344,7 @@ class UserSearch extends Component {
         numberOfGuests: cond.numberOfGuests
       });
       this.numberOfGuests.value = cond.numberOfGuests;
-      this.refs.cityEl.getInstance().state.text = cond.city;
+      this.cityEl.value = cond.city;
     }
   }
 
@@ -383,7 +372,7 @@ class UserSearch extends Component {
       });
 
     if (this.props.reservation) {
-       console.log('cached reservation detected')
+       console.log('cached reservation detected');
     }
   }
 

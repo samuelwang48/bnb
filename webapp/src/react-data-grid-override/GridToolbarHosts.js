@@ -31,6 +31,7 @@ class Toolbar extends Component {
       fetchButtonText: '获取房源',
       fetchScheduleButtonText: '获取日历',
       currencyButtonText: '汇率',
+      translationText: '翻译',
       filterRowsButtonText: '筛选',
     };
   }
@@ -246,6 +247,21 @@ class Toolbar extends Component {
     );
   }
 
+  renderTranslationButton = () => {
+
+    return (
+      <span>
+        <button
+          ref={(btn) => { this.translationButton = btn; }}
+          type="button"
+          className="btn"
+          onMouseUp={this.props.onTranslationPopoverTap}>
+          {this.state.translationText}
+        </button>
+      </span>
+    )
+  }
+
   renderToggleFilterButton = () => {
     return (<span></span>)
     /*
@@ -348,6 +364,8 @@ class Toolbar extends Component {
                 {this.renderFetchScheduleButton()}
                 &nbsp;
                 {this.renderCurrencyButton()}
+                &nbsp;
+                {this.renderTranslationButton()}
               </Col>
             </Row>
             <Row>

@@ -122,150 +122,152 @@ class UserRequest extends Component {
 
   render() {
     return (
-      <Form horizontal style={{width: '100%', padding: '0 30px'}}>
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            委托人微信
-          </Col>
-          <Col sm={4}>
-            <FormControl type="text"
-                         inputRef={(input) => { this.wechatBroker = input; }}
-                         placeholder="如是住客本人请忽略此字段" />
-          </Col>
-        </FormGroup>
-      
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            住客微信
-          </Col>
-          <Col sm={4}>
-            <FormControl type="text"
-                         inputRef={(input) => { this.wechatGuest = input; }}
-                         placeholder="" />
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            入住日期
-          </Col>
-          <Col sm={4}>
-            <FormControl type="text"
-                         inputRef={(input) => { this.startDateEl = input; }}
-                         placeholder=""
-                         value={this.state.startDateStr}
-                         onMouseUp={this.onRangePopoverTap}/>
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            退房日期
-          </Col>
-          <Col sm={4}>
-            <FormControl type="text"
-                         inputRef={(input) => { this.endDateEl = input; }}
-                         placeholder=""
-                         value={this.state.endDateStr}
-                         onMouseUp={this.onRangePopoverTap}/>
-            <Menu
-              open={this.state.dateOpen}
-              anchorEl={this.state.dateOpenAnchorEl}
-              onRequestClose={this.handleScheduleRequestClose}
-            >
-              <DateRange
-                lang="cn"
-                linkedCalendars={ true }
-                minDate={moment()}
-                startDate={moment(this.state.startDate)}
-                endDate={moment(this.state.endDate)}
-                //onInit={this.handleSelect}
-                onChange={this.handleScheduleSelect}
-              />
-              <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
-                <button type="button"
-                        className="btn btn-default"
-                        onClick={this.handleScheduleRequestClose}>选定</button>
-              </div>
-            </Menu>
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            目的地城市
-          </Col>
-          <Col sm={4} className="region-editor">
-            <RegionEditor items={this.getCities}
-                          col="city"
-                          onUpdate={this.handleGeoUpdated}
-                          onType={this.handleGeoTyped} />
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            目的地区域
-          </Col>
-          <Col sm={4}>
-            <FormControl type="text"
-                         inputRef={(input) => { this.area = input; }}
-                         placeholder="地标，如：心斋桥" />
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            人数
-          </Col>
-          <Col sm={4}>
-            <FormControl type="number"
-                         style={{width: '60px'}}
-                         inputRef={(input) => { this.numberOfGuests = input; }}
-                         min="1" placeholder="" />
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            预算(价格/天)
-          </Col>
-          <Col sm={4}>
-            <InputGroup
-              style={{width: '200px'}}
-            >
-              <InputGroup.Addon>人民币</InputGroup.Addon>
+      <div className="broker-request">
+        <Form horizontal style={{width: '100%'}}>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              委托人微信
+            </Col>
+            <Col xs={9}>
               <FormControl type="text"
-                           inputRef={(input) => { this.budget = input; }}
-                           className="text-right" />
-              <InputGroup.Addon>.00</InputGroup.Addon>
-            </InputGroup>
-          </Col>
-        </FormGroup>
-
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={2}>
-            备注
-          </Col>
-          <Col sm={4}>
-            <FormControl componentClass="textarea"
-                         inputRef={(input) => { this.memo = input; }}
-                         placeholder="" />
-          </Col>
-        </FormGroup>
-      
-        <FormGroup>
-          <Col smOffset={2} sm={10} className="text-center">
-            <Button style={{width: '48%'}}
-                    onClick={this.handleSubmit}
-                    bsStyle="primary"
-                    type="button">
-              提交需求
-            </Button>
-          </Col>
-        </FormGroup>
-        <br />
-      </Form>
+                           inputRef={(input) => { this.wechatBroker = input; }}
+                           placeholder="如是住客本人请忽略此字段" />
+            </Col>
+          </FormGroup>
+        
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              住客微信
+            </Col>
+            <Col xs={9}>
+              <FormControl type="text"
+                           inputRef={(input) => { this.wechatGuest = input; }}
+                           placeholder="" />
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              入住日期
+            </Col>
+            <Col xs={9}>
+              <FormControl type="text"
+                           inputRef={(input) => { this.startDateEl = input; }}
+                           placeholder=""
+                           value={this.state.startDateStr}
+                           onMouseUp={this.onRangePopoverTap}/>
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              退房日期
+            </Col>
+            <Col xs={9}>
+              <FormControl type="text"
+                           inputRef={(input) => { this.endDateEl = input; }}
+                           placeholder=""
+                           value={this.state.endDateStr}
+                           onMouseUp={this.onRangePopoverTap}/>
+              <Menu
+                open={this.state.dateOpen}
+                anchorEl={this.state.dateOpenAnchorEl}
+                onRequestClose={this.handleScheduleRequestClose}
+              >
+                <DateRange
+                  lang="cn"
+                  linkedCalendars={ true }
+                  minDate={moment()}
+                  startDate={moment(this.state.startDate)}
+                  endDate={moment(this.state.endDate)}
+                  //onInit={this.handleSelect}
+                  onChange={this.handleScheduleSelect}
+                />
+                <div style={{textAlign: 'center', padding: '0 0 20px 0'}}>
+                  <button type="button"
+                          className="btn btn-default"
+                          onClick={this.handleScheduleRequestClose}>选定</button>
+                </div>
+              </Menu>
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              目的地城市
+            </Col>
+            <Col xs={9} className="region-editor">
+              <RegionEditor items={this.getCities}
+                            col="city"
+                            onUpdate={this.handleGeoUpdated}
+                            onType={this.handleGeoTyped} />
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              目的地区域
+            </Col>
+            <Col xs={9}>
+              <FormControl type="text"
+                           inputRef={(input) => { this.area = input; }}
+                           placeholder="地标，如：心斋桥" />
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              人数
+            </Col>
+            <Col xs={9}>
+              <FormControl type="number"
+                           style={{width: '60px'}}
+                           inputRef={(input) => { this.numberOfGuests = input; }}
+                           min="1" placeholder="" />
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              预算(价格/天)
+            </Col>
+            <Col xs={9}>
+              <InputGroup
+                style={{width: '200px'}}
+              >
+                <InputGroup.Addon>人民币</InputGroup.Addon>
+                <FormControl type="text"
+                             inputRef={(input) => { this.budget = input; }}
+                             className="text-right" />
+                <InputGroup.Addon>.00</InputGroup.Addon>
+              </InputGroup>
+            </Col>
+          </FormGroup>
+  
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={3}>
+              备注
+            </Col>
+            <Col xs={9}>
+              <FormControl componentClass="textarea"
+                           inputRef={(input) => { this.memo = input; }}
+                           placeholder="" />
+            </Col>
+          </FormGroup>
+        
+          <FormGroup>
+            <Col xs={12} className="text-center">
+              <Button style={{width: '48%'}}
+                      onClick={this.handleSubmit}
+                      bsStyle="primary"
+                      type="button">
+                提交需求
+              </Button>
+            </Col>
+          </FormGroup>
+          <br />
+        </Form>
+      </div>
     );
   }
 
