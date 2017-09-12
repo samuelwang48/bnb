@@ -520,7 +520,6 @@ app.get('/user/order',
                   _id: ObjectId(doc.host_id)
                 }, {}, function(err, host) {
                   delete host.airbnb_pk;
-                  delete host.schedule;
                   doc.host = host;
                   resolve(doc);
                 })

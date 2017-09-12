@@ -133,7 +133,7 @@ module.exports = function(app, MongoClient, url) {
 
   app.post('/login', function(req, res) {
     var data = req.query;
-    if (data.strategy === 'local') {
+    if (data.strategy === '' || data.strategy === 'local') {
       passport.authenticate('local', function(err, user) {
         if (err) {
           return res.redirect(req.headers.origin + '/login?auth=0');

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-const ReactDOM = require('react-dom');
 
 import R from 'ramda';
 

@@ -160,6 +160,12 @@ class AppNav extends Component {
                 </ListItemIcon>
                 <ListItemText primary="我的订单" />
               </ListItem>
+              <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/favorites')}>
+                <ListItemIcon>
+                  <FontAwesome name='heart' style={{fontSize: '22px'}} />
+                </ListItemIcon>
+                <ListItemText primary="心愿单" />
+              </ListItem>
               <ListItem button onClick={this.onMenuItemSelect.bind(this, '/user/account')}>
                 <ListItemIcon>
                   <AccountBoxIcon />

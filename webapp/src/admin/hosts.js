@@ -15,7 +15,6 @@ const Toolbar = require('../react-data-grid-override/GridToolbarHosts');
 import Selectors from '../react-data-grid-override/Selectors';
 
 import { geo, getGeo } from '../Geo';
-import { RegionEditor } from '../Editors';
 
 import {Button, Grid, Row, Col} from 'react-bootstrap';
 import ImageGallery from 'react-image-gallery';
