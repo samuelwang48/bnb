@@ -209,7 +209,11 @@ class UserOrder extends Component {
                 order.host = host;
                 order.expanded = false;
                 order.inbound = {
-                  'received': '等待支付'
+                  'received': '等待屋主确认',
+                  'rejected': '已取消',
+                  'approved': '等待支付',
+                  'paid'    : '等待入住',
+                  'finished': '完成'
                 }[order.inbound] || order.inbound;
 
                 return order;
