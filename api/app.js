@@ -584,7 +584,7 @@ app.get('/user_info',
 })
 
 app.post('/user',
-  [auth.isLoggedIn, acl.is('himself')],
+  [auth.isLoggedIn, acl.is('admin')],
   function (req, res) {
     var data = req.body.data;
     // Connect using MongoClient
