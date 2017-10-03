@@ -422,7 +422,7 @@ app.post('/currency',
 })
 
 app.post('/request',
-  [auth.isLoggedIn, acl.is('admin') || acl.is('broker')],
+  [auth.isLoggedIn, acl.is('broker or admin')],
   function (req, res) {
     var data = req.body.data;
     if (!Array.isArray(data)) {
@@ -432,6 +432,7 @@ app.post('/request',
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {
        data.forEach(function(d) {
+          d.created = moment().format('MM-DD HH:mm');
           db.collection('requests')
             .insertOne(d)
             .then(function() {
@@ -444,7 +445,7 @@ app.post('/request',
 })
 
 app.get('/request',
-  [auth.isLoggedIn, acl.is('admin')],
+  [auth.isLoggedIn, acl.is('broker or admin')],
   function (req, res) {
     // Connect using MongoClient
     MongoClient.connect(url, function(err, db) {

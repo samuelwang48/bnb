@@ -29,6 +29,7 @@ const GridAdminRequests = React.createClass({
   getInitialState() {
     this._columns = [
       { key: 'matched', name: '匹配数', editable: true, width: 50},
+      { key: 'created', name: '提交时间', editable: false, width: 100},
       { key: 'wechatBroker', name: '委托人微信', editable: true, width: 100},
       { key: 'wechatGuest', name: '客户微信', editable: true, width: 100},
       { key: 'startDate', name: '入住日期', editable: true, width: 100},

@@ -83,7 +83,9 @@ class UserRequest extends Component {
 
     const api = this.state.api;
     axios
-      .post(api + '/request', {data: data})
+      .post(api + '/request', {data: data}, {
+        withCredentials: true
+      })
       .then(function(response) {
         confirm('民宿需求已提交，请等待匹配结果');
         console.log('saved', response.data)

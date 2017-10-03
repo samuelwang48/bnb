@@ -66,6 +66,12 @@ class AppNav extends Component {
                 </ListItemIcon>
                 <ListItemText primary="提交民宿需求" />
               </ListItem>
+              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/requests')}>
+                <ListItemIcon>
+                  <FaceIcon />
+                </ListItemIcon>
+                <ListItemText primary="代理需求管理" />
+              </ListItem>
             </List>
             <Divider />
           </div>
@@ -79,12 +85,6 @@ class AppNav extends Component {
         return (
           <div>
             <List subheader={<ListSubheader>后台管理</ListSubheader>}>
-              <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/requests')}>
-                <ListItemIcon>
-                  <FaceIcon />
-                </ListItemIcon>
-                <ListItemText primary="代理需求管理" />
-              </ListItem>
               <ListItem button onClick={_this.onMenuItemSelect.bind(_this, '/admin/orders')}>
                 <ListItemIcon>
                   <AccountBoxIcon />

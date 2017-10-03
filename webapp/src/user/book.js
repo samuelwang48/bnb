@@ -33,16 +33,6 @@ class UserBook extends Component {
         usd2jpy: -1,
         usd2cny: -1,
       },
-      reservation: {
-        city: "ku",
-        endDate: moment("2017-09-06"),
-        endDateStr: "2017年9月6日",
-        numberOfGuests: "2",
-        startDate: moment("2017-09-05"),
-        startDateStr: "2017年9月5日",
-        //_id: "5916868aff514a0667bff904",
-        _id: "591685caff514a0667bff8fc",
-      },
       numberOfNights: 0,
       numberOfAdults: 0,
       numberOfKids: 0,
@@ -62,7 +52,7 @@ class UserBook extends Component {
   render() {
       if (this.state.host) {
         let host = this.state.host;
-        let reservation = this.props.reservation || this.state.reservation;
+        let reservation = this.props.reservation;
 
         return (
           <div>
@@ -171,8 +161,8 @@ class UserBook extends Component {
       usd2cny: this.state.currency.usd2cny,
       host_airbnb_pk: this.state.host.airbnb_pk,
       host_id: this.state.host._id,
-      startDate: this.state.reservation.startDate.format('YYYY-MM-DD'),
-      endDate: this.state.reservation.endDate.format('YYYY-MM-DD'),
+      startDate: moment(this.props.reservation.startDate).format('YYYY-MM-DD'),
+      endDate: moment(this.props.reservation.endDate).format('YYYY-MM-DD'),
       numberOfNights: this.state.numberOfNights,
       numberOfAdults: this.state.numberOfAdults,
       numberOfKids: this.state.numberOfKids,

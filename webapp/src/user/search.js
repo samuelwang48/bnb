@@ -301,7 +301,7 @@ class UserSearch extends Component {
                         <StarRatingComponent 
                             name="rate1" 
                             starCount={5}
-                            value={host.list_star_rating}
+                            value={parseFloat(host.list_star_rating) || 0}
                             renderStarIcon={(index, value) => {
                               return <span className={index <= value ? 'fa fa-star' : 'fa fa-star-o'} />;
                             }}

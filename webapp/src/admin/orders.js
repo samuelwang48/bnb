@@ -76,6 +76,7 @@ class GridAdminOrders extends Component {
 
     this._columns = [
       { key: 'details', name: '', editable: false, width: 40, locked: true, formatter: <DetailsFormatter onClick={this.handleDetailsClick} {...this.props} {...this.state}/>},
+      { key: 'stateUpdated', name: '状态变化', editable: false, width: 100},
       { key: 'inbound', name: '订单状态', editable: false, width: 100},
       { key: 'outbound', name: '状态操作', editable: false, formatter: <OrderEditor onChange={this.handleOrderChange.bind(this)} />, width: 100},
       { key: 'guestWechat', name: '房客微信', editable: true, width: 100},

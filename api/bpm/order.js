@@ -6,6 +6,7 @@ const Bpmn = require('bpmn-engine');
 const EventEmitter = require('events').EventEmitter;
 const fs = require('fs');
 const R = require('ramda');
+const moment = require('moment');
 
 module.exports = function(MongoClient, url) {
   const listener = new EventEmitter();
@@ -20,6 +21,8 @@ module.exports = function(MongoClient, url) {
       cursor.outbound = outbound;
     }
     cursor.state = JSON.stringify(engine.getState());
+    cursor.stateUpdated = moment().format('MM-DD HH:mm');
+
     MongoClient.connect(url, function(err, db) {
       db.collection('orders')
         .replaceOne({_id: ObjectId(cursor._id)}, cursor)

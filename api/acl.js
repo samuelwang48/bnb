@@ -7,11 +7,15 @@ var acl = new ConnectRoles({
 });
 
 acl.use('admin', function (req) {
-  if (req.user.isAdmin === 1) return true;
+  return req.user.isAdmin === 1;
 });
 
 acl.use('broker', function (req) {
-  if (req.user.isBroker === 1) return true;
+  return req.user.isBroker === 1;
+});
+
+acl.use('broker or admin', function (req) {
+  return (req.user.isBroker === 1 || req.user.isAdmin === 1);
 });
 
 acl.use('himself', function (req) {
