@@ -32,7 +32,7 @@ class DetailsFormatter extends Component {
   render() {
     return (
       <div style={{textAlign: 'center', cursor: 'pointer'}}
-           onClick={this.onClick}>
+           onClick={this.onClick.bind(this)}>
         <i className="fa fa-search"></i>
       </div>
     )
